@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_12.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_13.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -276,8 +276,8 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 .tooltip {
   position: absolute;
   pointer-events: none;
-  background: var(--black);
-  color: var(--white);
+  background: #050507;
+  color: #ffffff !important;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.6;
@@ -286,9 +286,10 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
   opacity: 0;
   transition: opacity 0.1s;
   z-index: 10;
-  border-left: 3px solid var(--orange);
+  border-left: 3px solid #ff7c53;
 }
 .tooltip.visible { opacity: 1; }
+.tooltip * { color: #ffffff !important; }
 </style>
 </head>
 <body>
@@ -612,8 +613,12 @@ function render() {
         qData.push(getCount(crime,loc,boro,y,q));
       });
     });
-    // Sparse x labels — only show year start
-    const xLabels=qLabels.map((l,i)=>l.endsWith("Q1")?l.split(" ")[0]:"");
+    // Show every other year at Q1 marks
+    const xLabels=qLabels.map((l,i)=>{
+      if(!l.endsWith("Q1")) return "";
+      const yr=parseInt(l.split(" ")[0]);
+      return (yr-2006)%2===0 ? String(yr) : "";
+    });
     document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}`;
     drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
 
@@ -734,7 +739,7 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
   // xOverride: array of display labels for x-axis (sparse, empty string = skip)
   // incomplete: array of booleans — true = this point is partial data
   const {ctx, W, H} = getCanvas(id, 200);
-  const PL=44, PR=24, PT=10, PB=xOverride?52:28;
+  const PL=44, PR=24, PT=10, PB=28;
   const cW=W-PL-PR, cH=H-PT-PB;
   const validData=data.filter(v=>v>0);
   const mx=Math.max(...(validData.length?validData:[1]));
@@ -811,21 +816,21 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
     // X labels
     ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
     if(xOverride){
-      // Rotated vertical labels for quarterly mode
-      ctx.save();
+      // Horizontal labels for quarterly mode — only show every 3 years to avoid crowding
+      ctx.textAlign="center";
+      ctx.fillStyle=C_LABEL;
+      ctx.font="10px -apple-system,sans-serif";
+      let lastDrawnX=-999;
       xOverride.forEach((lbl,i)=>{
         if(!lbl) return;
         const x=px(i);
-        ctx.save();
-        ctx.translate(x, H-4);
-        ctx.rotate(-Math.PI/2);
-        ctx.textAlign="right";
-        ctx.fillStyle=C_LABEL;
-        ctx.font="10px -apple-system,sans-serif";
-        ctx.fillText(lbl, 0, 0);
-        ctx.restore();
+        const lblW=ctx.measureText(lbl).width;
+        // Skip if too close to previous label or too close to right edge
+        if(x-lastDrawnX < 28) return;
+        if(x+lblW/2 > W-6) return;
+        ctx.fillText(lbl, x, H-6);
+        lastDrawnX=x;
       });
-      ctx.restore();
     } else {
       // Pick evenly spaced round-year intervals that actually fit
       const approxEvery=Math.ceil(n/8);
