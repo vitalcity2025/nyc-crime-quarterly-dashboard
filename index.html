@@ -1,260 +1,475 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_13.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Crime Complaints — Vital City</title>
+<title>NYC crime complaints — Vital City</title>
+<link rel="stylesheet" href="https://use.typekit.net/qqk2vto.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --black:    #050507;
-  --white:    #ffffff;
-  --cloud:    #dddddd;
-  --orange:   #ff7c53;
-  --yellow:   #dde44c;
-  --indigo:   #394882;
-  --cerulean: #217ebe;
-  --magenta:  #e7466d;
-  --charcoal: #707175;
-  --peri:     #9b9fbc;
-
-  /* Borough colors — matching Data Explorer */
-  --b-bronx:    #ff7c53;
-  --b-brooklyn: #217ebe;
-  --b-manhattan:#e7466d;
-  --b-queens:   #394882;
-  --b-si:       #9b9fbc;
+  /* Vital City palette */
+  --vc-black:      #050507;
+  --vc-white:      #ffffff;
+  --vc-cloud:      #dddddd;
+  --vc-chartreuse: #dde44c;
+  --vc-orange:     #ff7c53;
+  --vc-periwinkle: #9b9fbc;
+  --vc-rose:       #cea9be;
+  --vc-magenta:    #e7466d;
+  --vc-charcoal:   #707175;
+  --vc-indigo:     #394882;
+  --vc-cerulean:   #217ebe;
 
   --text:   #050507;
   --text2:  #707175;
   --text3:  #9b9fbc;
   --border: rgba(5,5,7,0.1);
+  --border2: rgba(5,5,7,0.18);
   --grid:   rgba(5,5,7,0.06);
+
+  --font-primary: "halyard-text", "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
+html, body { background: var(--vc-white); }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-  background: var(--white);
+  font-family: var(--font-primary);
+  font-weight: 300;
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Masthead ── */
 .masthead {
-  background: var(--black);
-  padding: 1.5rem 2rem;
+  background: var(--vc-black);
+  padding: 2rem 2.5rem 1.75rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 .mast-vc {
-  font-size: 10px;
+  font-family: var(--font-primary);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: 10px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--charcoal);
-  margin-bottom: 6px;
+  color: var(--vc-orange);
+  margin-bottom: 10px;
 }
 .mast-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--white);
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 38px;
+  color: var(--vc-white);
   line-height: 1;
+  letter-spacing: -0.01em;
 }
 .mast-sub {
-  font-size: 12px;
-  color: var(--charcoal);
-  margin-top: 6px;
+  font-family: var(--font-primary);
+  font-weight: 200;
+  font-size: 13px;
+  color: #c8c8c8;
+  margin-top: 10px;
+  max-width: 640px;
 }
 .mast-badge {
-  font-size: 11px;
-  color: var(--charcoal);
-  border: 1px solid rgba(255,255,255,0.12);
-  padding: 5px 10px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c8c8c8;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 7px 12px;
   white-space: nowrap;
   align-self: flex-start;
   margin-top: 4px;
 }
 
-/* ── Orange rule ── */
-.orange-rule { height: 4px; background: var(--orange); }
+.orange-rule { height: 3px; background: var(--vc-orange); }
 
 /* ── Page ── */
-.page { max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+.page { max-width: 1240px; margin: 0 auto; padding: 2.5rem 2.5rem 5rem; }
 
 /* ── Controls ── */
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
+  gap: 1.75rem;
   align-items: flex-end;
-  padding-bottom: 1.5rem;
+  padding: 1.25rem 0 1.5rem;
+  border-top: 3px solid var(--vc-black);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
-.ctrl { display: flex; flex-direction: column; gap: 5px; }
+.ctrl { display: flex; flex-direction: column; gap: 6px; }
 .ctrl label {
-  font-size: 9px;
+  font-family: var(--font-primary);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text2);
 }
 select {
-  font-family: inherit;
-  font-size: 13px;
-  height: 34px;
-  border: 1px solid rgba(5,5,7,0.3);
-  background: var(--white);
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 14px;
+  height: 36px;
+  border: 1px solid var(--border2);
+  background: var(--vc-white);
   color: var(--text);
-  padding: 0 28px 0 10px;
+  padding: 0 32px 0 12px;
   cursor: pointer;
   border-radius: 0;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23707175'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23050507'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 12px center;
 }
-select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
+select:focus { outline: 2px solid var(--vc-orange); outline-offset: 0; }
 
-.toggle-group { display: flex; height: 34px; border: 1px solid rgba(5,5,7,0.3); }
+.toggle-group { display: flex; height: 36px; border: 1px solid var(--border2); }
 .toggle-group button {
   flex: 1;
   border: none;
-  border-right: 1px solid rgba(5,5,7,0.15);
-  background: var(--white);
+  border-right: 1px solid var(--border);
+  background: var(--vc-white);
   color: var(--text2);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 0 18px;
   cursor: pointer;
   white-space: nowrap;
 }
 .toggle-group button:last-child { border-right: none; }
-.toggle-group button.active { background: var(--orange); color: var(--white); font-weight: 700; }
-.toggle-group button:hover:not(.active) { background: #fde5dd; }
+.toggle-group button.active { background: var(--vc-black); color: var(--vc-white); }
+.toggle-group button:hover:not(.active) { background: #f5f5f5; }
 
-/* ── Metrics ── */
-.metrics {
+/* ── Hero metric row ── */
+.hero-row {
   display: grid;
-  grid-template-columns: 1.4fr repeat(4, minmax(0,1fr));
-  gap: 0;
-  border-top: 3px solid var(--black);
+  grid-template-columns: 1.6fr repeat(4, 1fr);
+  border-top: 3px solid var(--vc-black);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 3rem;
+  margin-bottom: 1.25rem;
 }
 .metric {
-  padding: 1.25rem 1.25rem 1rem;
+  padding: 1.5rem 1.5rem 1.25rem;
   border-right: 1px solid var(--border);
 }
 .metric:last-child { border-right: none; }
-.metric.ytd-metric {
-  background: #fdf3ef;
-  border-right: 1px solid rgba(255,124,83,0.25);
-  border-left: 4px solid var(--orange);
-  padding-left: calc(1.25rem - 4px);
+.metric.hero {
+  background: #fafafa;
+  border-left: 4px solid var(--vc-magenta);
+  padding-left: calc(1.5rem - 4px);
 }
 .m-label {
-  font-size: 9px;
+  font-family: var(--font-primary);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text2);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
-.ytd-metric .m-label { color: var(--orange); }
+.metric.hero .m-label { color: var(--vc-magenta); }
 .m-val {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text);
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 34px;
   line-height: 1;
+  color: var(--text);
   letter-spacing: -0.02em;
 }
-.ytd-metric .m-val { font-size: 36px; }
+.metric.hero .m-val { font-size: 44px; }
 .m-delta {
+  font-family: var(--font-primary);
+  font-weight: 700;
   font-size: 11px;
-  font-weight: 600;
-  margin-top: 6px;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
 }
-.delta-up   { color: var(--magenta); }
+.delta-up   { color: var(--vc-magenta); }
 .delta-down { color: #3a7a1e; }
 .delta-flat { color: var(--text3); }
 
-/* ── Chart sections ── */
-.chart-section { margin-bottom: 3rem; }
-.chart-title {
-  font-size: 10px;
+/* ── Context strip ── */
+.context-strip {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+.ctx-item { display: flex; flex-direction: column; gap: 4px; }
+.ctx-label {
+  font-family: var(--font-primary);
   font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 9px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--text2);
+}
+.ctx-val {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 14px;
+  color: var(--text);
+}
+.ctx-val strong {
+  font-weight: 900;
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 3.5rem;
+}
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--vc-black);
+  padding-bottom: 10px;
+  margin-bottom: 1.25rem;
+}
+.section-head .left { min-width: 0; }
+.section-kicker {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vc-orange);
+  margin-bottom: 6px;
+}
+.section-title {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1.15;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.section-sub {
+  font-family: var(--font-primary);
+  font-weight: 200;
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 6px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+}
+.two-col-uneven {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 2.5rem;
+}
+
+.chart-card {
+  background: var(--vc-white);
+}
+.chart-title {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 15px;
   color: var(--text);
   margin-bottom: 4px;
 }
 .chart-sub {
+  font-family: var(--font-primary);
+  font-weight: 200;
   font-size: 12px;
   color: var(--text2);
   margin-bottom: 1rem;
 }
-.chart-rule { height: 1px; background: var(--black); margin-bottom: 1.25rem; }
-
-.two-col {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
-}
-.two-col-equal {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
-}
+.chart-rule { height: 1px; background: var(--vc-black); margin: 0 0 14px; }
 
 /* ── Legend ── */
 .legend {
   display: flex;
   gap: 1.25rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 .legend span {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  font-weight: 600;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--text2);
 }
-.leg-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.leg-line {
-  width: 20px; height: 3px;
-  flex-shrink: 0;
-}
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.leg-sq  { width: 12px; height: 12px; flex-shrink: 0; }
 
 /* ── Borough bars ── */
-.boro-list { display: flex; flex-direction: column; gap: 12px; }
-.boro-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-.boro-nums { font-size: 11px; color: var(--text2); float: right; margin-bottom: 4px; }
-.boro-bar-bg { height: 8px; background: var(--cloud); }
+.boro-list { display: flex; flex-direction: column; gap: 14px; }
+.boro-bar-bg { height: 10px; background: #f0f0f0; }
 .boro-bar-fill { height: 100%; transition: width 0.4s; }
+.boro-row-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.boro-name {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text);
+}
+.boro-nums {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 12px;
+  color: var(--text2);
+}
+.boro-nums strong { font-weight: 900; color: var(--text); }
+
+/* ── Small multiples grid ── */
+.sm-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.25rem;
+}
+.sm-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sm-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.sm-name {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 11px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+.sm-val {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--text2);
+}
+.sm-canvas-wrap { position: relative; }
+
+/* ── Location compare grid ── */
+.loc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+}
+.loc-cell { display: flex; flex-direction: column; gap: 6px; }
+.loc-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 6px; border-bottom: 1px solid var(--border);
+}
+.loc-name {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.loc-val {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 16px;
+  color: var(--text);
+}
+.loc-delta {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Heatmap ── */
+.heatmap-wrap { position: relative; overflow-x: auto; }
+.heatmap {
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-primary);
+}
+.hm-cell {
+  aspect-ratio: 1.2;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 10px;
+  cursor: default;
+  transition: outline 0.1s;
+}
+.hm-cell.empty { background: #f5f5f5; color: transparent; }
+.hm-cell:hover { outline: 2px solid var(--vc-black); outline-offset: -2px; }
+.hm-row-label, .hm-col-label {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.04em;
+}
+.hm-row-label { justify-content: flex-end; padding-right: 8px; }
+.hm-scale {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 10px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  color: var(--text2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hm-bar {
+  height: 10px;
+  width: 160px;
+  background: linear-gradient(to right, #fff, var(--vc-orange));
+  border: 1px solid var(--border);
+}
 
 /* ── Source ── */
 .source {
+  font-family: var(--font-primary);
+  font-weight: 200;
   font-size: 11px;
-  color: var(--text3);
+  color: var(--text2);
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-  margin-top: 1rem;
+  border-top: 1px solid var(--vc-black);
+  margin-top: 2rem;
+  line-height: 1.6;
 }
+.source strong { font-weight: 700; color: var(--text); }
 
 /* ── States ── */
 .state-screen {
@@ -262,13 +477,26 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
   justify-content: center; min-height: 60vh; gap: 1rem;
   color: var(--text2); text-align: center;
 }
-.state-screen h2 { font-size: 18px; font-weight: 700; color: var(--text); }
-.state-screen code { background: #f5f5f5; border: 1px solid var(--border); padding: 2px 7px; font-family: monospace; font-size: 12px; }
+.state-screen h2 {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--text);
+}
+.state-screen code {
+  background: #f5f5f5; border: 1px solid var(--border);
+  padding: 2px 7px; font-family: monospace; font-size: 12px;
+}
 
-@media (max-width: 800px) {
-  .metrics { grid-template-columns: repeat(2, 1fr); }
-  .two-col, .two-col-equal { grid-template-columns: 1fr; gap: 2rem; }
-  .masthead { padding: 1.25rem; }
+@media (max-width: 980px) {
+  .hero-row { grid-template-columns: 1fr 1fr; }
+  .metric { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .two-col, .two-col-uneven { grid-template-columns: 1fr; gap: 2rem; }
+  .sm-grid { grid-template-columns: repeat(2, 1fr); }
+  .loc-grid { grid-template-columns: 1fr; }
+  .context-strip { grid-template-columns: 1fr; gap: 1rem; }
+  .masthead { padding: 1.5rem; }
+  .mast-title { font-size: 28px; }
   .page { padding: 1.5rem 1.25rem 4rem; }
 }
 
@@ -276,19 +504,21 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 .tooltip {
   position: absolute;
   pointer-events: none;
-  background: #050507;
+  background: var(--vc-black);
   color: #ffffff !important;
+  font-family: var(--font-primary);
+  font-weight: 300;
   font-size: 12px;
-  font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.55;
   padding: 8px 12px;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.1s;
+  transition: opacity 0.08s;
   z-index: 10;
-  border-left: 3px solid #ff7c53;
+  border-left: 3px solid var(--vc-orange);
 }
 .tooltip.visible { opacity: 1; }
+.tooltip strong { font-weight: 900; color: #ffffff !important; }
 .tooltip * { color: #ffffff !important; }
 </style>
 </head>
@@ -296,56 +526,90 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 
 <div class="masthead">
   <div>
-    <div class="mast-vc">Vital City</div>
+    <div class="mast-vc">Vital City  ·  Public safety data</div>
     <div class="mast-title">NYC crime complaints</div>
-    <div class="mast-sub">Year to date &nbsp;·&nbsp; NYPD complaint data &nbsp;·&nbsp; NYC Open Data</div>
+    <div class="mast-sub">Year-to-date counts of New York Police Department (NYPD) complaint reports, citywide and for the subway and public housing systems, back to 2006.</div>
   </div>
-  <div class="mast-badge" id="meta-badge">Loading…</div>
+  <div class="mast-badge" id="meta-badge">Loading</div>
 </div>
 <div class="orange-rule"></div>
 
 <div class="page" id="app">
-      <div class="state-screen">
-        <h2>Data file not found</h2>
-        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
-        Generate it in RStudio with: <code>source("fetch_nypd_data.R")</code></p>
-      </div></div>
+  <div class="state-screen">
+    <h2>Data file not found</h2>
+    <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+    Generate it in RStudio with: <code>source("fetch_nypd_data.R")</code></p>
+  </div>
+</div>
 
 <script>
-// ── Colors ────────────────────────────────────────────────────────────────────
-const C_CUR     = "#ff7c53";   // orange — current year
-const C_CMP     = "#c8c8c8";   // cloud gray — comparison year
-const C_TREND   = "#050507";   // black line for trend
-const C_GRID    = "rgba(5,5,7,0.06)";
-const C_AXIS    = "rgba(5,5,7,0.15)";
-const C_LABEL   = "#707175";
-
-const BORO_COLORS = {
-  "Bronx":         "#ff7c53",
-  "Brooklyn":      "#217ebe",
-  "Manhattan":     "#e7466d",
-  "Queens":        "#394882",
-  "Staten Island": "#9b9fbc",
+// ── Brand colors ─────────────────────────────────────────────────────────────
+const VC = {
+  black:      "#050507",
+  white:      "#ffffff",
+  cloud:      "#dddddd",
+  chartreuse: "#dde44c",
+  orange:     "#ff7c53",
+  periwinkle: "#9b9fbc",
+  rose:       "#cea9be",
+  magenta:    "#e7466d",
+  charcoal:   "#707175",
+  indigo:     "#394882",
+  cerulean:   "#217ebe",
 };
 
+const C_PRIMARY = VC.magenta;    // focal year (subject of analysis)
+const C_COMPARE = VC.cerulean;   // comparison year
+const C_FILL    = VC.chartreuse; // default neutral bar fill
+const C_TREND   = VC.black;      // trend line ink
+const C_ACCENT  = VC.orange;     // overlay / highlight
+const C_GRID    = "rgba(5,5,7,0.06)";
+const C_AXIS    = "rgba(5,5,7,0.15)";
+const C_LABEL   = VC.charcoal;
+
+// Borough colors — kept distinct, mapped to brand palette
+const BORO_COLORS = {
+  "Bronx":         VC.orange,
+  "Brooklyn":      VC.cerulean,
+  "Manhattan":     VC.magenta,
+  "Queens":        VC.indigo,
+  "Staten Island": VC.periwinkle,
+};
+const BOROS = ["Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+const LOCATIONS = [
+  { key:"citywide", name:"Citywide" },
+  { key:"subway",   name:"Subway" },
+  { key:"housing",  name:"Public housing" },
+];
+
 const QUARTERS = ["Q1","Q2","Q3","Q4"];
-const BOROUGHS = ["All boroughs","Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+const BOROUGHS = ["All boroughs", ...BOROS];
 
 function fmt(n) { if (n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
-function fmtK(v) { return v>=1000?(v/1000).toFixed(0)+"k":String(v); }
-function deltaDisplay(curr, prev) {
-  if (!prev||prev===0) return { text:"No prior data", cls:"delta-flat" };
-  const pct = ((curr-prev)/prev)*100;
-  const sign = pct>0?"+":""; const arrow = pct>0?"▲":pct<0?"▼":"▬";
-  return { text:`${arrow} ${sign}${pct.toFixed(1)}% vs prior year`, cls: pct>0?"delta-up":pct<0?"delta-down":"delta-flat" };
+function fmtK(v) {
+  if (v >= 1e6) return (v/1e6).toFixed(1) + "M";
+  if (v >= 1000) return (v/1000).toFixed(0) + "k";
+  return String(v);
 }
+function deltaDisplay(curr, prev) {
+  if (!prev||prev===0) return { text:"No prior-year data", cls:"delta-flat", pct:null };
+  const pct = ((curr-prev)/prev)*100;
+  const sign = pct>0?"+":"";
+  const arrow = pct>0?"▲":pct<0?"▼":"▬";
+  return {
+    text:`${arrow} ${sign}${pct.toFixed(1)}% vs. prior year`,
+    cls: pct>0?"delta-up":pct<0?"delta-down":"delta-flat",
+    pct
+  };
+}
+function titleCaseCrime(c) { return c.charAt(0) + c.slice(1).toLowerCase(); }
 
 // ── State ────────────────────────────────────────────────────────────────────
 let DATA=null, META=null;
-let state = { crime:null, loc:"citywide", borough:"All boroughs", cmpYear:null };
+let state = { crime:null, loc:"citywide", borough:"All boroughs", cmpYear:null, primaryYear:null, trendMode:"ytd" };
 
 function getCount(crime,loc,boro,year,q) {
-  try { const v=DATA[crime]?.[loc]?.[boro]?.[String(year)]?.[q]; return v?parseInt(v):0; } catch{return 0;}
+  try { const v=DATA[crime]?.[loc]?.[boro]?.[String(year)]?.[q]; return v?parseInt(v):0; } catch { return 0; }
 }
 function getYTD(crime,loc,boro,year,upToQ) {
   const qi=QUARTERS.indexOf(upToQ); let t=0;
@@ -363,14 +627,12 @@ function buildApp() {
   const app = document.getElementById("app");
   const curYear = META.current_year;
 
-  const groupOpts = META.crime_groups.map(g=>`<option value="${g}">— ${g} —</option>`).join("");
-  // Major seven always shown in their own group
+  const groupOpts = META.crime_groups.map(g=>`<option value="${g}">${g}</option>`).join("");
   const MAJOR_SEVEN = ["FELONY ASSAULT","ROBBERY","BURGLARY","GRAND LARCENY","GRAND LARCENY OF MOTOR VEHICLE","RAPE","MURDER & NON-NEGL. MANSLAUGHTER"];
   const majorSet = new Set(MAJOR_SEVEN);
-  // Only show majors that actually exist in the data
   const availableMajors = MAJOR_SEVEN.filter(c => META.crime_types.includes(c) || (META.crime_types_major||[]).includes(c));
-  const majorOpts = availableMajors.map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
-  const otherOpts = (META.crime_types||[]).filter(c=>!majorSet.has(c)).map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
+  const majorOpts = availableMajors.map(c=>`<option value="${c}">${titleCaseCrime(c)}</option>`).join("");
+  const otherOpts = (META.crime_types||[]).filter(c=>!majorSet.has(c)).map(c=>`<option value="${c}">${titleCaseCrime(c)}</option>`).join("");
   const allYearsList = Array.from({length: curYear-2005}, (_,i)=>curYear-i);
   const primaryOpts = allYearsList
     .map(y=>`<option value="${y}" ${y===curYear?"selected":""}>${y}</option>`).join("");
@@ -378,15 +640,15 @@ function buildApp() {
     .map(y=>`<option value="${y}" ${y===curYear-1?"selected":""}>${y}</option>`).join("");
 
   document.getElementById("meta-badge").textContent =
-    `Data through ${META.ytd_through} · updated ${new Date(META.generated).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
+    `Through ${META.ytd_through}  ·  Updated ${new Date(META.generated).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
 
   app.innerHTML = `
     <div class="controls">
-      <div class="ctrl" style="flex:2;min-width:220px;">
+      <div class="ctrl" style="flex:2;min-width:240px;">
         <label>Crime category</label>
-        <select id="sel-crime" style="min-width:280px;">
+        <select id="sel-crime" style="min-width:300px;">
           <optgroup label="Combined categories">${groupOpts}</optgroup>
-          <optgroup label="Major crimes">${majorOpts}</optgroup>
+          <optgroup label="Major (index) crimes">${majorOpts}</optgroup>
           <optgroup label="All other offenses">${otherOpts}</optgroup>
         </select>
       </div>
@@ -395,84 +657,146 @@ function buildApp() {
         <div class="toggle-group" id="loc-toggle">
           <button data-loc="citywide" class="active">Citywide</button>
           <button data-loc="subway">Subway</button>
-          <button data-loc="housing">Housing</button>
+          <button data-loc="housing">Public housing</button>
         </div>
       </div>
       <div class="ctrl">
         <label>Borough</label>
-        <select id="sel-borough" style="min-width:160px;">
+        <select id="sel-borough" style="min-width:170px;">
           ${BOROUGHS.map(b=>`<option value="${b}">${b}</option>`).join("")}
         </select>
       </div>
       <div class="ctrl">
         <label>Primary year</label>
-        <select id="sel-primary" style="min-width:100px;">${primaryOpts}</select>
+        <select id="sel-primary" style="min-width:110px;">${primaryOpts}</select>
       </div>
       <div class="ctrl">
         <label>Compare to</label>
-        <select id="sel-cmp" style="min-width:100px;">${cmpOpts}</select>
+        <select id="sel-cmp" style="min-width:110px;">${cmpOpts}</select>
       </div>
     </div>
 
-    <div class="metrics" id="metrics-row"></div>
+    <div class="hero-row" id="metrics-row"></div>
 
-    <div class="two-col-equal">
-      <div class="chart-section">
-        <div class="chart-rule"></div>
-        <div class="chart-title">Quarter by quarter</div>
-        <div class="chart-sub" id="qtr-sub"></div>
-        <div class="legend" id="qtr-legend"></div>
-        <div style="position:relative;">
-          <canvas id="chart-qtr" style="width:100%;height:200px;display:block;"></canvas>
-          <div id="tt-qtr" class="tooltip"></div>
+    <div class="context-strip" id="context-strip"></div>
+
+    <!-- SECTION 1: Quarter + trend -->
+    <div class="section">
+      <div class="section-head">
+        <div class="left">
+          <div class="section-kicker">At a glance</div>
+          <div class="section-title" id="sec1-title">Quarter-by-quarter and long-term trend</div>
+          <div class="section-sub" id="sec1-sub"></div>
         </div>
       </div>
-      <div class="chart-section">
-        <div class="chart-rule"></div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
-          <div class="chart-title">Long-term trend — since 2006</div>
-          <div class="toggle-group" id="trend-toggle" style="height:26px;border-color:rgba(5,5,7,0.2);">
-            <button data-trend="ytd" class="active" style="font-size:10px;padding:0 10px;">YTD</button>
-            <button data-trend="quarterly" style="font-size:10px;padding:0 10px;">Quarterly</button>
-            <button data-trend="annual" style="font-size:10px;padding:0 10px;">Annual</button>
+      <div class="two-col">
+        <div class="chart-card">
+          <div class="chart-title">Quarter by quarter</div>
+          <div class="chart-sub" id="qtr-sub"></div>
+          <div class="legend" id="qtr-legend"></div>
+          <div style="position:relative;">
+            <canvas id="chart-qtr" style="width:100%;height:210px;display:block;"></canvas>
+            <div id="tt-qtr" class="tooltip"></div>
           </div>
         </div>
-        <div class="chart-sub" id="trend-sub"></div>
-        <div style="position:relative;">
-          <canvas id="chart-trend" style="width:100%;height:200px;display:block;"></canvas>
-          <div id="tt-trend" class="tooltip"></div>
+        <div class="chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+            <div>
+              <div class="chart-title">Long-term trend</div>
+              <div class="chart-sub" id="trend-sub"></div>
+            </div>
+            <div class="toggle-group" id="trend-toggle" style="height:28px;">
+              <button data-trend="ytd" class="active" style="font-size:10px;padding:0 10px;">YTD</button>
+              <button data-trend="quarterly" style="font-size:10px;padding:0 10px;">Quarterly</button>
+              <button data-trend="annual" style="font-size:10px;padding:0 10px;">Annual</button>
+            </div>
+          </div>
+          <div style="position:relative;margin-top:8px;">
+            <canvas id="chart-trend" style="width:100%;height:210px;display:block;"></canvas>
+            <div id="tt-trend" class="tooltip"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="two-col">
-      <div class="chart-section">
-        <div class="chart-rule"></div>
-        <div class="chart-title">Monthly complaints — YTD</div>
-        <div class="chart-sub" id="monthly-sub"></div>
-        <div class="legend" id="monthly-legend"></div>
-        <div style="position:relative;">
-          <canvas id="chart-monthly" style="width:100%;height:220px;display:block;"></canvas>
-          <div id="tt-monthly" class="tooltip"></div>
+    <!-- SECTION 2: Monthly + borough -->
+    <div class="section">
+      <div class="section-head">
+        <div class="left">
+          <div class="section-kicker">Within the year</div>
+          <div class="section-title">Monthly pace and borough share</div>
+          <div class="section-sub" id="sec2-sub"></div>
         </div>
       </div>
-      <div class="chart-section">
-        <div class="chart-rule"></div>
-        <div class="chart-title">By borough — YTD</div>
-        <div class="chart-sub" id="boro-sub"></div>
-        <div class="legend" id="boro-legend"></div>
-        <div class="boro-list" id="boro-list"></div>
+      <div class="two-col-uneven">
+        <div class="chart-card">
+          <div class="chart-title">Monthly complaints</div>
+          <div class="chart-sub" id="monthly-sub"></div>
+          <div class="legend" id="monthly-legend"></div>
+          <div style="position:relative;">
+            <canvas id="chart-monthly" style="width:100%;height:230px;display:block;"></canvas>
+            <div id="tt-monthly" class="tooltip"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">By borough</div>
+          <div class="chart-sub" id="boro-sub"></div>
+          <div class="boro-list" id="boro-list"></div>
+        </div>
       </div>
     </div>
 
-    <div class="source">Source: NYPD Complaint Data (NYC Open Data). Combined categories defined by Vital City. Data updated quarterly.</div>
+    <!-- SECTION 3: Borough small multiples (NEW) -->
+    <div class="section">
+      <div class="section-head">
+        <div class="left">
+          <div class="section-kicker">Since 2006</div>
+          <div class="section-title">Each borough on its own scale</div>
+          <div class="section-sub" id="sm-sub"></div>
+        </div>
+      </div>
+      <div class="sm-grid" id="sm-grid"></div>
+    </div>
+
+    <!-- SECTION 4: Year × Quarter heatmap (NEW) -->
+    <div class="section">
+      <div class="section-head">
+        <div class="left">
+          <div class="section-kicker">Seasonality and shift</div>
+          <div class="section-title">Every quarter since 2006</div>
+          <div class="section-sub" id="hm-sub"></div>
+        </div>
+      </div>
+      <div class="heatmap-wrap" id="heatmap-wrap"></div>
+      <div class="hm-scale">
+        <span>Fewer</span>
+        <div class="hm-bar"></div>
+        <span>More</span>
+        <span id="hm-range" style="margin-left:auto;font-weight:300;text-transform:none;letter-spacing:0;color:var(--text2);"></span>
+      </div>
+    </div>
+
+    <!-- SECTION 5: Location split (NEW) -->
+    <div class="section">
+      <div class="section-head">
+        <div class="left">
+          <div class="section-kicker">Where it happened</div>
+          <div class="section-title">Citywide, subway, public housing</div>
+          <div class="section-sub" id="loc-sub"></div>
+        </div>
+      </div>
+      <div class="loc-grid" id="loc-grid"></div>
+    </div>
+
+    <div class="source">
+      <strong>Source:</strong> NYPD Complaint Data (Historic and Year-to-Date), via NYC Open Data. Combined categories are defined by Vital City. Subway counts reflect complaints flagged by NYPD as transit-system incidents; public housing counts reflect complaints flagged as occurring in New York City Housing Authority (NYCHA) developments. Data updated quarterly; complaints data can be revised as cases are reclassified.
+    </div>
   `;
 
   document.getElementById("sel-crime").addEventListener("change", e=>{state.crime=e.target.value;render();});
   document.getElementById("sel-borough").addEventListener("change", e=>{state.borough=e.target.value;render();});
   document.getElementById("sel-primary").addEventListener("change", e=>{
     state.primaryYear=String(e.target.value);
-    // Update cmp options to exclude primary year
     const cmpSel=document.getElementById("sel-cmp");
     const curCmp=state.cmpYear;
     cmpSel.innerHTML = allYearsList.filter(y=>String(y)!==state.primaryYear)
@@ -500,6 +824,12 @@ function buildApp() {
   state.trendMode   = "ytd";
   document.getElementById("sel-crime").value   = state.crime;
   document.getElementById("sel-primary").value = state.primaryYear;
+
+  window.addEventListener("resize", debounce(render, 200));
+}
+
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t=setTimeout(()=>fn(...a), ms); };
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -510,15 +840,23 @@ function render() {
   const crime=state.crime, loc=state.loc, boro=state.borough;
   const trendMode=state.trendMode||"ytd";
 
-  // For metrics: use curQ if primary is latest year, else Q4 (full year)
   const isPrimaryLatest = String(primaryYear)===String(latestYear);
   const primaryQ = isPrimaryLatest ? curQ : "Q4";
   const primaryQIdx = QUARTERS.indexOf(primaryQ);
 
-  // Metrics — YTD + all 4 quarters
+  const crimeLabel = META.crime_groups.includes(crime) ? crime : titleCaseCrime(crime);
+  const locLabel = LOCATIONS.find(l=>l.key===loc).name.toLowerCase();
+  const boroLabel = boro==="All boroughs" ? "citywide" : boro;
+
+  // ── Hero metrics ──
   const pYTD=getYTD(crime,loc,boro,primaryYear,primaryQ);
   const cYTD=getYTD(crime,loc,boro,cmpYear,primaryQ);
-  const ytdMetric = {label:`YTD total (${primaryYear})`, val:fmt(pYTD), delta:deltaDisplay(pYTD,cYTD), isYTD:true};
+  const ytdMetric = {
+    label:`YTD ${primaryYear} · through ${primaryQ}`,
+    val:fmt(pYTD),
+    delta:deltaDisplay(pYTD,cYTD),
+    isYTD:true
+  };
   const qtrMetrics = QUARTERS.map(q=>{
     const pVal=getCount(crime,loc,boro,primaryYear,q);
     const cVal=getCount(crime,loc,boro,cmpYear,q);
@@ -530,19 +868,67 @@ function render() {
       isYTD:false
     };
   });
-  const allMetrics = [ytdMetric, ...qtrMetrics];
-  document.getElementById("metrics-row").innerHTML = allMetrics.map(m=>`
-    <div class="metric${m.isYTD?" ytd-metric":""}">
+  document.getElementById("metrics-row").innerHTML = [ytdMetric, ...qtrMetrics].map(m=>`
+    <div class="metric${m.isYTD?" hero":""}">
       <div class="m-label">${m.label}</div>
       <div class="m-val">${m.val}</div>
       <div class="m-delta ${m.delta.cls}">${m.delta.text}</div>
     </div>`).join("");
 
-  // Monthly bars
-  const maxMonth=(primaryQIdx+1)*3;
+  // ── Context strip: peak, trough, 5-yr avg ──
+  const yrs = getAllYears();
+  const ytdSeries = yrs.map(y => ({ year: y, val: getYTD(crime,loc,boro,y,primaryQ) }));
+  const nonzero = ytdSeries.filter(d=>d.val>0);
+  let peak = {year:"—", val:0}, trough = {year:"—", val:Infinity}, avg5 = 0;
+  if (nonzero.length) {
+    peak = nonzero.reduce((a,b)=>b.val>a.val?b:a);
+    trough = nonzero.reduce((a,b)=>b.val<a.val?b:a);
+    const last5 = nonzero.filter(d=>d.year<Number(primaryYear) && d.year>=Number(primaryYear)-5);
+    if(last5.length) avg5 = last5.reduce((s,d)=>s+d.val,0)/last5.length;
+  }
+  const vsPeak = peak.val>0 ? ((pYTD-peak.val)/peak.val*100) : null;
+  const vs5yr = avg5>0 ? ((pYTD-avg5)/avg5*100) : null;
+
+  document.getElementById("context-strip").innerHTML = `
+    <div class="ctx-item">
+      <div class="ctx-label">Highest YTD on record</div>
+      <div class="ctx-val"><strong>${fmt(peak.val)}</strong> in ${peak.year} · current year is ${vsPeak==null?"—":`${vsPeak>0?"+":""}${vsPeak.toFixed(1)}%`} vs. peak</div>
+    </div>
+    <div class="ctx-item">
+      <div class="ctx-label">Lowest YTD on record</div>
+      <div class="ctx-val"><strong>${fmt(trough.val)}</strong> in ${trough.year===Infinity?"—":trough.year}</div>
+    </div>
+    <div class="ctx-item">
+      <div class="ctx-label">Prior 5-year average YTD</div>
+      <div class="ctx-val"><strong>${fmt(avg5)}</strong> · current year is ${vs5yr==null?"—":`${vs5yr>0?"+":""}${vs5yr.toFixed(1)}%`} vs. 5-yr avg</div>
+    </div>
+  `;
+
+  document.getElementById("sec1-sub").textContent =
+    `${crimeLabel} complaints, ${locLabel}, ${boroLabel} · ${primaryYear} vs. ${cmpYear}`;
+  document.getElementById("sec2-sub").textContent =
+    `${crimeLabel} complaints, ${locLabel} · Q1 through ${primaryQ} of ${primaryYear}`;
+  document.getElementById("sm-sub").textContent =
+    `${crimeLabel} complaints, ${locLabel} · YTD through ${curQ} of each year, 2006 to ${latestYear}`;
+  document.getElementById("hm-sub").textContent =
+    `${crimeLabel} complaints, ${locLabel}, ${boroLabel} · each cell is one calendar quarter`;
+  document.getElementById("loc-sub").textContent =
+    `${crimeLabel} complaints · same crime and borough, three location contexts · YTD through ${primaryQ}`;
+
+  // ── Quarter comparison bars ──
+  document.getElementById("qtr-sub").textContent = `${primaryYear} (magenta) vs. ${cmpYear} (cerulean)`;
+  document.getElementById("qtr-legend").innerHTML = `
+    <span><span class="leg-sq" style="background:${C_COMPARE}"></span>${cmpYear}</span>
+    <span><span class="leg-sq" style="background:${C_PRIMARY}"></span>${primaryYear}</span>`;
+  drawBars("chart-qtr", QUARTERS, [
+    {label:String(cmpYear),     data:QUARTERS.map(q=>getCount(crime,loc,boro,cmpYear,q)),     color:C_COMPARE},
+    {label:String(primaryYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,primaryYear,q)), color:C_PRIMARY},
+  ], "tt-qtr");
+
+  // ── Monthly bars (quarterly data divided by 3) ──
   const mnths=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function qForM(m){return m<=3?"Q1":m<=6?"Q2":m<=9?"Q3":"Q4";}
-  function monthly(year,upToQ){
+  function monthly(year, upToQ){
     const uIdx=QUARTERS.indexOf(upToQ);
     return Array.from({length:12},(_,i)=>{
       const m=i+1, q=qForM(m);
@@ -550,47 +936,37 @@ function render() {
       return Math.round(getCount(crime,loc,boro,year,q)/3);
     });
   }
-  document.getElementById("monthly-sub").textContent=`${primaryYear} vs ${cmpYear} · Q1–${primaryQ}`;
-  document.getElementById("monthly-legend").innerHTML=`
-    <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
-    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
+  document.getElementById("monthly-sub").textContent = `Monthly average (quarterly total divided by 3) · Q1 through ${primaryQ}`;
+  document.getElementById("monthly-legend").innerHTML = `
+    <span><span class="leg-sq" style="background:${C_COMPARE}"></span>${cmpYear}</span>
+    <span><span class="leg-sq" style="background:${C_PRIMARY}"></span>${primaryYear}</span>`;
   drawBars("chart-monthly", mnths, [
-    {label:String(cmpYear), data:monthly(cmpYear, isPrimaryLatest?curQ:"Q4"), color:C_CMP},
-    {label:String(primaryYear), data:monthly(primaryYear, primaryQ), color:C_CUR},
+    {label:String(cmpYear),     data:monthly(cmpYear, isPrimaryLatest?curQ:"Q4"), color:C_COMPARE},
+    {label:String(primaryYear), data:monthly(primaryYear, primaryQ),              color:C_PRIMARY},
   ], "tt-monthly");
 
-  // Borough bars
-  const boroData=["Bronx","Brooklyn","Manhattan","Queens","Staten Island"]
-    .map(b=>({name:b, val:getYTD(crime,loc,b,primaryYear,primaryQ), color:BORO_COLORS[b]}))
+  // ── Borough list ──
+  const boroData = BOROS
+    .map(b=>({name:b, val:getYTD(crime,loc,b,primaryYear,primaryQ), prev:getYTD(crime,loc,b,cmpYear,primaryQ), color:BORO_COLORS[b]}))
     .sort((a,b)=>b.val-a.val);
-  const boroMax=Math.max(...boroData.map(b=>b.val),1);
-  const boroTotal=boroData.reduce((s,b)=>s+b.val,0);
-  document.getElementById("boro-sub").textContent=`${primaryYear} · Q1–${primaryQ}`;
-  document.getElementById("boro-legend").innerHTML=boroData.map(b=>`
-    <span><span class="leg-dot" style="background:${b.color}"></span>${b.name}</span>`).join("");
-  document.getElementById("boro-list").innerHTML=boroData.map(b=>{
+  const boroMax = Math.max(...boroData.map(b=>b.val),1);
+  const boroTotal = boroData.reduce((s,b)=>s+b.val,0);
+  document.getElementById("boro-sub").textContent =
+    `YTD through ${primaryQ} of ${primaryYear} · sorted by volume`;
+  document.getElementById("boro-list").innerHTML = boroData.map(b=>{
     const pct=boroTotal>0?((b.val/boroTotal)*100).toFixed(1):"0.0";
     const w=boroMax>0?(b.val/boroMax*100).toFixed(1):"0";
+    const d = deltaDisplay(b.val, b.prev);
     return `<div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:600;">${b.name}</span>
-        <span style="color:var(--text2);">${fmt(b.val)} <span style="opacity:0.7;">(${pct}%)</span></span>
+      <div class="boro-row-top">
+        <span class="boro-name" style="color:${b.color};">${b.name}</span>
+        <span class="boro-nums"><strong>${fmt(b.val)}</strong>  ·  ${pct}% of total  ·  <span class="${d.cls}">${d.text}</span></span>
       </div>
       <div class="boro-bar-bg"><div class="boro-bar-fill" style="width:${w}%;background:${b.color};"></div></div>
     </div>`;
   }).join("");
 
-  // Quarter comparison — always show all 4, gray out unavailable
-  document.getElementById("qtr-sub").textContent=`${primaryYear} vs ${cmpYear}`;
-  document.getElementById("qtr-legend").innerHTML=`
-    <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
-    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
-  drawBars("chart-qtr", QUARTERS, [
-    {label:String(cmpYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,cmpYear,q)), color:C_CMP},
-    {label:String(primaryYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,primaryYear,q)), color:C_CUR},
-  ], "tt-qtr");
-
-  // Trend line
+  // ── Long-term trend ──
   const dataYears=getAllYears();
   const minYr=Math.min(...dataYears,2006);
   const maxYr=Math.max(...dataYears,latestYear);
@@ -598,51 +974,278 @@ function render() {
 
   if(trendMode==="ytd"){
     const tData=allYrs.map(y=>getYTD(crime,loc,boro,y,curQ));
-    document.getElementById("trend-sub").textContent=`YTD through ${curQ} each year · ${minYr}–${maxYr}`;
+    document.getElementById("trend-sub").textContent = `YTD through ${curQ} each year, ${minYr} to ${maxYr}`;
     drawLine("chart-trend", allYrs.map(String), tData, primaryYear, cmpYear, "tt-trend", null);
-
   } else if(trendMode==="quarterly"){
-    // Each quarter as its own point: "2006 Q1", "2006 Q2"...
     const qLabels=[], qData=[];
     allYrs.forEach(y=>{
       QUARTERS.forEach(q=>{
         const isLatestYr=y===latestYear;
         const qI=QUARTERS.indexOf(q);
-        if(isLatestYr && qI>primaryQIdx) return; // skip future quarters
+        if(isLatestYr && qI>primaryQIdx) return;
         qLabels.push(`${y} ${q}`);
         qData.push(getCount(crime,loc,boro,y,q));
       });
     });
-    // Show every other year at Q1 marks
-    const xLabels=qLabels.map((l,i)=>{
+    document.getElementById("trend-sub").textContent = `Each calendar quarter, ${minYr} to ${maxYr}`;
+    const xLabels=qLabels.map((l)=>{
       if(!l.endsWith("Q1")) return "";
       const yr=parseInt(l.split(" ")[0]);
       return (yr-2006)%2===0 ? String(yr) : "";
     });
-    document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}`;
     drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
-
-  } else { // annual
-    // Full year totals — flag incomplete years
+  } else {
     const isFullYear = y => !(y===latestYear && curQ!=="Q4");
     const aData=allYrs.map(y=>getYTD(crime,loc,boro,y,"Q4"));
     const incomplete=allYrs.map(y=>!isFullYear(y));
-    document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}`;
+    document.getElementById("trend-sub").textContent =
+      `Full calendar-year totals, ${minYr} to ${maxYr}${curQ!=="Q4"?` · ${latestYear} incomplete (dashed)`:""}`;
     drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
   }
+
+  // ── NEW: Borough small multiples ──
+  renderSmallMultiples(crime, loc, curQ, minYr, maxYr, primaryYear);
+
+  // ── NEW: Heatmap ──
+  renderHeatmap(crime, loc, boro, minYr, maxYr, latestYear, curQ);
+
+  // ── NEW: Location compare ──
+  renderLocationCompare(crime, boro, primaryYear, cmpYear, primaryQ, minYr, maxYr, curQ);
 }
 
-// ── Canvas renderers ──────────────────────────────────────────────────────────
+// ── Small multiples renderer ─────────────────────────────────────────────────
+function renderSmallMultiples(crime, loc, curQ, minYr, maxYr, primaryYear) {
+  const grid = document.getElementById("sm-grid");
+  const yrs = Array.from({length: maxYr-minYr+1}, (_,i)=>minYr+i);
+  const seriesAll = BOROS.map(b => ({
+    name: b,
+    color: BORO_COLORS[b],
+    vals: yrs.map(y => getYTD(crime, loc, b, y, curQ))
+  }));
+  const gmax = Math.max(...seriesAll.flatMap(s=>s.vals), 1);
+  grid.innerHTML = seriesAll.map((s, i) => {
+    const latestVal = s.vals[s.vals.length-1];
+    return `
+      <div class="sm-cell">
+        <div class="sm-head">
+          <span class="sm-name" style="color:${s.color};">${s.name}</span>
+          <span class="sm-val">${fmt(latestVal)}</span>
+        </div>
+        <div class="sm-canvas-wrap">
+          <canvas id="sm-${i}" style="width:100%;height:70px;display:block;"></canvas>
+        </div>
+      </div>
+    `;
+  }).join("");
+  seriesAll.forEach((s, i) => {
+    drawSparkArea(`sm-${i}`, yrs, s.vals, s.color, gmax, Number(primaryYear));
+  });
+}
+
+function drawSparkArea(id, xs, ys, color, gmax, hlYear) {
+  const c = document.getElementById(id);
+  const dpr = devicePixelRatio || 1;
+  const W = c.parentElement.clientWidth || 160;
+  const H = 70;
+  c.width = W*dpr; c.height = H*dpr;
+  c.style.width = W+"px"; c.style.height = H+"px";
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  const PL=2, PR=2, PT=6, PB=14;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const n = xs.length;
+  const step = cW / Math.max(n-1, 1);
+  const px = i => PL + i*step;
+  const py = v => PT + cH - (v/gmax)*cH;
+
+  // baseline
+  ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PL, PT+cH); ctx.lineTo(PL+cW, PT+cH); ctx.stroke();
+
+  // area fill (light)
+  const grad = ctx.createLinearGradient(0, PT, 0, PT+cH);
+  grad.addColorStop(0, color + "55");
+  grad.addColorStop(1, color + "08");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.moveTo(px(0), PT+cH);
+  ys.forEach((v,i)=>ctx.lineTo(px(i), py(v)));
+  ctx.lineTo(px(n-1), PT+cH);
+  ctx.closePath();
+  ctx.fill();
+
+  // line
+  ctx.strokeStyle = color; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ys.forEach((v,i)=>{
+    if(i===0) ctx.moveTo(px(i), py(v)); else ctx.lineTo(px(i), py(v));
+  });
+  ctx.stroke();
+
+  // highlight primary year
+  const hlIdx = xs.indexOf(hlYear);
+  if (hlIdx >= 0) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(px(hlIdx), py(ys[hlIdx]), 3, 0, Math.PI*2); ctx.fill();
+  }
+
+  // endpoints labels (first/last year)
+  ctx.fillStyle = C_LABEL;
+  ctx.font = '700 9px "halyard-text", Inter, sans-serif';
+  ctx.textAlign = "left";
+  ctx.fillText(String(xs[0]), PL, H-3);
+  ctx.textAlign = "right";
+  ctx.fillText(String(xs[n-1]), PL+cW, H-3);
+}
+
+// ── Heatmap renderer ─────────────────────────────────────────────────────────
+function renderHeatmap(crime, loc, boro, minYr, maxYr, latestYear, curQ) {
+  const wrap = document.getElementById("heatmap-wrap");
+  const yrs = [];
+  for (let y=maxYr; y>=minYr; y--) yrs.push(y);
+  const curQIdx = QUARTERS.indexOf(curQ);
+
+  let maxVal = 0;
+  const data = yrs.map(y => {
+    return QUARTERS.map((q, qi) => {
+      const isFuture = (y===latestYear && qi>curQIdx);
+      if (isFuture) return null;
+      const v = getCount(crime, loc, boro, y, q);
+      if (v > maxVal) maxVal = v;
+      return v;
+    });
+  });
+
+  function cellColor(v) {
+    if (v == null) return "empty";
+    if (maxVal === 0) return VC.white;
+    const t = v / maxVal;
+    // White → Safety Orange
+    const r = Math.round(255 + (255-255)*t);
+    const g = Math.round(255 + (124-255)*t);
+    const b = Math.round(255 + ( 83-255)*t);
+    return `rgb(${r},${g},${b})`;
+  }
+  function textColor(v) {
+    if (v == null) return "transparent";
+    if (maxVal===0) return VC.charcoal;
+    const t = v / maxVal;
+    return t > 0.55 ? "#fff" : VC.black;
+  }
+
+  const COLS = QUARTERS.length;
+  const html = `
+    <div class="heatmap" style="grid-template-columns: 54px repeat(${COLS}, 1fr);">
+      <div></div>
+      ${QUARTERS.map(q=>`<div class="hm-col-label">${q}</div>`).join("")}
+      ${yrs.map((y,yi)=>`
+        <div class="hm-row-label">${y}</div>
+        ${data[yi].map((v,qi)=>{
+          if (v == null) return `<div class="hm-cell empty" title="${y} ${QUARTERS[qi]} · not yet available"></div>`;
+          const bg = cellColor(v);
+          const col = textColor(v);
+          return `<div class="hm-cell" style="background:${bg};color:${col};" title="${y} ${QUARTERS[qi]}: ${v.toLocaleString()}">${fmtK(v)}</div>`;
+        }).join("")}
+      `).join("")}
+    </div>
+  `;
+  wrap.innerHTML = html;
+  document.getElementById("hm-range").textContent = `Range: 0 to ${fmt(maxVal)}`;
+}
+
+// ── Location compare renderer ────────────────────────────────────────────────
+function renderLocationCompare(crime, boro, primaryYear, cmpYear, primaryQ, minYr, maxYr, curQ) {
+  const grid = document.getElementById("loc-grid");
+  const yrs = Array.from({length: maxYr-minYr+1}, (_,i)=>minYr+i);
+  const cells = LOCATIONS.map(L => {
+    const vals = yrs.map(y => getYTD(crime, L.key, boro, y, curQ));
+    const pCur = getYTD(crime, L.key, boro, primaryYear, primaryQ);
+    const pCmp = getYTD(crime, L.key, boro, cmpYear, primaryQ);
+    const d = deltaDisplay(pCur, pCmp);
+    return { name: L.name, key: L.key, vals, pCur, d };
+  });
+  // Each cell scales to its own max
+  grid.innerHTML = cells.map((c, i) => `
+    <div class="loc-cell">
+      <div class="loc-head">
+        <span class="loc-name">${c.name}</span>
+        <span class="loc-val">${fmt(c.pCur)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="font-family:var(--font-primary);font-weight:200;font-size:11px;color:var(--text2);">YTD ${primaryYear} through ${primaryQ}</span>
+        <span class="loc-delta ${c.d.cls}">${c.d.text}</span>
+      </div>
+      <div style="position:relative;">
+        <canvas id="loc-${i}" style="width:100%;height:110px;display:block;"></canvas>
+      </div>
+      <div style="font-family:var(--font-primary);font-weight:200;font-size:10px;color:var(--text3);letter-spacing:0.04em;">${yrs[0]} — ${yrs[yrs.length-1]}</div>
+    </div>
+  `).join("");
+  cells.forEach((c, i) => {
+    drawLocSpark(`loc-${i}`, yrs, c.vals, Number(primaryYear), Number(cmpYear));
+  });
+}
+
+function drawLocSpark(id, xs, ys, pYr, cYr) {
+  const c = document.getElementById(id);
+  const dpr = devicePixelRatio || 1;
+  const W = c.parentElement.clientWidth || 240;
+  const H = 110;
+  c.width = W*dpr; c.height = H*dpr;
+  c.style.width = W+"px"; c.style.height = H+"px";
+  const ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr);
+  const PL=28, PR=8, PT=8, PB=18;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const mx = Math.max(...ys, 1);
+  const niceMax = Math.ceil(mx*1.15/100)*100 || 1;
+  const n = xs.length;
+  const step = cW / Math.max(n-1, 1);
+  const px = i => PL + i*step;
+  const py = v => PT + cH - (v/niceMax)*cH;
+
+  // y ticks (2)
+  ctx.strokeStyle = C_GRID; ctx.lineWidth = 1;
+  ctx.fillStyle = C_LABEL;
+  ctx.font = '700 9px "halyard-text", Inter, sans-serif';
+  ctx.textAlign = "right";
+  [0, niceMax].forEach(v=>{
+    const y = py(v);
+    ctx.beginPath(); ctx.moveTo(PL, y); ctx.lineTo(PL+cW, y); ctx.stroke();
+    ctx.fillText(fmtK(v), PL-4, y+3);
+  });
+
+  // line
+  ctx.strokeStyle = C_TREND; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ys.forEach((v,i)=>{ if(i===0) ctx.moveTo(px(i), py(v)); else ctx.lineTo(px(i), py(v)); });
+  ctx.stroke();
+
+  // dots for primary and compare years
+  ys.forEach((v,i)=>{
+    const yr = xs[i];
+    if (yr === pYr) {
+      ctx.fillStyle = C_PRIMARY;
+      ctx.beginPath(); ctx.arc(px(i), py(v), 4, 0, Math.PI*2); ctx.fill();
+    } else if (yr === cYr) {
+      ctx.fillStyle = C_COMPARE;
+      ctx.beginPath(); ctx.arc(px(i), py(v), 3.5, 0, Math.PI*2); ctx.fill();
+    }
+  });
+}
+
+// ── Canvas helpers ───────────────────────────────────────────────────────────
 function getCanvas(id, h) {
   const c = document.getElementById(id);
+  const dpr = devicePixelRatio || 1;
   const W = c.parentElement.clientWidth || 500;
   const H = h || 220;
-  c.width = W * devicePixelRatio;
-  c.height = H * devicePixelRatio;
+  c.width = W * dpr;
+  c.height = H * dpr;
   c.style.width = W + "px";
   c.style.height = H + "px";
   const ctx = c.getContext("2d");
-  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.scale(dpr, dpr);
   return {ctx, W, H};
 }
 
@@ -662,23 +1265,23 @@ function showTooltip(ttId, canvas, mouseX, mouseY, lines) {
   tt.style.left = left + "px";
   tt.style.top  = top + "px";
 }
-
 function hideTooltip(ttId) {
   const tt = document.getElementById(ttId);
   if (tt) tt.classList.remove("visible");
 }
 
+// ── Bars ─────────────────────────────────────────────────────────────────────
 function drawBars(id, labels, datasets, ttId) {
-  const {ctx, W, H} = getCanvas(id, 220);
-  const PL=44, PR=8, PT=10, PB=28;
+  const {ctx, W, H} = getCanvas(id, 230);
+  const PL=50, PR=10, PT=18, PB=30;
   const cW=W-PL-PR, cH=H-PT-PB;
   const allV=datasets.flatMap(d=>d.data);
   const mx=Math.max(...allV,1);
-  const niceMax=Math.ceil(mx*1.12/1000)*1000||1;
+  const niceMax=Math.ceil(mx*1.14/1000)*1000||1;
   const TICKS=4;
   const n=labels.length, ds=datasets.length;
   const groupW=cW/n;
-  const barW=Math.min((groupW*0.75)/ds, 36);
+  const barW=Math.min((groupW*0.72)/ds, 38);
   const gapX=(groupW-barW*ds)/2;
 
   function paint(hovIdx) {
@@ -688,26 +1291,34 @@ function drawBars(id, labels, datasets, ttId) {
       const v=(niceMax/TICKS)*i, y=PT+cH-(v/niceMax)*cH;
       ctx.strokeStyle=C_GRID; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(PL+cW,y); ctx.stroke();
-      ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
-      ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-5,y+3.5);
+      ctx.fillStyle=C_LABEL; ctx.font='700 10px "halyard-text", Inter, sans-serif';
+      ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-6,y+3.5);
     }
-    // Hover column highlight
     if (hovIdx >= 0) {
       ctx.fillStyle="rgba(5,5,7,0.04)";
       ctx.fillRect(PL+hovIdx*groupW, PT, groupW, cH);
     }
-    // Bars
     datasets.forEach((d,di)=>{
       d.data.forEach((v,i)=>{
         const bH=(v/niceMax)*cH;
         const x=PL+i*groupW+gapX+di*barW;
-        ctx.fillStyle = (hovIdx===i) ? d.color : d.color + "cc";
-        ctx.fillRect(x, PT+cH-bH, barW-1, bH);
+        ctx.fillStyle = (hovIdx===i) ? d.color : d.color;
+        ctx.globalAlpha = (hovIdx===-1 || hovIdx===i) ? 1 : 0.45;
+        ctx.fillRect(x, PT+cH-bH, barW-2, bH);
+        ctx.globalAlpha = 1;
+        // Direct labels on last dataset (primary year) only, when space allows
+        if (di===datasets.length-1 && v>0 && bH>14) {
+          ctx.fillStyle = C_LABEL;
+          ctx.font = '700 9px "halyard-text", Inter, sans-serif';
+          ctx.textAlign = "center";
+          ctx.fillText(fmtK(v), x+(barW-2)/2, PT+cH-bH-4);
+        }
       });
     });
     // X labels
-    ctx.fillStyle=C_LABEL; ctx.textAlign="center"; ctx.font="10px -apple-system,sans-serif";
-    labels.forEach((lbl,i)=>{ ctx.fillText(lbl, PL+i*groupW+groupW/2, H-6); });
+    ctx.fillStyle=C_LABEL; ctx.textAlign="center";
+    ctx.font='700 10px "halyard-text", Inter, sans-serif';
+    labels.forEach((lbl,i)=>{ ctx.fillText(lbl, PL+i*groupW+groupW/2, H-8); });
     // Axis
     ctx.strokeStyle=C_AXIS; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
@@ -725,7 +1336,7 @@ function drawBars(id, labels, datasets, ttId) {
     if (i >= 0 && i < n) {
       paint(i);
       const lines = [`<strong>${labels[i]}</strong>`,
-        ...datasets.map(d => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:5px;"></span>${d.label}: ${d.data[i].toLocaleString()}`)
+        ...datasets.map(d => `<span style="display:inline-block;width:8px;height:8px;background:${d.color};margin-right:6px;"></span>${d.label}: ${d.data[i].toLocaleString()}`)
       ];
       showTooltip(ttId, canvas, mx, my, lines);
     } else {
@@ -735,15 +1346,13 @@ function drawBars(id, labels, datasets, ttId) {
   canvas.onmouseleave = () => { paint(-1); hideTooltip(ttId); };
 }
 
+// ── Line ─────────────────────────────────────────────────────────────────────
 function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplete) {
-  // xOverride: array of display labels for x-axis (sparse, empty string = skip)
-  // incomplete: array of booleans — true = this point is partial data
-  const {ctx, W, H} = getCanvas(id, 200);
-  const PL=44, PR=24, PT=10, PB=28;
+  const {ctx, W, H} = getCanvas(id, 210);
+  const PL=50, PR=28, PT=14, PB=28;
   const cW=W-PL-PR, cH=H-PT-PB;
   const validData=data.filter(v=>v>0);
   const mx=Math.max(...(validData.length?validData:[1]));
-  // Add 15% headroom so point labels never get clipped at the top
   const mxPadded=mx*1.15;
   const niceMax=Math.ceil(mxPadded/1000)*1000||1;
   const TICKS=4;
@@ -755,21 +1364,19 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
 
   function paint(hovIdx) {
     ctx.clearRect(0,0,W,H);
-    // Grid + y labels
     for(let i=0;i<=TICKS;i++){
       const v=(niceMax/TICKS)*i, y=PT+cH-(v/niceMax)*cH;
       ctx.strokeStyle=C_GRID; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(PL+cW,y); ctx.stroke();
-      ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
-      ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-5,y+3.5);
+      ctx.fillStyle=C_LABEL; ctx.font='700 10px "halyard-text", Inter, sans-serif';
+      ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-6,y+3.5);
     }
-    // Hover vertical line
     if(hovIdx>=0){
-      ctx.strokeStyle="rgba(5,5,7,0.12)"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.strokeStyle="rgba(5,5,7,0.14)"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(px(hovIdx),PT); ctx.lineTo(px(hovIdx),PT+cH); ctx.stroke();
       ctx.setLineDash([]);
     }
-    // Solid segment of line (complete data)
+    // Solid line
     ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
     let started=false;
     data.forEach((v,i)=>{
@@ -782,14 +1389,10 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
     if(incomplete&&incomplete.some(Boolean)){
       ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
       ctx.setLineDash([4,4]);
-      let inSeg=false;
-      // Connect last complete point to first incomplete
       const lastComplete=data.reduce((last,_,i)=>(!incomplete||!incomplete[i])?i:last,-1);
       if(lastComplete>=0){
         ctx.moveTo(px(lastComplete),py(data[lastComplete]));
-        data.forEach((v,i)=>{
-          if(incomplete&&incomplete[i]) { ctx.lineTo(px(i),py(v)); }
-        });
+        data.forEach((v,i)=>{ if(incomplete&&incomplete[i]) ctx.lineTo(px(i),py(v)); });
       }
       ctx.stroke(); ctx.setLineDash([]);
     }
@@ -800,67 +1403,55 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
       const isCur=lbl===String(curYear), isCmp=lbl===String(cmpYear), isHov=i===hovIdx;
       const isPartial=incomplete&&incomplete[i];
       const r=isHov?6:(isCur||isCmp)?5:2.5;
-      const col=isHov?"#050507":isCur?C_CUR:isCmp?"#394882":"rgba(5,5,7,0.3)";
+      const col=isHov?C_TREND:isCur?C_PRIMARY:isCmp?C_COMPARE:"rgba(5,5,7,0.3)";
       ctx.beginPath(); ctx.arc(px(i),py(v),r,0,Math.PI*2);
-      if(isPartial){
-        // Hollow circle for incomplete
-        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
-      } else {
-        ctx.fillStyle=col; ctx.fill();
-      }
+      if(isPartial){ ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke(); }
+      else { ctx.fillStyle=col; ctx.fill(); }
       if((isCur||isCmp)&&!isHov&&!xOverride){
-        ctx.fillStyle=col; ctx.font="bold 10px -apple-system,sans-serif";
-        ctx.textAlign="center"; ctx.fillText(lbl,px(i),py(v)-10);
+        ctx.fillStyle=col;
+        ctx.font='900 10px "halyard-text", Inter, sans-serif';
+        ctx.textAlign="center";
+        ctx.fillText(lbl,px(i),py(v)-10);
       }
     });
     // X labels
-    ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
+    ctx.fillStyle=C_LABEL; ctx.font='700 10px "halyard-text", Inter, sans-serif';
     if(xOverride){
-      // Horizontal labels for quarterly mode — only show every 3 years to avoid crowding
       ctx.textAlign="center";
-      ctx.fillStyle=C_LABEL;
-      ctx.font="10px -apple-system,sans-serif";
       let lastDrawnX=-999;
       xOverride.forEach((lbl,i)=>{
         if(!lbl) return;
         const x=px(i);
         const lblW=ctx.measureText(lbl).width;
-        // Skip if too close to previous label or too close to right edge
-        if(x-lastDrawnX < 28) return;
+        if(x-lastDrawnX < 30) return;
         if(x+lblW/2 > W-6) return;
-        ctx.fillText(lbl, x, H-6);
+        ctx.fillText(lbl, x, H-8);
         lastDrawnX=x;
       });
     } else {
-      // Pick evenly spaced round-year intervals that actually fit
       const approxEvery=Math.ceil(n/8);
-      // Snap to nearest multiple of 3 or 5 for clean year intervals
       const snapTo=[1,2,3,4,5,6,8,10];
       const every=snapTo.find(s=>s>=approxEvery)||approxEvery;
       labels.forEach((lbl,i)=>{
         if(i%every!==0) return;
-        // Don't draw if too close to right edge (avoid clipping)
         const x=px(i);
         const lblW=ctx.measureText(lbl).width;
         if(x+lblW/2>W-4) return;
         ctx.textAlign="center";
-        ctx.fillText(lbl,x,H-6);
+        ctx.fillText(lbl,x,H-8);
       });
-      // Always draw last label if it fits and isn't too close to second-last drawn
       const lastI=n-1;
       const lastX=px(lastI);
       const lastLbl=labels[lastI];
       const lastLblW=ctx.measureText(lastLbl).width;
       if(lastX+lastLblW/2<=W-4){
-        // Check it won't collide with previous label
         const prevDrawnI=Math.floor(lastI/every)*every;
         if(lastI-prevDrawnI > every*0.4){
           ctx.textAlign="center";
-          ctx.fillText(lastLbl,lastX,H-6);
+          ctx.fillText(lastLbl,lastX,H-8);
         }
       }
     }
-    // Axis
     ctx.strokeStyle=C_AXIS; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PT+cH); ctx.stroke();
@@ -877,9 +1468,8 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
       paint(i);
       const lbl=labels[i];
       const isPartial=incomplete&&incomplete[i];
-      const col=lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#394882":"#050507";
-      const note=isPartial?" (incomplete)":"";
-      // Quarterly labels are already "2024 Q1" — show as header, annual/YTD show year
+      const col=lbl===String(curYear)?C_PRIMARY:lbl===String(cmpYear)?C_COMPARE:C_TREND;
+      const note=isPartial?" · incomplete":"";
       showTooltip(ttId,canvas,mx,e.clientY-canvas.getBoundingClientRect().top,[
         `<strong style="color:${col}">${lbl}${note}</strong>`,
         `${data[i].toLocaleString()} complaints`
@@ -915,5 +1505,5 @@ async function boot() {
 boot();
 </script>
 
-
-</body></html>
+</body>
+</html>
