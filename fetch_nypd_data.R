@@ -11,7 +11,7 @@ library(jsonlite)
 
 # !! PASTE YOUR FREE APP TOKEN BETWEEN THE QUOTES BELOW !!
 # Get one at: data.cityofnewyork.us -> Sign In -> Developer Settings -> Create New App Token
-APP_TOKEN <- ""
+APP_TOKEN <- "mZeFN6PCQxcUIyWvdkc5BujGw"
 
 HISTORIC_ENDPOINT <- "https://data.cityofnewyork.us/resource/qgea-i56i.json"
 YTD_ENDPOINT      <- "https://data.cityofnewyork.us/resource/5uac-w243.json"
@@ -44,7 +44,7 @@ CRIME_GROUPS <- list(
   "Major property crimes" = c(
     "BURGLARY", "GRAND LARCENY", "GRAND LARCENY OF MOTOR VEHICLE"
   ),
-  "All assaults (felony + misdemeanor + harassment/menacing)" = c(
+  "All assaults" = c(
     "FELONY ASSAULT", "ASSAULT 3 & RELATED OFFENSES",
     "HARRASSMENT 2", "HARASSMENT 2",
     "MENACING,RECKLESS ENDANGERMENT", "OFFENSES AGAINST THE PERSON"
@@ -194,9 +194,32 @@ all_rows <- all_rows[
 all_rows$borough <- BOROUGH_MAP[all_rows$patrol_boro]
 all_rows$borough[is.na(all_rows$borough)] <- "Other"
 
-all_crime_types <- sort(unique(all_rows$ofns_desc))
+# ── Filter: only keep crimes with > 100 incidents in the current year ─────────
+# (We still keep ALL crimes for group calculations — filter only affects individual dropdown)
 
-# Expand to three location buckets
+ytd_year_str <- as.character(current_year)
+current_yr_rows <- all_rows[all_rows$yr == ytd_year_str, ]
+crime_totals_current <- aggregate(n ~ ofns_desc, data = current_yr_rows, FUN = sum)
+crimes_over_100 <- crime_totals_current$ofns_desc[crime_totals_current$n > 100]
+cat(sprintf("  %d crime types have > 100 incidents in %d (others hidden from dropdown)
+",
+            length(crimes_over_100), current_year))
+
+all_crime_types <- sort(crimes_over_100)
+
+# The 7 major individual crimes — always shown even if under threshold
+MAJOR_SEVEN <- c(
+  "FELONY ASSAULT", "ROBBERY", "BURGLARY",
+  "GRAND LARCENY", "GRAND LARCENY OF MOTOR VEHICLE",
+  "RAPE", "MURDER & NON-NEGL. MANSLAUGHTER"
+)
+
+# Sorted dropdown: major 7 first, then rest alphabetically
+major_in_list  <- sort(intersect(MAJOR_SEVEN, all_crime_types))
+others_in_list <- sort(setdiff(all_crime_types, MAJOR_SEVEN))
+all_crime_types_ordered <- c(major_in_list, others_in_list)
+
+# Expand to three location buckets (use ALL rows for group totals)
 rows_c <- all_rows; rows_c$bucket <- "citywide"
 rows_s <- all_rows[all_rows$loc_type == "subway",  ]; rows_s$bucket <- "subway"
 rows_h <- all_rows[all_rows$loc_type == "housing", ]; rows_h$bucket <- "housing"
@@ -211,7 +234,20 @@ agg_all <- aggregate(n ~ ofns_desc + bucket + yr + quarter, data = expanded, FUN
 agg_all$borough <- "All boroughs"
 agg <- rbind(agg, agg_all[, names(agg)])
 
-# Add crime groups
+# Add "All crime" group — sum of every offense
+cat("  Building 'All crime' group (all offenses)...
+")
+all_crime_group <- aggregate(n ~ bucket + borough + yr + quarter, data = agg[agg$ofns_desc %in% unique(all_rows$ofns_desc), ], FUN = sum)
+all_crime_group_all <- aggregate(n ~ bucket + yr + quarter, data = expanded, FUN = sum)
+all_crime_group_all$borough <- "All boroughs"
+all_crime_combined <- rbind(
+  aggregate(n ~ bucket + borough + yr + quarter, data = expanded[expanded$borough != "Other", ], FUN = sum),
+  all_crime_group_all[, c("bucket","borough","yr","quarter","n")]
+)
+all_crime_combined$ofns_desc <- "All crime"
+agg <- rbind(agg, all_crime_combined[, names(agg)])
+
+# Add other crime groups
 group_rows <- list()
 for (gname in names(CRIME_GROUPS)) {
   members <- CRIME_GROUPS[[gname]]
@@ -222,6 +258,8 @@ for (gname in names(CRIME_GROUPS)) {
   group_rows[[gname]] <- g[, names(agg)]
 }
 if (length(group_rows) > 0) agg <- rbind(agg, do.call(rbind, group_rows))
+
+all_crime_types <- all_crime_types_ordered
 
 # ── Build nested JSON structure ───────────────────────────────────────────────
 
@@ -244,9 +282,10 @@ output <- list(
     current_quarter = paste0("Q", current_quarter),
     ytd_through     = sprintf("End of Q%d (%d months)", current_quarter, ytd_end_month)
   ),
-  crime_types  = all_crime_types,
-  crime_groups = names(CRIME_GROUPS),
-  data         = data_out
+  crime_types        = all_crime_types,
+  crime_types_major  = major_in_list,
+  crime_groups       = c("All crime", names(CRIME_GROUPS)),
+  data               = data_out
 )
 
 out_path <- "crime_data.json"
