@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/paulr/Downloads/index_8.html -->
+<!-- saved from url=(0045)file:///C:/Users/paulr/Downloads/index_9.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,18 +142,23 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 /* ── Metrics ── */
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
+  grid-template-columns: 1.4fr repeat(4, minmax(0,1fr));
   gap: 0;
   border-top: 3px solid var(--black);
   border-bottom: 1px solid var(--border);
   margin-bottom: 3rem;
 }
 .metric {
-  padding: 1.25rem 0 1rem;
+  padding: 1.25rem 1.25rem 1rem;
   border-right: 1px solid var(--border);
 }
 .metric:last-child { border-right: none; }
-.metric:not(:first-child) { padding-left: 1.5rem; }
+.metric.ytd-metric {
+  background: #fdf3ef;
+  border-right: 1px solid rgba(255,124,83,0.25);
+  border-left: 4px solid var(--orange);
+  padding-left: calc(1.25rem - 4px);
+}
 .m-label {
   font-size: 9px;
   font-weight: 700;
@@ -162,13 +167,15 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
   color: var(--text2);
   margin-bottom: 8px;
 }
+.ytd-metric .m-label { color: var(--orange); }
 .m-val {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 700;
   color: var(--text);
   line-height: 1;
   letter-spacing: -0.02em;
 }
+.ytd-metric .m-val { font-size: 36px; }
 .m-delta {
   font-size: 11px;
   font-weight: 600;
@@ -363,7 +370,10 @@ function buildApp() {
   const availableMajors = MAJOR_SEVEN.filter(c => META.crime_types.includes(c) || (META.crime_types_major||[]).includes(c));
   const majorOpts = availableMajors.map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
   const otherOpts = (META.crime_types||[]).filter(c=>!majorSet.has(c)).map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
-  const cmpOpts = Array.from({length: curYear-2006}, (_,i)=>curYear-1-i)
+  const allYearsList = Array.from({length: curYear-2005}, (_,i)=>curYear-i);
+  const primaryOpts = allYearsList
+    .map(y=>`<option value="${y}" ${y===curYear?"selected":""}>${y}</option>`).join("");
+  const cmpOpts = allYearsList.filter(y=>y!==curYear)
     .map(y=>`<option value="${y}" ${y===curYear-1?"selected":""}>${y}</option>`).join("");
 
   document.getElementById("meta-badge").textContent =
@@ -394,6 +404,10 @@ function buildApp() {
         </select>
       </div>
       <div class="ctrl">
+        <label>Primary year</label>
+        <select id="sel-primary" style="min-width:100px;">${primaryOpts}</select>
+      </div>
+      <div class="ctrl">
         <label>Compare to</label>
         <select id="sel-cmp" style="min-width:100px;">${cmpOpts}</select>
       </div>
@@ -414,7 +428,14 @@ function buildApp() {
       </div>
       <div class="chart-section">
         <div class="chart-rule"></div>
-        <div class="chart-title">Long-term trend — since 2006</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div class="chart-title">Long-term trend — since 2006</div>
+          <div class="toggle-group" id="trend-toggle" style="height:26px;border-color:rgba(5,5,7,0.2);">
+            <button data-trend="ytd" class="active" style="font-size:10px;padding:0 10px;">YTD</button>
+            <button data-trend="quarterly" style="font-size:10px;padding:0 10px;">Quarterly</button>
+            <button data-trend="annual" style="font-size:10px;padding:0 10px;">Annual</button>
+          </div>
+        </div>
         <div class="chart-sub" id="trend-sub"></div>
         <div style="position:relative;">
           <canvas id="chart-trend" style="width:100%;height:200px;display:block;"></canvas>
@@ -448,63 +469,102 @@ function buildApp() {
 
   document.getElementById("sel-crime").addEventListener("change", e=>{state.crime=e.target.value;render();});
   document.getElementById("sel-borough").addEventListener("change", e=>{state.borough=e.target.value;render();});
+  document.getElementById("sel-primary").addEventListener("change", e=>{
+    state.primaryYear=String(e.target.value);
+    // Update cmp options to exclude primary year
+    const cmpSel=document.getElementById("sel-cmp");
+    const curCmp=state.cmpYear;
+    cmpSel.innerHTML = allYearsList.filter(y=>String(y)!==state.primaryYear)
+      .map(y=>`<option value="${y}" ${String(y)===curCmp?"selected":""}>${y}</option>`).join("");
+    if(state.cmpYear===state.primaryYear) {
+      state.cmpYear = String(allYearsList.find(y=>String(y)!==state.primaryYear));
+    }
+    render();
+  });
   document.getElementById("sel-cmp").addEventListener("change", e=>{state.cmpYear=String(e.target.value);render();});
   document.getElementById("loc-toggle").addEventListener("click", e=>{
     const btn=e.target.closest("button"); if(!btn) return;
     document.querySelectorAll("#loc-toggle button").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active"); state.loc=btn.dataset.loc; render();
   });
+  document.getElementById("trend-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#trend-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.trendMode=btn.dataset.trend; render();
+  });
 
-  state.crime   = META.crime_groups[0];
-  state.cmpYear = String(META.current_year-1);
-  document.getElementById("sel-crime").value = state.crime;
+  state.crime       = META.crime_groups[0];
+  state.primaryYear = String(META.current_year);
+  state.cmpYear     = String(META.current_year-1);
+  state.trendMode   = "ytd";
+  document.getElementById("sel-crime").value   = state.crime;
+  document.getElementById("sel-primary").value = state.primaryYear;
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
 function render() {
-  const curYear=META.current_year, curQ=META.current_quarter, cmpYear=state.cmpYear;
+  const latestYear=META.current_year, curQ=META.current_quarter;
+  const primaryYear=state.primaryYear||String(latestYear);
+  const cmpYear=state.cmpYear;
   const crime=state.crime, loc=state.loc, boro=state.borough;
-  const qIdx=QUARTERS.indexOf(curQ);
+  const trendMode=state.trendMode||"ytd";
 
-  // Metrics
-  const curYTD=getYTD(crime,loc,boro,curYear,curQ);
-  const cmpYTD=getYTD(crime,loc,boro,cmpYear,curQ);
-  const metrics=[
-    {label:`YTD total (${curYear})`, val:fmt(curYTD), delta:deltaDisplay(curYTD,cmpYTD)},
-    ...QUARTERS.slice(0,qIdx+1).map(q=>{
-      const c=getCount(crime,loc,boro,curYear,q), p=getCount(crime,loc,boro,cmpYear,q);
-      return {label:`${q} ${curYear}`, val:fmt(c), delta:deltaDisplay(c,p)};
-    }),
-  ];
-  while(metrics.length<4) metrics.push({label:`Q${metrics.length} ${curYear}`,val:"—",delta:{text:"Not yet available",cls:"delta-flat"}});
-  document.getElementById("metrics-row").innerHTML = metrics.slice(0,4).map(m=>`
-    <div class="metric">
+  // For metrics: use curQ if primary is latest year, else Q4 (full year)
+  const isPrimaryLatest = String(primaryYear)===String(latestYear);
+  const primaryQ = isPrimaryLatest ? curQ : "Q4";
+  const primaryQIdx = QUARTERS.indexOf(primaryQ);
+
+  // Metrics — YTD + all 4 quarters
+  const pYTD=getYTD(crime,loc,boro,primaryYear,primaryQ);
+  const cYTD=getYTD(crime,loc,boro,cmpYear,primaryQ);
+  const ytdMetric = {label:`YTD total (${primaryYear})`, val:fmt(pYTD), delta:deltaDisplay(pYTD,cYTD), isYTD:true};
+  const qtrMetrics = QUARTERS.map(q=>{
+    const pVal=getCount(crime,loc,boro,primaryYear,q);
+    const cVal=getCount(crime,loc,boro,cmpYear,q);
+    const available = QUARTERS.indexOf(q)<=primaryQIdx;
+    return {
+      label:`${q} ${primaryYear}`,
+      val: available?fmt(pVal):"—",
+      delta: available?deltaDisplay(pVal,cVal):{text:"Not yet available",cls:"delta-flat"},
+      isYTD:false
+    };
+  });
+  const allMetrics = [ytdMetric, ...qtrMetrics];
+  document.getElementById("metrics-row").innerHTML = allMetrics.map(m=>`
+    <div class="metric${m.isYTD?" ytd-metric":""}">
       <div class="m-label">${m.label}</div>
       <div class="m-val">${m.val}</div>
       <div class="m-delta ${m.delta.cls}">${m.delta.text}</div>
     </div>`).join("");
 
-  // Monthly
-  const maxMonth=(qIdx+1)*3;
+  // Monthly bars
+  const maxMonth=(primaryQIdx+1)*3;
   const mnths=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   function qForM(m){return m<=3?"Q1":m<=6?"Q2":m<=9?"Q3":"Q4";}
-  function monthly(year){return Array.from({length:maxMonth},(_,i)=>Math.round(getCount(crime,loc,boro,year,qForM(i+1))/3));}
-  document.getElementById("monthly-sub").textContent=`${curYear} vs ${cmpYear} · Q1–${curQ}`;
+  function monthly(year,upToQ){
+    const uIdx=QUARTERS.indexOf(upToQ);
+    return Array.from({length:12},(_,i)=>{
+      const m=i+1, q=qForM(m);
+      if(QUARTERS.indexOf(q)>uIdx) return 0;
+      return Math.round(getCount(crime,loc,boro,year,q)/3);
+    });
+  }
+  document.getElementById("monthly-sub").textContent=`${primaryYear} vs ${cmpYear} · Q1–${primaryQ}`;
   document.getElementById("monthly-legend").innerHTML=`
     <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
-    <span><span class="leg-dot" style="background:${C_CUR}"></span>${curYear}</span>`;
-  drawBars("chart-monthly", mnths.slice(0,maxMonth), [
-    {label:String(cmpYear), data:monthly(cmpYear), color:C_CMP},
-    {label:String(curYear), data:monthly(curYear), color:C_CUR},
+    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
+  drawBars("chart-monthly", mnths, [
+    {label:String(cmpYear), data:monthly(cmpYear, isPrimaryLatest?curQ:"Q4"), color:C_CMP},
+    {label:String(primaryYear), data:monthly(primaryYear, primaryQ), color:C_CUR},
   ], "tt-monthly");
 
   // Borough bars
   const boroData=["Bronx","Brooklyn","Manhattan","Queens","Staten Island"]
-    .map(b=>({name:b, val:getYTD(crime,loc,b,curYear,curQ), color:BORO_COLORS[b]}))
+    .map(b=>({name:b, val:getYTD(crime,loc,b,primaryYear,primaryQ), color:BORO_COLORS[b]}))
     .sort((a,b)=>b.val-a.val);
   const boroMax=Math.max(...boroData.map(b=>b.val),1);
   const boroTotal=boroData.reduce((s,b)=>s+b.val,0);
-  document.getElementById("boro-sub").textContent=`${curYear} · Q1–${curQ}`;
+  document.getElementById("boro-sub").textContent=`${primaryYear} · Q1–${primaryQ}`;
   document.getElementById("boro-legend").innerHTML=boroData.map(b=>`
     <span><span class="leg-dot" style="background:${b.color}"></span>${b.name}</span>`).join("");
   document.getElementById("boro-list").innerHTML=boroData.map(b=>{
@@ -519,25 +579,52 @@ function render() {
     </div>`;
   }).join("");
 
-  // Quarter comparison
-  const qLabels=QUARTERS.slice(0,qIdx+1);
-  document.getElementById("qtr-sub").textContent=`${curYear} vs ${cmpYear}`;
+  // Quarter comparison — always show all 4, gray out unavailable
+  document.getElementById("qtr-sub").textContent=`${primaryYear} vs ${cmpYear}`;
   document.getElementById("qtr-legend").innerHTML=`
     <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
-    <span><span class="leg-dot" style="background:${C_CUR}"></span>${curYear}</span>`;
-  drawBars("chart-qtr", qLabels, [
-    {label:String(cmpYear), data:qLabels.map(q=>getCount(crime,loc,boro,cmpYear,q)), color:C_CMP},
-    {label:String(curYear), data:qLabels.map(q=>getCount(crime,loc,boro,curYear,q)), color:C_CUR},
+    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
+  drawBars("chart-qtr", QUARTERS, [
+    {label:String(cmpYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,cmpYear,q)), color:C_CMP},
+    {label:String(primaryYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,primaryYear,q)), color:C_CUR},
   ], "tt-qtr");
 
-  // Trend line — always show full 2006–curYear range, 0 for missing years
-  const dataYears = getAllYears();
-  const minYear = Math.min(...dataYears, 2006);
-  const maxYear = Math.max(...dataYears, curYear);
-  const allYears = Array.from({length: maxYear - minYear + 1}, (_,i) => minYear + i);
-  const trendData = allYears.map(y => getYTD(crime, loc, boro, y, curQ));
-  document.getElementById("trend-sub").textContent=`Each year = YTD through ${curQ} · ${minYear}–${maxYear}`;
-  drawLine("chart-trend", allYears.map(String), trendData, String(curYear), cmpYear, "tt-trend");
+  // Trend line
+  const dataYears=getAllYears();
+  const minYr=Math.min(...dataYears,2006);
+  const maxYr=Math.max(...dataYears,latestYear);
+  const allYrs=Array.from({length:maxYr-minYr+1},(_,i)=>minYr+i);
+
+  if(trendMode==="ytd"){
+    const tData=allYrs.map(y=>getYTD(crime,loc,boro,y,curQ));
+    document.getElementById("trend-sub").textContent=`YTD through ${curQ} each year · ${minYr}–${maxYr}`;
+    drawLine("chart-trend", allYrs.map(String), tData, primaryYear, cmpYear, "tt-trend", null);
+
+  } else if(trendMode==="quarterly"){
+    // Each quarter as its own point: "2006 Q1", "2006 Q2"...
+    const qLabels=[], qData=[];
+    allYrs.forEach(y=>{
+      QUARTERS.forEach(q=>{
+        const isLatestYr=y===latestYear;
+        const qI=QUARTERS.indexOf(q);
+        if(isLatestYr && qI>primaryQIdx) return; // skip future quarters
+        qLabels.push(`${y} ${q}`);
+        qData.push(getCount(crime,loc,boro,y,q));
+      });
+    });
+    // Sparse x labels — only show year start
+    const xLabels=qLabels.map((l,i)=>l.endsWith("Q1")?l.split(" ")[0]:"");
+    document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}`;
+    drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
+
+  } else { // annual
+    // Full year totals — flag incomplete years
+    const isFullYear = y => !(y===latestYear && curQ!=="Q4");
+    const aData=allYrs.map(y=>getYTD(crime,loc,boro,y,"Q4"));
+    const incomplete=allYrs.map(y=>!isFullYear(y));
+    document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}`;
+    drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
+  }
 }
 
 // ── Canvas renderers ──────────────────────────────────────────────────────────
@@ -643,11 +730,14 @@ function drawBars(id, labels, datasets, ttId) {
   canvas.onmouseleave = () => { paint(-1); hideTooltip(ttId); };
 }
 
-function drawLine(id, labels, data, curYear, cmpYear, ttId) {
+function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplete) {
+  // xOverride: array of display labels for x-axis (sparse, empty string = skip)
+  // incomplete: array of booleans — true = this point is partial data
   const {ctx, W, H} = getCanvas(id, 200);
   const PL=44, PR=8, PT=10, PB=28;
   const cW=W-PL-PR, cH=H-PT-PB;
-  const mx=Math.max(...data,1);
+  const validData=data.filter(v=>v>0);
+  const mx=Math.max(...(validData.length?validData:[1]));
   const niceMax=Math.ceil(mx/1000)*1000||1;
   const TICKS=4;
   const n=labels.length;
@@ -666,33 +756,64 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId) {
       ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
       ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-5,y+3.5);
     }
-    // Vertical hover line
-    if (hovIdx >= 0) {
-      ctx.strokeStyle="rgba(5,5,7,0.15)"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+    // Hover vertical line
+    if(hovIdx>=0){
+      ctx.strokeStyle="rgba(5,5,7,0.12)"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
       ctx.beginPath(); ctx.moveTo(px(hovIdx),PT); ctx.lineTo(px(hovIdx),PT+cH); ctx.stroke();
       ctx.setLineDash([]);
     }
-    // Line
+    // Solid segment of line (complete data)
     ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
-    data.forEach((v,i)=>{ i===0?ctx.moveTo(px(i),py(v)):ctx.lineTo(px(i),py(v)); });
-    ctx.stroke();
+    let started=false;
+    data.forEach((v,i)=>{
+      if(incomplete&&incomplete[i]){ if(started){ctx.stroke(); started=false;} return; }
+      if(!started){ctx.moveTo(px(i),py(v));started=true;}
+      else ctx.lineTo(px(i),py(v));
+    });
+    if(started) ctx.stroke();
+    // Dashed segment for incomplete data
+    if(incomplete&&incomplete.some(Boolean)){
+      ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
+      ctx.setLineDash([4,4]);
+      let inSeg=false;
+      // Connect last complete point to first incomplete
+      const lastComplete=data.reduce((last,_,i)=>(!incomplete||!incomplete[i])?i:last,-1);
+      if(lastComplete>=0){
+        ctx.moveTo(px(lastComplete),py(data[lastComplete]));
+        data.forEach((v,i)=>{
+          if(incomplete&&incomplete[i]) { ctx.lineTo(px(i),py(v)); }
+        });
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
     // Points
     data.forEach((v,i)=>{
+      if(v===0) return;
       const lbl=labels[i];
       const isCur=lbl===String(curYear), isCmp=lbl===String(cmpYear), isHov=i===hovIdx;
+      const isPartial=incomplete&&incomplete[i];
       const r=isHov?6:(isCur||isCmp)?5:2.5;
-      const col=isHov?"#050507":isCur?C_CUR:isCmp?"#394882":"rgba(5,5,7,0.25)";
+      const col=isHov?"#050507":isCur?C_CUR:isCmp?"#394882":"rgba(5,5,7,0.3)";
       ctx.beginPath(); ctx.arc(px(i),py(v),r,0,Math.PI*2);
-      ctx.fillStyle=col; ctx.fill();
-      if((isCur||isCmp) && !isHov){
+      if(isPartial){
+        // Hollow circle for incomplete
+        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+      } else {
+        ctx.fillStyle=col; ctx.fill();
+      }
+      if((isCur||isCmp)&&!isHov&&!xOverride){
         ctx.fillStyle=col; ctx.font="bold 10px -apple-system,sans-serif";
         ctx.textAlign="center"; ctx.fillText(lbl,px(i),py(v)-10);
       }
     });
     // X labels
     ctx.fillStyle=C_LABEL; ctx.textAlign="center"; ctx.font="10px -apple-system,sans-serif";
-    const every=Math.ceil(n/8);
-    labels.forEach((lbl,i)=>{ if(i%every===0||i===n-1) ctx.fillText(lbl,px(i),H-6); });
+    if(xOverride){
+      xOverride.forEach((lbl,i)=>{ if(lbl) ctx.fillText(lbl,px(i),H-6); });
+    } else {
+      const every=Math.ceil(n/8);
+      labels.forEach((lbl,i)=>{ if(i%every===0||i===n-1) ctx.fillText(lbl,px(i),H-6); });
+    }
     // Axis
     ctx.strokeStyle=C_AXIS; ctx.lineWidth=1;
     ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
@@ -701,25 +822,24 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId) {
 
   paint(-1);
 
-  const canvas = document.getElementById(id);
-  canvas.onmousemove = (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const i = Math.round((mx - PL) / step);
-    if (i >= 0 && i < n) {
+  const canvas=document.getElementById(id);
+  canvas.onmousemove=(e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left;
+    const i=Math.round((mx-PL)/step);
+    if(i>=0&&i<n&&data[i]>0){
       paint(i);
-      const lbl = labels[i];
-      const col = lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#394882":"#050507";
-      showTooltip(ttId, canvas, mx, my, [
-        `<strong style="color:${col}">${lbl}</strong>`,
-        `${data[i].toLocaleString()} complaints (Q1–${META.current_quarter})`
+      const lbl=labels[i];
+      const isPartial=incomplete&&incomplete[i];
+      const col=lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#394882":"#050507";
+      const note=isPartial?" (incomplete year)":"";
+      showTooltip(ttId,canvas,mx,e.clientY-canvas.getBoundingClientRect().top,[
+        `<strong style="color:${col}">${lbl}</strong>${note}`,
+        `${data[i].toLocaleString()} complaints`
       ]);
-    } else {
-      paint(-1); hideTooltip(ttId);
-    }
+    } else { paint(-1); hideTooltip(ttId); }
   };
-  canvas.onmouseleave = () => { paint(-1); hideTooltip(ttId); };
+  canvas.onmouseleave=()=>{ paint(-1); hideTooltip(ttId); };
 }
 
 // ── Boot ─────────────────────────────────────────────────────────────────────
