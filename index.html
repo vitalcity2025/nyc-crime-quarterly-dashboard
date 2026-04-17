@@ -1,321 +1,375 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)file:///C:/Users/paulr/Downloads/index.html -->
+<!-- saved from url=(0045)file:///C:/Users/paulr/Downloads/index_1.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Crime Complaints — YTD Dashboard</title>
-<script src="./index_files/chart.umd.js.download"></script>
+<title>NYC Crime Complaints — Vital City</title>
+<script src="./index_files/chart.umd.min.js.download"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./index_files/css2" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg:        #ffffff;
-    --bg2:       #f5f4f0;
-    --bg3:       #eceae4;
-    --text:      #1a1a18;
-    --text2:     #5f5e5a;
-    --text3:     #888780;
-    --border:    rgba(0,0,0,0.12);
-    --border2:   rgba(0,0,0,0.22);
-    --blue:      #378ADD;
-    --blue-lt:   #B5D4F4;
-    --blue-bg:   #E6F1FB;
-    --red:       #E24B4A;
-    --red-bg:    #FCEBEB;
-    --green:     #639922;
-    --green-bg:  #EAF3DE;
-    --radius:    8px;
-    --radius-lg: 12px;
-  }
+:root {
+  /* Vital City palette */
+  --black:      #050507;
+  --white:      #ffffff;
+  --cloud:      #dddddd;
+  --orange:     #ff7c53;
+  --orange-lt:  #fde5dd;
+  --chartreuse: #dde44c;
+  --periwinkle: #9b9fbc;
+  --indigo:     #394882;
+  --cerulean:   #217ebe;
+  --cerulean-lt:#d2e4f0;
+  --magenta:    #e7466d;
+  --charcoal:   #707175;
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg:      #1e1e1c;
-      --bg2:     #2a2a28;
-      --bg3:     #343432;
-      --text:    #f0ede6;
-      --text2:   #b4b2a9;
-      --text3:   #888780;
-      --border:  rgba(255,255,255,0.12);
-      --border2: rgba(255,255,255,0.22);
-      --blue-bg: #042C53;
-      --red-bg:  #501313;
-      --green-bg:#173404;
-    }
-  }
+  /* UI tokens */
+  --bg:         #ffffff;
+  --bg2:        #f5f5f5;
+  --bg3:        #dddddd;
+  --text:       #050507;
+  --text2:      #707175;
+  --text3:      #9b9fbc;
+  --border:     rgba(5,5,7,0.12);
+  --border2:    rgba(5,5,7,0.25);
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: var(--bg3);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 100vh;
-  }
+  /* Data colors */
+  --series-a:   #394882;   /* indigo — comparison year */
+  --series-b:   #ff7c53;   /* orange — current year */
+  --series-a-lt:#d7dae6;
+  --series-b-lt:#fde5dd;
+}
 
-  /* ── Layout ── */
-  .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+body {
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
 
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  .top-bar h1 { font-size: 20px; font-weight: 500; color: var(--text); }
-  .top-bar .sub { font-size: 12px; color: var(--text3); margin-top: 2px; }
-  .meta-badge {
-    font-size: 11px;
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 4px 10px;
-    color: var(--text3);
-    white-space: nowrap;
-  }
+/* ── Layout ── */
+.page { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem 4rem; }
 
-  /* ── Controls ── */
-  .controls {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    align-items: flex-end;
-  }
-  .ctrl { display: flex; flex-direction: column; gap: 5px; }
-  .ctrl label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text3);
-    font-weight: 500;
-  }
-  select, .toggle-group {
-    font-size: 13px;
-    height: 34px;
-    border-radius: var(--radius);
-    border: 0.5px solid var(--border2);
-    background: var(--bg);
-    color: var(--text);
-    padding: 0 10px;
-    cursor: pointer;
-  }
-  select { min-width: 260px; }
-  .ctrl--crime select { min-width: 300px; }
-  select:focus { outline: 2px solid var(--blue); outline-offset: 1px; }
+/* ── Masthead ── */
+.masthead {
+  background: var(--black);
+  color: var(--white);
+  padding: 0;
+  margin-bottom: 2rem;
+}
+.masthead-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.masthead-left {}
+.masthead-wordmark {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.masthead-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+}
+.masthead-sub {
+  font-size: 12px;
+  color: var(--charcoal);
+  margin-top: 4px;
+  font-weight: 400;
+}
+.masthead-badge {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--charcoal);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
 
-  .toggle-group {
-    display: flex;
-    padding: 0;
-    overflow: hidden;
-    gap: 0;
-  }
-  .toggle-group button {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: var(--text2);
-    font-size: 12px;
-    padding: 0 14px;
-    cursor: pointer;
-    border-right: 0.5px solid var(--border);
-    white-space: nowrap;
-    height: 34px;
-    font-family: inherit;
-    transition: background 0.1s;
-  }
-  .toggle-group button:last-child { border-right: none; }
-  .toggle-group button.active {
-    background: var(--blue-bg);
-    color: var(--blue);
-    font-weight: 500;
-  }
+/* ── Controls ── */
+.controls {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+.ctrl { display: flex; flex-direction: column; gap: 5px; }
+.ctrl label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  height: 36px;
+  border: 1px solid var(--border2);
+  background: var(--white);
+  color: var(--text);
+  padding: 0 10px;
+  cursor: pointer;
+  border-radius: 0;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23707175'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 
-  /* ── Metric cards ── */
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 1.25rem;
-  }
-  .metric {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem;
-  }
-  .metric .m-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text3);
-    margin-bottom: 6px;
-  }
-  .metric .m-val {
-    font-size: 26px;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.1;
-  }
-  .metric .m-delta {
-    font-size: 11px;
-    margin-top: 4px;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-  .delta-up   { color: var(--red); }
-  .delta-down { color: var(--green); }
-  .delta-flat { color: var(--text3); }
+.toggle-group {
+  display: flex;
+  height: 36px;
+  border: 1px solid var(--border2);
+}
+.toggle-group button {
+  flex: 1;
+  border: none;
+  border-right: 1px solid var(--border2);
+  background: var(--white);
+  color: var(--text2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 16px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+.toggle-group button:last-child { border-right: none; }
+.toggle-group button.active {
+  background: var(--orange);
+  color: var(--white);
+  font-weight: 700;
+}
+.toggle-group button:hover:not(.active) { background: var(--orange-lt); }
 
-  /* ── Chart cards ── */
-  .chart-row { display: grid; gap: 10px; margin-bottom: 10px; }
-  .chart-row-2 { grid-template-columns: 1fr 1fr; }
-  .chart-row-3 { grid-template-columns: 2fr 1fr; }
+/* ── Metrics ── */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.metric {
+  background: var(--white);
+  padding: 1.25rem 1.25rem 1rem;
+}
+.metric .m-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 8px;
+}
+.metric .m-val {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+.metric .m-delta {
+  font-size: 11px;
+  font-weight: 500;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.delta-up   { color: var(--magenta); }
+.delta-down { color: #3B6D11; }
+.delta-flat { color: var(--text3); }
 
-  .card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 1rem 1.25rem;
-  }
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  .card-title { font-size: 13px; font-weight: 500; color: var(--text); }
-  .card-sub   { font-size: 11px; color: var(--text3); margin-top: 1px; }
+/* ── Rule line ── */
+.rule { height: 1px; background: var(--border); margin-bottom: 1.5rem; }
+.rule-orange { height: 3px; background: var(--orange); margin-bottom: 1.5rem; }
 
-  .legend {
-    display: flex;
-    gap: 14px;
-    font-size: 11px;
-    color: var(--text2);
-    flex-wrap: wrap;
-  }
-  .legend span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .leg-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
+/* ── Chart cards ── */
+.chart-row { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1.5rem; }
+.chart-row-3 { grid-template-columns: 3fr 2fr; }
+.chart-row-2 { grid-template-columns: 1fr 1fr; }
 
-  .chart-wrap { position: relative; }
+.card {
+  background: var(--white);
+  padding: 1.25rem 1.5rem;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 3px;
+  font-weight: 400;
+}
 
-  /* ── Borough bars ── */
-  .boro-list { display: flex; flex-direction: column; gap: 8px; }
-  .boro-row {}
-  .boro-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--text2);
-    margin-bottom: 3px;
-  }
-  .boro-bar-bg {
-    height: 6px;
-    background: var(--bg2);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-  .boro-bar-fill {
-    height: 100%;
-    background: var(--blue);
-    border-radius: 3px;
-    transition: width 0.4s ease;
-  }
+.legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--text2);
+  flex-wrap: wrap;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+.leg-swatch {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
 
-  /* ── Loading / error states ── */
-  .state-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 60vh;
-    gap: 1rem;
-    color: var(--text2);
-    text-align: center;
-  }
-  .state-screen .icon { font-size: 32px; }
-  .state-screen h2 { font-size: 16px; font-weight: 500; color: var(--text); }
-  .state-screen p { font-size: 13px; max-width: 420px; line-height: 1.6; }
-  .state-screen code {
-    display: inline-block;
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 4px;
-    padding: 2px 7px;
-    font-family: monospace;
-    font-size: 12px;
-  }
+.chart-wrap { position: relative; }
 
-  /* ── Responsive ── */
-  @media (max-width: 720px) {
-    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .chart-row-2, .chart-row-3 { grid-template-columns: 1fr; }
-    select { min-width: 100%; }
-    .ctrl--crime select { min-width: 100%; }
-    .controls { flex-direction: column; }
-  }
+/* ── Borough bars ── */
+.boro-list { display: flex; flex-direction: column; gap: 10px; }
+.boro-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.boro-labels .boro-pct { color: var(--text2); font-weight: 400; }
+.boro-bar-bg {
+  height: 8px;
+  background: var(--bg2);
+  overflow: hidden;
+}
+.boro-bar-fill {
+  height: 100%;
+  background: var(--orange);
+  transition: width 0.4s ease;
+}
+
+/* ── Source line ── */
+.source {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 1.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Loading / error ── */
+.state-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 1rem;
+  color: var(--text2);
+  text-align: center;
+}
+.state-screen h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+.state-screen p { font-size: 13px; max-width: 420px; line-height: 1.6; }
+.state-screen code {
+  display: inline-block;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  font-family: monospace;
+  font-size: 12px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-row-2, .chart-row-3 { grid-template-columns: 1fr; }
+  select { min-width: 100%; }
+  .controls { flex-direction: column; }
+  .masthead-title { font-size: 18px; }
+}
 </style>
 </head>
 <body>
+
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-left">
+      <div class="masthead-wordmark">Vital City</div>
+      <div class="masthead-title">NYC crime complaints</div>
+      <div class="masthead-sub">Year to date · NYPD complaint data · NYC Open Data</div>
+    </div>
+    <div class="masthead-badge" id="meta-badge">Loading…</div>
+  </div>
+</div>
+
 <div class="page" id="app">
       <div class="state-screen">
-        <div class="icon">📂</div>
         <h2>Data file not found</h2>
-        <p>
-          Place <code>crime_data.json</code> in the same folder as this HTML file,
-          then reload the page.<br><br>
-          Generate it by running:<br>
-          <code>python fetch_nypd_data.py</code>
-        </p>
-      </div>
-    </div>
+        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+        Generate it by running:<br><code>source("fetch_nypd_data.R")</code> in RStudio.</p>
+      </div></div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// Constants & helpers
+// Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const BLUE      = "#378ADD";
-const BLUE_LT   = "#B5D4F4";
-const BLUE_DARK = "#185FA5";
-const TEAL      = "#1D9E75";
-const TEAL_LT   = "#9FE1CB";
-const CORAL     = "#D85A30";
-const CORAL_LT  = "#F5C4B3";
-const AMBER     = "#BA7517";
-const AMBER_LT  = "#FAC775";
-const GRAY      = "#888780";
-const GRAY_LT   = "#D3D1C7";
+// Vital City data colors
+const C_CUR  = "#ff7c53";   // Safety Orange — current year
+const C_CMP  = "#394882";   // Indigo — comparison year
+const C_CUR_LT = "#fde5dd";
+const C_CMP_LT = "#d7dae6";
+const C_GRID = "rgba(5,5,7,0.07)";
+const C_LABEL = "#707175";
 
-const BOROUGHS = ["All boroughs", "Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"];
-const QUARTERS = ["Q1", "Q2", "Q3", "Q4"];
+const BOROUGHS = ["All boroughs","Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+const QUARTERS = ["Q1","Q2","Q3","Q4"];
 
 function fmt(n) {
   if (n == null || isNaN(n)) return "—";
   return Math.round(n).toLocaleString();
 }
-
 function pctDelta(curr, prev) {
   if (!prev || prev === 0) return null;
   return ((curr - prev) / prev) * 100;
 }
-
 function deltaDisplay(curr, prev) {
   const pct = pctDelta(curr, prev);
   if (pct == null) return { text: "No prior data", cls: "delta-flat" };
@@ -328,61 +382,37 @@ function deltaDisplay(curr, prev) {
 // ─────────────────────────────────────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────────────────────────────────────
-
-let DATA = null;
-let META = null;
-
-let state = {
-  crime:    null,   // current crime name or group name
-  loc:      "citywide",
-  borough:  "All boroughs",
-  cmpYear:  null,   // year to compare against (string)
-};
-
+let DATA = null, META = null;
+let state = { crime: null, loc: "citywide", borough: "All boroughs", cmpYear: null };
 let charts = {};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Data access
 // ─────────────────────────────────────────────────────────────────────────────
-
 function getCount(crime, loc, borough, year, quarter) {
-  try {
-    const v = DATA[crime]?.[loc]?.[borough]?.[String(year)]?.[quarter];
-    return v ? parseInt(v) : 0;
-  } catch { return 0; }
+  try { const v = DATA[crime]?.[loc]?.[borough]?.[String(year)]?.[quarter]; return v ? parseInt(v) : 0; }
+  catch { return 0; }
 }
-
-function getYTDTotal(crime, loc, borough, year, upToQuarter) {
-  // Sum Q1..upToQuarter for the given year
-  const qIdx = QUARTERS.indexOf(upToQuarter);
-  let total = 0;
-  for (let i = 0; i <= qIdx; i++) {
-    total += getCount(crime, loc, borough, year, QUARTERS[i]);
-  }
-  return total;
+function getYTD(crime, loc, borough, year, upToQ) {
+  const qi = QUARTERS.indexOf(upToQ);
+  let t = 0;
+  for (let i = 0; i <= qi; i++) t += getCount(crime, loc, borough, year, QUARTERS[i]);
+  return t;
 }
-
 function getAllYears() {
-  // Collect all years present across the whole dataset
   const years = new Set();
-  const crimeData = DATA[state.crime];
-  if (!crimeData) return [];
-  const locData = crimeData[state.loc];
-  if (!locData) return [];
-  const boroData = locData[state.borough];
-  if (!boroData) return [];
-  Object.keys(boroData).forEach(y => years.add(y));
+  const d = DATA[state.crime]?.[state.loc]?.[state.borough];
+  if (d) Object.keys(d).forEach(y => years.add(y));
   return Array.from(years).map(Number).sort((a,b) => a-b);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build UI
 // ─────────────────────────────────────────────────────────────────────────────
-
 function buildApp() {
   const app = document.getElementById("app");
+  const curYear = META.current_year;
 
-  // Crime dropdown options: groups first, then individual
   const groupOpts = META.crime_groups.map(g =>
     `<option value="${g}">— ${g} —</option>`
   ).join("");
@@ -390,27 +420,18 @@ function buildApp() {
     `<option value="${c}">${c.charAt(0) + c.slice(1).toLowerCase()}</option>`
   ).join("");
 
-  // Comparison year options (all years except current)
-  const currentYear = META.current_year;
   const allYears = [];
-  for (let y = currentYear - 1; y >= 2006; y--) allYears.push(y);
+  for (let y = curYear - 1; y >= 2006; y--) allYears.push(y);
   const cmpOpts = allYears.map(y =>
-    `<option value="${y}" ${y === currentYear - 1 ? "selected" : ""}>vs. ${y}</option>`
+    `<option value="${y}" ${y === curYear - 1 ? "selected" : ""}>vs. ${y}</option>`
   ).join("");
 
-  app.innerHTML = `
-    <div class="top-bar">
-      <div>
-        <h1>NYC crime complaints — year to date</h1>
-        <div class="sub">NYPD complaint data · source: NYC Open Data</div>
-      </div>
-      <div class="meta-badge" id="meta-badge">
-        Data through ${META.ytd_through} · updated ${new Date(META.generated).toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"})}
-      </div>
-    </div>
+  document.getElementById("meta-badge").textContent =
+    `Data through ${META.ytd_through} · updated ${new Date(META.generated).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
 
+  app.innerHTML = `
     <div class="controls">
-      <div class="ctrl ctrl--crime">
+      <div class="ctrl" style="flex:2;min-width:240px;">
         <label>Crime category</label>
         <select id="sel-crime">
           <optgroup label="Combined categories">${groupOpts}</optgroup>
@@ -427,19 +448,21 @@ function buildApp() {
       </div>
       <div class="ctrl">
         <label>Borough</label>
-        <select id="sel-borough">
-          ${BOROUGHS.map(b => `<option value="${b}">${b}</option>`).join("")}
+        <select id="sel-borough" style="min-width:160px;">
+          ${BOROUGHS.map(b=>`<option value="${b}">${b}</option>`).join("")}
         </select>
       </div>
       <div class="ctrl">
         <label>Comparison year</label>
-        <select id="sel-cmp">${cmpOpts}</select>
+        <select id="sel-cmp" style="min-width:120px;">${cmpOpts}</select>
       </div>
     </div>
 
+    <div class="rule-orange"></div>
+
     <div class="metrics" id="metrics-row"></div>
 
-    <div class="chart-row chart-row-3" style="margin-bottom:10px;">
+    <div class="chart-row chart-row-3" style="margin-bottom:1.5rem;">
       <div class="card">
         <div class="card-header">
           <div>
@@ -448,11 +471,14 @@ function buildApp() {
           </div>
           <div class="legend" id="monthly-legend"></div>
         </div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="chart-monthly" role="img" aria-label="Monthly complaint counts YTD"></canvas></div>
+        <div class="chart-wrap" style="height:200px;"><canvas id="chart-monthly" role="img" aria-label="Monthly complaint counts YTD"></canvas></div>
       </div>
       <div class="card">
         <div class="card-header">
-          <div class="card-title">By borough — YTD</div>
+          <div>
+            <div class="card-title">By borough — YTD</div>
+            <div class="card-sub" id="boro-sub"></div>
+          </div>
         </div>
         <div class="boro-list" id="boro-list"></div>
       </div>
@@ -462,7 +488,7 @@ function buildApp() {
       <div class="card">
         <div class="card-header">
           <div>
-            <div class="card-title">Quarter-by-quarter comparison</div>
+            <div class="card-title">Quarter by quarter</div>
             <div class="card-sub" id="qtr-sub"></div>
           </div>
           <div class="legend" id="qtr-legend"></div>
@@ -479,21 +505,13 @@ function buildApp() {
         <div class="chart-wrap" style="height:200px;"><canvas id="chart-trend" role="img" aria-label="Long term trend since 2006"></canvas></div>
       </div>
     </div>
+
+    <div class="source">Source: NYPD Complaint Data (NYC Open Data). Combined categories defined by Vital City. Data updated quarterly.</div>
   `;
 
-  // Wire up controls
-  document.getElementById("sel-crime").addEventListener("change", e => {
-    state.crime = e.target.value;
-    render();
-  });
-  document.getElementById("sel-borough").addEventListener("change", e => {
-    state.borough = e.target.value;
-    render();
-  });
-  document.getElementById("sel-cmp").addEventListener("change", e => {
-    state.cmpYear = String(e.target.value);
-    render();
-  });
+  document.getElementById("sel-crime").addEventListener("change", e => { state.crime = e.target.value; render(); });
+  document.getElementById("sel-borough").addEventListener("change", e => { state.borough = e.target.value; render(); });
+  document.getElementById("sel-cmp").addEventListener("change", e => { state.cmpYear = String(e.target.value); render(); });
   document.getElementById("loc-toggle").addEventListener("click", e => {
     const btn = e.target.closest("button");
     if (!btn) return;
@@ -503,9 +521,8 @@ function buildApp() {
     render();
   });
 
-  // Set initial state
   state.crime   = META.crime_groups[0];
-  state.cmpYear = String(currentYear - 1);
+  state.cmpYear = String(META.current_year - 1);
   document.getElementById("sel-crime").value = state.crime;
   document.getElementById("sel-cmp").value   = state.cmpYear;
 }
@@ -513,44 +530,31 @@ function buildApp() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Render
 // ─────────────────────────────────────────────────────────────────────────────
-
 function render() {
-  const curYear  = META.current_year;
-  const curQ     = META.current_quarter; // "Q1"–"Q4"
-  const cmpYear  = state.cmpYear;
-  const crime    = state.crime;
-  const loc      = state.loc;
-  const borough  = state.borough;
+  const curYear = META.current_year;
+  const curQ    = META.current_quarter;
+  const cmpYear = state.cmpYear;
+  const crime   = state.crime;
+  const loc     = state.loc;
+  const borough = state.borough;
+  const qIdx    = QUARTERS.indexOf(curQ);
 
-  const curYTD = getYTDTotal(crime, loc, borough, curYear, curQ);
-  const cmpYTD = getYTDTotal(crime, loc, borough, cmpYear, curQ);
+  const curYTD = getYTD(crime, loc, borough, curYear, curQ);
+  const cmpYTD = getYTD(crime, loc, borough, cmpYear, curQ);
 
   // ── Metrics ──────────────────────────────────────────────────────────────
-  const qIdx = QUARTERS.indexOf(curQ);
-
-  const metricsEl = document.getElementById("metrics-row");
-
   const metrics = [
-    {
-      label: `YTD total (${curYear})`,
-      val:   fmt(curYTD),
-      delta: deltaDisplay(curYTD, cmpYTD),
-    },
+    { label: `YTD total (${curYear})`, val: fmt(curYTD), delta: deltaDisplay(curYTD, cmpYTD) },
     ...QUARTERS.slice(0, qIdx + 1).map(q => {
       const c = getCount(crime, loc, borough, curYear, q);
       const p = getCount(crime, loc, borough, cmpYear, q);
       return { label: `${q} ${curYear}`, val: fmt(c), delta: deltaDisplay(c, p) };
     }),
   ];
-
-  // Pad to 4 columns
   while (metrics.length < 4) {
     metrics.push({ label: `Q${metrics.length} ${curYear}`, val: "—", delta: { text: "Not yet available", cls: "delta-flat" } });
   }
-  // Show at most 4
-  const shown = metrics.slice(0, 4);
-
-  metricsEl.innerHTML = shown.map(m => `
+  document.getElementById("metrics-row").innerHTML = metrics.slice(0,4).map(m => `
     <div class="metric">
       <div class="m-label">${m.label}</div>
       <div class="m-val">${m.val}</div>
@@ -559,124 +563,89 @@ function render() {
   `).join("");
 
   // ── Monthly chart ─────────────────────────────────────────────────────────
+  const maxMonth = (qIdx + 1) * 3;
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  // month → quarter mapping (1-indexed)
-  function qForMonth(m) {
-    if (m <= 3) return "Q1";
-    if (m <= 6) return "Q2";
-    if (m <= 9) return "Q3";
-    return "Q4";
-  }
-  const maxMonth = (QUARTERS.indexOf(curQ) + 1) * 3; // last visible month
-
-  // Aggregate monthly from quarterly structure — we only have quarterly granularity
-  // So distribute each quarter evenly across its 3 months (best we can without raw rows)
+  function qForMonth(m) { return m<=3?"Q1":m<=6?"Q2":m<=9?"Q3":"Q4"; }
   function getMonthlyApprox(year) {
-    const vals = [];
-    for (let m = 1; m <= maxMonth; m++) {
-      const q = qForMonth(m);
-      const qTotal = getCount(crime, loc, borough, year, q);
-      vals.push(Math.round(qTotal / 3));
-    }
-    return vals;
+    return Array.from({length: maxMonth}, (_,i) => {
+      const m = i + 1;
+      return Math.round(getCount(crime, loc, borough, year, qForMonth(m)) / 3);
+    });
   }
-
-  const curMonthly = getMonthlyApprox(curYear);
-  const cmpMonthly = getMonthlyApprox(cmpYear);
   const labels = monthNames.slice(0, maxMonth);
-
-  document.getElementById("monthly-sub").textContent =
-    `${curYear} vs ${cmpYear} · Q1–${curQ}`;
+  document.getElementById("monthly-sub").textContent = `${curYear} vs ${cmpYear} · Q1–${curQ}`;
   document.getElementById("monthly-legend").innerHTML = `
-    <span><span class="leg-swatch" style="background:${BLUE_LT}"></span>${cmpYear}</span>
-    <span><span class="leg-swatch" style="background:${BLUE}"></span>${curYear}</span>
+    <span><span class="leg-swatch" style="background:${C_CMP}"></span>${cmpYear}</span>
+    <span><span class="leg-swatch" style="background:${C_CUR}"></span>${curYear}</span>
   `;
-
   renderBarChart("chart-monthly", labels, [
-    { label: String(cmpYear), data: cmpMonthly, color: BLUE_LT },
-    { label: String(curYear), data: curMonthly, color: BLUE },
+    { label: String(cmpYear), data: getMonthlyApprox(cmpYear), color: C_CMP_LT, border: C_CMP },
+    { label: String(curYear), data: getMonthlyApprox(curYear), color: C_CUR, border: C_CUR },
   ]);
 
   // ── Borough bars ──────────────────────────────────────────────────────────
-  const boroData = BOROUGHS.filter(b => b !== "All boroughs").map(b => ({
-    name: b,
-    val:  getYTDTotal(crime, loc, b, curYear, curQ),
-  })).sort((a, b) => b.val - a.val);
-
-  const boroMax = Math.max(...boroData.map(b => b.val), 1);
-  const boroTotal = boroData.reduce((s, b) => s + b.val, 0);
-
+  const boroData = BOROUGHS.filter(b => b !== "All boroughs")
+    .map(b => ({ name: b, val: getYTD(crime, loc, b, curYear, curQ) }))
+    .sort((a,b) => b.val - a.val);
+  const boroMax   = Math.max(...boroData.map(b => b.val), 1);
+  const boroTotal = boroData.reduce((s,b) => s + b.val, 0);
+  document.getElementById("boro-sub").textContent = `${curYear} · Q1–${curQ}`;
   document.getElementById("boro-list").innerHTML = boroData.map(b => {
-    const pct = boroTotal > 0 ? ((b.val / boroTotal) * 100).toFixed(1) : "0.0";
-    const barW = boroMax > 0 ? (b.val / boroMax * 100).toFixed(1) : "0";
+    const pct = boroTotal > 0 ? ((b.val/boroTotal)*100).toFixed(1) : "0.0";
+    const barW = boroMax > 0 ? (b.val/boroMax*100).toFixed(1) : "0";
     return `
-      <div class="boro-row">
-        <div class="boro-labels">
-          <span>${b.name}</span>
-          <span>${fmt(b.val)} &nbsp;(${pct}%)</span>
-        </div>
-        <div class="boro-bar-bg">
-          <div class="boro-bar-fill" style="width:${barW}%"></div>
-        </div>
-      </div>
-    `;
+      <div>
+        <div class="boro-labels"><span>${b.name}</span><span>${fmt(b.val)} <span class="boro-pct">(${pct}%)</span></span></div>
+        <div class="boro-bar-bg"><div class="boro-bar-fill" style="width:${barW}%"></div></div>
+      </div>`;
   }).join("");
 
-  // ── Quarter comparison chart ──────────────────────────────────────────────
-  const qLabels = QUARTERS.slice(0, qIdx + 1);
+  // ── Quarter comparison ────────────────────────────────────────────────────
+  const qLabels  = QUARTERS.slice(0, qIdx + 1);
   const curQData = qLabels.map(q => getCount(crime, loc, borough, curYear, q));
   const cmpQData = qLabels.map(q => getCount(crime, loc, borough, cmpYear, q));
-
   document.getElementById("qtr-sub").textContent = `${curYear} vs ${cmpYear}`;
   document.getElementById("qtr-legend").innerHTML = `
-    <span><span class="leg-swatch" style="background:${BLUE_LT}"></span>${cmpYear}</span>
-    <span><span class="leg-swatch" style="background:${BLUE}"></span>${curYear}</span>
+    <span><span class="leg-swatch" style="background:${C_CMP}"></span>${cmpYear}</span>
+    <span><span class="leg-swatch" style="background:${C_CUR}"></span>${curYear}</span>
   `;
-
   renderBarChart("chart-qtr", qLabels, [
-    { label: String(cmpYear), data: cmpQData, color: BLUE_LT },
-    { label: String(curYear), data: curQData, color: BLUE },
+    { label: String(cmpYear), data: cmpQData, color: C_CMP_LT, border: C_CMP },
+    { label: String(curYear), data: curQData, color: C_CUR, border: C_CUR },
   ]);
 
-  // ── Long-term trend line ──────────────────────────────────────────────────
-  const allYears = getAllYears();
+  // ── Long-term trend ───────────────────────────────────────────────────────
+  const allYears   = getAllYears();
   const trendLabels = allYears.map(String);
-  const trendData   = allYears.map(y => getYTDTotal(crime, loc, borough, y, curQ));
-
+  const trendData   = allYears.map(y => getYTD(crime, loc, borough, y, curQ));
   document.getElementById("trend-sub").textContent =
-    `Each year = YTD through ${curQ} · ${trendLabels[0]}–${trendLabels[trendLabels.length - 1]}`;
-
+    `Each year = YTD through ${curQ} · 2006–${trendLabels[trendLabels.length-1]}`;
   renderLineChart("chart-trend", trendLabels, trendData, curYear, cmpYear);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Chart renderers
 // ─────────────────────────────────────────────────────────────────────────────
-
 function destroyChart(id) {
   if (charts[id]) { charts[id].destroy(); delete charts[id]; }
 }
 
-const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-const gridColor  = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)";
-const labelColor = isDark ? "#888780" : "#888780";
-
-const baseOpts = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: { legend: { display: false }, tooltip: { mode: "index", intersect: false } },
-  scales: {
-    x: { grid: { color: gridColor }, ticks: { color: labelColor, font: { size: 11 } } },
-    y: {
-      grid: { color: gridColor },
-      ticks: {
-        color: labelColor,
-        font: { size: 11 },
-        callback: v => v >= 1000 ? (v/1000).toFixed(0) + "k" : v,
-      },
-      beginAtZero: true,
-    },
+const baseScales = {
+  x: {
+    grid: { color: C_GRID, lineWidth: 1 },
+    ticks: { color: C_LABEL, font: { size: 11, family: "'DM Sans', sans-serif" } },
+    border: { color: "rgba(5,5,7,0.15)" }
   },
+  y: {
+    grid: { color: C_GRID, lineWidth: 1 },
+    ticks: {
+      color: C_LABEL,
+      font: { size: 11, family: "'DM Sans', sans-serif" },
+      callback: v => v >= 1000 ? (v/1000).toFixed(0)+"k" : v,
+    },
+    beginAtZero: true,
+    border: { color: "rgba(5,5,7,0.15)" }
+  }
 };
 
 function renderBarChart(id, labels, datasets) {
@@ -688,37 +657,36 @@ function renderBarChart(id, labels, datasets) {
       labels,
       datasets: datasets.map(d => ({
         label: d.label,
-        data:  d.data,
+        data: d.data,
         backgroundColor: d.color,
-        borderRadius: 3,
-        borderSkipped: false,
-        barPercentage: 0.8,
+        borderColor: d.border,
+        borderWidth: 1,
+        borderRadius: 0,
+        barPercentage: 0.75,
         categoryPercentage: 0.85,
-      })),
+      }))
     },
     options: {
-      ...baseOpts,
-      scales: {
-        ...baseOpts.scales,
-        x: { ...baseOpts.scales.x, ticks: { ...baseOpts.scales.x.ticks, autoSkip: false } },
-      },
-    },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: "index", intersect: false,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}` }
+      }},
+      scales: { ...baseScales, x: { ...baseScales.x, ticks: { ...baseScales.x.ticks, autoSkip: false } } }
+    }
   });
 }
 
 function renderLineChart(id, labels, data, curYear, cmpYear) {
   destroyChart(id);
   const ctx = document.getElementById(id).getContext("2d");
+  const pointColors = labels.map(y => y===String(curYear) ? C_CUR : y===String(cmpYear) ? C_CMP : "rgba(5,5,7,0.2)");
+  const pointRadius = labels.map(y => (y===String(curYear)||y===String(cmpYear)) ? 5 : 3);
 
-  // Color each point: current year = solid blue, compare year = coral, others = gray
-  const pointColors = labels.map(y => {
-    if (y === String(curYear))  return BLUE;
-    if (y === String(cmpYear))  return CORAL;
-    return GRAY;
-  });
-  const pointRadius = labels.map(y =>
-    (y === String(curYear) || y === String(cmpYear)) ? 5 : 3
-  );
+  // Create fill gradient
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, "rgba(255,124,83,0.18)");
+  gradient.addColorStop(1, "rgba(255,124,83,0.0)");
 
   charts[id] = new Chart(ctx, {
     type: "line",
@@ -727,67 +695,53 @@ function renderLineChart(id, labels, data, curYear, cmpYear) {
       datasets: [{
         label: "YTD complaints",
         data,
-        borderColor: BLUE,
+        borderColor: C_CUR,
         borderWidth: 2,
         pointBackgroundColor: pointColors,
+        pointBorderColor: pointColors,
         pointRadius,
         pointHoverRadius: 6,
-        fill: false,
+        fill: true,
+        backgroundColor: gradient,
         tension: 0.3,
-      }],
+      }]
     },
     options: {
-      ...baseOpts,
-      scales: {
-        ...baseOpts.scales,
-        x: {
-          ...baseOpts.scales.x,
-          ticks: {
-            ...baseOpts.scales.x.ticks,
-            maxTicksLimit: 10,
-            maxRotation: 45,
-          },
-        },
-      },
-    },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ` ${ctx.parsed.y.toLocaleString()} complaints` }
+      }},
+      scales: { ...baseScales, x: { ...baseScales.x, ticks: { ...baseScales.x.ticks, maxTicksLimit: 10, maxRotation: 45 } } }
+    }
   });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Boot
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function boot() {
   let raw;
   try {
     const resp = await fetch("crime_data.json");
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     raw = await resp.json();
-  } catch (err) {
+  } catch(err) {
     document.getElementById("app").innerHTML = `
       <div class="state-screen">
-        <div class="icon">📂</div>
         <h2>Data file not found</h2>
-        <p>
-          Place <code>crime_data.json</code> in the same folder as this HTML file,
-          then reload the page.<br><br>
-          Generate it by running:<br>
-          <code>python fetch_nypd_data.py</code>
-        </p>
-      </div>
-    `;
+        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+        Generate it by running:<br><code>source("fetch_nypd_data.R")</code> in RStudio.</p>
+      </div>`;
     return;
   }
-
   META = raw.meta;
   META.crime_groups = raw.crime_groups || [];
   META.crime_types  = raw.crime_types  || [];
   DATA = raw.data;
-
   buildApp();
   render();
 }
-
 boot();
 </script>
 
