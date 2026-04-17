@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/paulr/Downloads/index_2.html -->
+<!-- saved from url=(0045)file:///C:/Users/paulr/Downloads/index_3.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NYC Crime Complaints — Vital City</title>
-<script src="./index_files/chart.umd.min.js.download"></script>
+
 
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -625,96 +625,191 @@ function render() {
 // ─────────────────────────────────────────────────────────────────────────────
 // Chart renderers
 // ─────────────────────────────────────────────────────────────────────────────
+// destroyChart defined below with canvas renderers
+
+// ── Native canvas chart renderers (no external library) ──────────────────────
+
+function fmtK(v) { return v >= 1000 ? (v/1000).toFixed(0)+"k" : String(v); }
+
 function destroyChart(id) {
-  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  const el = document.getElementById(id);
+  if (el) { const p = el.parentNode; p.removeChild(el); const c = document.createElement("canvas"); c.id = id; c.setAttribute("role","img"); p.appendChild(c); }
 }
 
-const baseScales = {
-  x: {
-    grid: { color: C_GRID, lineWidth: 1 },
-    ticks: { color: C_LABEL, font: { size: 11 } },
-    border: { color: "rgba(5,5,7,0.15)" }
-  },
-  y: {
-    grid: { color: C_GRID, lineWidth: 1 },
-    ticks: {
-      color: C_LABEL,
-      font: { size: 11 },
-      callback: v => v >= 1000 ? (v/1000).toFixed(0)+"k" : v,
-    },
-    beginAtZero: true,
-    border: { color: "rgba(5,5,7,0.15)" }
+function drawBarChart(id, labels, datasets) {
+  destroyChart(id);
+  const canvas = document.getElementById(id);
+  const wrap = canvas.parentNode;
+  const W = wrap.clientWidth || 500;
+  const H = wrap.clientHeight || 200;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const PAD_L = 44, PAD_R = 12, PAD_T = 10, PAD_B = 32;
+  const cW = W - PAD_L - PAD_R;
+  const cH = H - PAD_T - PAD_B;
+
+  const allVals = datasets.flatMap(d => d.data);
+  const maxVal = Math.max(...allVals, 1);
+  const niceMax = Math.ceil(maxVal / 1000) * 1000 || 1;
+  const ticks = 4;
+
+  // Grid + y-axis labels
+  ctx.strokeStyle = "rgba(5,5,7,0.07)";
+  ctx.fillStyle = "#707175";
+  ctx.font = "11px -apple-system,sans-serif";
+  ctx.textAlign = "right";
+  for (let i = 0; i <= ticks; i++) {
+    const v = (niceMax / ticks) * i;
+    const y = PAD_T + cH - (v / niceMax) * cH;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L + cW, y); ctx.stroke();
+    ctx.fillText(fmtK(Math.round(v)), PAD_L - 4, y + 3.5);
   }
-};
 
-function renderBarChart(id, labels, datasets) {
+  // Bars
+  const n = labels.length;
+  const ds = datasets.length;
+  const groupW = cW / n;
+  const barW = Math.min(groupW * 0.8 / ds, 40);
+  const gap = (groupW - barW * ds) / 2;
+
+  datasets.forEach((d, di) => {
+    ctx.fillStyle = d.color;
+    d.data.forEach((v, i) => {
+      const bH = (v / niceMax) * cH;
+      const x = PAD_L + i * groupW + gap + di * barW;
+      const y = PAD_T + cH - bH;
+      ctx.fillRect(x, y, barW - 1, bH);
+    });
+  });
+
+  // X-axis labels
+  ctx.fillStyle = "#707175";
+  ctx.textAlign = "center";
+  ctx.font = "11px -apple-system,sans-serif";
+  labels.forEach((lbl, i) => {
+    const x = PAD_L + i * groupW + groupW / 2;
+    ctx.fillText(lbl, x, H - 8);
+  });
+
+  // Axis line
+  ctx.strokeStyle = "rgba(5,5,7,0.15)";
+  ctx.beginPath(); ctx.moveTo(PAD_L, PAD_T); ctx.lineTo(PAD_L, PAD_T + cH); ctx.lineTo(PAD_L + cW, PAD_T + cH); ctx.stroke();
+
+  // Store for tooltip
+  canvas._chartData = { labels, datasets, PAD_L, PAD_R, PAD_T, PAD_B, W, H, niceMax, cW, cH, barW, groupW, gap, type: "bar" };
+  addTooltip(canvas);
+}
+
+function drawLineChart(id, labels, data, curYear, cmpYear) {
   destroyChart(id);
-  const ctx = document.getElementById(id).getContext("2d");
-  charts[id] = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: datasets.map(d => ({
-        label: d.label,
-        data: d.data,
-        backgroundColor: d.color,
-        borderColor: d.border,
-        borderWidth: 1,
-        borderRadius: 0,
-        barPercentage: 0.75,
-        categoryPercentage: 0.85,
-      }))
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: "index", intersect: false,
-        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}` }
-      }},
-      scales: { ...baseScales, x: { ...baseScales.x, ticks: { ...baseScales.x.ticks, autoSkip: false } } }
+  const canvas = document.getElementById(id);
+  const wrap = canvas.parentNode;
+  const W = wrap.clientWidth || 500;
+  const H = wrap.clientHeight || 200;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const PAD_L = 44, PAD_R = 12, PAD_T = 10, PAD_B = 32;
+  const cW = W - PAD_L - PAD_R;
+  const cH = H - PAD_T - PAD_B;
+  const maxVal = Math.max(...data, 1);
+  const niceMax = Math.ceil(maxVal / 1000) * 1000 || 1;
+  const ticks = 4;
+  const n = labels.length;
+  const step = cW / Math.max(n - 1, 1);
+
+  function px(i) { return PAD_L + i * step; }
+  function py(v) { return PAD_T + cH - (v / niceMax) * cH; }
+
+  // Grid + y labels
+  ctx.strokeStyle = "rgba(5,5,7,0.07)";
+  ctx.fillStyle = "#707175";
+  ctx.font = "11px -apple-system,sans-serif";
+  ctx.textAlign = "right";
+  for (let i = 0; i <= ticks; i++) {
+    const v = (niceMax / ticks) * i;
+    const y = PAD_T + cH - (v / niceMax) * cH;
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(PAD_L + cW, y); ctx.stroke();
+    ctx.fillText(fmtK(Math.round(v)), PAD_L - 4, y + 3.5);
+  }
+
+  // Fill area
+  const grad = ctx.createLinearGradient(0, PAD_T, 0, PAD_T + cH);
+  grad.addColorStop(0, "rgba(255,124,83,0.15)");
+  grad.addColorStop(1, "rgba(255,124,83,0)");
+  ctx.beginPath();
+  ctx.moveTo(px(0), py(data[0]));
+  data.forEach((v,i) => { if(i>0) ctx.lineTo(px(i), py(v)); });
+  ctx.lineTo(px(n-1), PAD_T + cH);
+  ctx.lineTo(px(0), PAD_T + cH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.strokeStyle = C_CUR;
+  ctx.lineWidth = 2;
+  data.forEach((v,i) => { i===0 ? ctx.moveTo(px(i),py(v)) : ctx.lineTo(px(i),py(v)); });
+  ctx.stroke();
+
+  // Points
+  data.forEach((v,i) => {
+    const lbl = labels[i];
+    const isCur = lbl === String(curYear);
+    const isCmp = lbl === String(cmpYear);
+    const r = (isCur || isCmp) ? 5 : 3;
+    const col = isCur ? C_CUR : isCmp ? C_CMP : "rgba(5,5,7,0.2)";
+    ctx.beginPath();
+    ctx.arc(px(i), py(v), r, 0, Math.PI*2);
+    ctx.fillStyle = col;
+    ctx.fill();
+  });
+
+  // X labels (show ~8 evenly)
+  ctx.fillStyle = "#707175";
+  ctx.textAlign = "center";
+  ctx.font = "11px -apple-system,sans-serif";
+  const every = Math.ceil(n / 8);
+  labels.forEach((lbl, i) => {
+    if (i % every === 0 || i === n-1) ctx.fillText(lbl, px(i), H - 8);
+  });
+
+  // Axis line
+  ctx.strokeStyle = "rgba(5,5,7,0.15)";
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(PAD_L, PAD_T); ctx.lineTo(PAD_L, PAD_T+cH); ctx.lineTo(PAD_L+cW, PAD_T+cH); ctx.stroke();
+
+  canvas._chartData = { labels, data, PAD_L, PAD_T, PAD_B, W, H, niceMax, cW, cH, step, type: "line" };
+  addTooltip(canvas);
+}
+
+function addTooltip(canvas) {
+  canvas.addEventListener("mousemove", function(e) {
+    const d = canvas._chartData;
+    if (!d) return;
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (canvas.width / rect.width);
+    let tip = "";
+    if (d.type === "bar") {
+      const i = Math.floor((mx - d.PAD_L) / d.groupW);
+      if (i >= 0 && i < d.labels.length) {
+        tip = d.labels[i] + ": " + d.datasets.map(ds => ds.label + " " + ds.data[i].toLocaleString()).join(" / ");
+      }
+    } else {
+      const i = Math.round((mx - d.PAD_L) / d.step);
+      if (i >= 0 && i < d.labels.length) {
+        tip = d.labels[i] + ": " + d.data[i].toLocaleString() + " complaints";
+      }
     }
+    canvas.title = tip;
   });
 }
 
-function renderLineChart(id, labels, data, curYear, cmpYear) {
-  destroyChart(id);
-  const ctx = document.getElementById(id).getContext("2d");
-  const pointColors = labels.map(y => y===String(curYear) ? C_CUR : y===String(cmpYear) ? C_CMP : "rgba(5,5,7,0.2)");
-  const pointRadius = labels.map(y => (y===String(curYear)||y===String(cmpYear)) ? 5 : 3);
-
-  // Create fill gradient
-  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-  gradient.addColorStop(0, "rgba(255,124,83,0.18)");
-  gradient.addColorStop(1, "rgba(255,124,83,0.0)");
-
-  charts[id] = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "YTD complaints",
-        data,
-        borderColor: C_CUR,
-        borderWidth: 2,
-        pointBackgroundColor: pointColors,
-        pointBorderColor: pointColors,
-        pointRadius,
-        pointHoverRadius: 6,
-        fill: true,
-        backgroundColor: gradient,
-        tension: 0.3,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: {
-        callbacks: { label: ctx => ` ${ctx.parsed.y.toLocaleString()} complaints` }
-      }},
-      scales: { ...baseScales, x: { ...baseScales.x, ticks: { ...baseScales.x.ticks, maxTicksLimit: 10, maxRotation: 45 } } }
-    }
-  });
-}
+// Aliases so render() calls work unchanged
+function renderBarChart(id, labels, datasets) { drawBarChart(id, labels, datasets); }
+function renderLineChart(id, labels, data, curYear, cmpYear) { drawLineChart(id, labels, data, curYear, cmpYear); }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Boot
