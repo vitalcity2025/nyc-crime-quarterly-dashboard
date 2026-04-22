@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_17.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_18.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -468,11 +468,18 @@ function buildApp() {
       </div>
       <div class="ctrl">
         <label>Location</label>
-        <div class="toggle-group" id="loc-toggle">
-          <button data-loc="citywide" data-rate="count" class="active">Citywide</button>
-          <button data-loc="subway" data-rate="count">Subway — count</button>
-          <button data-loc="subway" data-rate="rate">Subway — rate</button>
-          <button data-loc="housing" data-rate="count">Housing</button>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div class="toggle-group" id="loc-toggle">
+            <button data-loc="citywide" data-rate="count" class="active">Citywide</button>
+            <button data-loc="subway" data-rate="count" id="btn-subway-count">Subway</button>
+            <button data-loc="housing" data-rate="count">Housing</button>
+          </div>
+          <div id="subway-rate-row" style="display:none;justify-content:flex-end;">
+            <div class="toggle-group" id="subway-rate-toggle" style="height:26px;">
+              <button data-subrate="count" class="active" style="font-size:10px;padding:0 10px;">Count</button>
+              <button data-subrate="rate" style="font-size:10px;padding:0 10px;">Rate</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="ctrl">
@@ -572,10 +579,26 @@ function buildApp() {
     document.querySelectorAll("#loc-toggle button").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     state.loc = btn.dataset.loc;
-    state.subwayRate = (btn.dataset.loc === "subway" && btn.dataset.rate === "rate");
-    // Show/hide boro rate toggle — only meaningful for citywide
+    // Show subway rate sub-toggle when subway is selected
+    const subwayRow = document.getElementById("subway-rate-row");
+    if (subwayRow) subwayRow.style.display = state.loc === "subway" ? "flex" : "none";
+    // If switching away from subway, clear subwayRate
+    if (state.loc !== "subway") state.subwayRate = false;
+    else {
+      // Keep current subway rate setting
+      const activeSubRate = document.querySelector("#subway-rate-toggle button.active");
+      state.subwayRate = activeSubRate ? activeSubRate.dataset.subrate === "rate" : false;
+    }
+    // Show/hide boro rate toggle — only for citywide
     const boroRateCtrl = document.getElementById("boro-rate-toggle");
     if (boroRateCtrl) boroRateCtrl.style.display = state.loc === "citywide" ? "" : "none";
+    render();
+  });
+  document.getElementById("subway-rate-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#subway-rate-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    state.subwayRate = btn.dataset.subrate === "rate";
     render();
   });
   document.getElementById("trend-toggle").addEventListener("click", e=>{
@@ -740,32 +763,38 @@ function render() {
     drawLine("chart-trend", allYrs.map(String), tData, primaryYear, cmpYear, "tt-trend", null);
 
   } else if(trendMode==="quarterly"){
-    // Each quarter as its own point: "2006 Q1", "2006 Q2"...
     const qLabels=[], qData=[];
     allYrs.forEach(y=>{
       QUARTERS.forEach(q=>{
-        const isLatestYr=y===latestYear;
-        const qI=QUARTERS.indexOf(q);
-        if(isLatestYr && qI>primaryQIdx) return; // skip future quarters
+        if(y===latestYear && QUARTERS.indexOf(q)>primaryQIdx) return;
         qLabels.push(`${y} ${q}`);
-        qData.push(getCount(crime,loc,boro,y,q));
+        const raw = getCount(crime,loc,boro,y,q);
+        if (isRate) {
+          const r = toRate(raw, loc, boro, y, q, null);
+          qData.push(r==null ? 0 : r);
+        } else {
+          qData.push(raw);
+        }
       });
     });
-    // Show every other year at Q1 marks
-    const xLabels=qLabels.map((l,i)=>{
+    const xLabels=qLabels.map((l)=>{
       if(!l.endsWith("Q1")) return "";
       const yr=parseInt(l.split(" ")[0]);
       return (yr-2006)%2===0 ? String(yr) : "";
     });
-    document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}`;
+    const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
+    document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}${subLabel}`;
     drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
 
   } else { // annual
-    // Full year totals — flag incomplete years
     const isFullYear = y => !(y===latestYear && curQ!=="Q4");
-    const aData=allYrs.map(y=>getYTD(crime,loc,boro,y,"Q4"));
+    const rawAnnual = allYrs.map(y=>getYTD(crime,loc,boro,y,"Q4"));
+    const aData = isRate
+      ? rawAnnual.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,"Q4"); return r==null?0:r; })
+      : rawAnnual;
     const incomplete=allYrs.map(y=>!isFullYear(y));
-    document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}`;
+    const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
+    document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}`;
     drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
   }
 }

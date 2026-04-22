@@ -268,7 +268,12 @@ Fetching MTA subway ridership...
 
 mta_resp <- tryCatch({
   GET("https://data.ny.gov/resource/xfre-bxip.json",
-      query = list(`$query` = "SELECT month, ridership WHERE agency = 'Subway' ORDER BY month ASC LIMIT 5000"),
+      query = list(
+        `$where`  = "agency='Subway'",
+        `$select` = "month,ridership",
+        `$order`  = "month ASC",
+        `$limit`  = "5000"
+      ),
       timeout(60))
 }, error = function(e) { cat(sprintf("  WARNING: Could not fetch MTA ridership: %s
 ", e$message)); NULL })
@@ -277,38 +282,45 @@ subway_ridership <- list()
 
 if (!is.null(mta_resp) && !http_error(mta_resp)) {
   mta_data <- fromJSON(content(mta_resp, "text", encoding = "UTF-8"), flatten = TRUE)
-  mta_data$yr  <- as.integer(substr(mta_data$month, 1, 4))
-  mta_data$mo  <- as.integer(substr(mta_data$month, 6, 7))
-  mta_data$ridership <- as.numeric(mta_data$ridership)
-  mta_data$quarter <- ifelse(mta_data$mo <= 3, "Q1",
-                      ifelse(mta_data$mo <= 6, "Q2",
-                      ifelse(mta_data$mo <= 9, "Q3", "Q4")))
+  cat(sprintf("  Raw MTA rows fetched: %d
+", nrow(mta_data)))
 
-  # Aggregate to year + quarter totals
-  mta_qtr <- aggregate(ridership ~ yr + quarter, data = mta_data, FUN = sum)
+  if (is.data.frame(mta_data) && nrow(mta_data) > 0) {
+    mta_data$yr  <- as.integer(substr(as.character(mta_data$month), 1, 4))
+    mta_data$mo  <- as.integer(substr(as.character(mta_data$month), 6, 7))
+    mta_data$ridership <- as.numeric(mta_data$ridership)
+    mta_data <- mta_data[!is.na(mta_data$yr) & !is.na(mta_data$ridership), ]
+    mta_data$quarter <- ifelse(mta_data$mo <= 3, "Q1",
+                        ifelse(mta_data$mo <= 6, "Q2",
+                        ifelse(mta_data$mo <= 9, "Q3", "Q4")))
 
-  # Build lookup: subway_ridership[[year]][[quarter]] = rides
-  for (i in seq_len(nrow(mta_qtr))) {
-    yr_key <- as.character(mta_qtr$yr[i])
-    qt_key <- mta_qtr$quarter[i]
-    if (is.null(subway_ridership[[yr_key]])) subway_ridership[[yr_key]] <- list()
-    subway_ridership[[yr_key]][[qt_key]] <- round(mta_qtr$ridership[i])
-  }
-
-  # Backfill 2006-2007 using 2008 quarterly averages
-  r2008 <- subway_ridership[["2008"]]
-  if (!is.null(r2008)) {
-    for (yr_back in c("2006", "2007")) {
-      subway_ridership[[yr_back]] <- r2008
-    }
-    cat(sprintf("  Backfilled 2006-2007 with 2008 baseline (%s rides/year)
+    mta_qtr <- aggregate(ridership ~ yr + quarter, data = mta_data, FUN = sum)
+    cat(sprintf("  MTA quarterly rows: %d (years %d to %d)
 ",
-                format(sum(unlist(r2008)), big.mark=",")))
-  }
-  cat(sprintf("  Ridership data loaded for %d years
-", length(subway_ridership)))
+                nrow(mta_qtr), min(mta_qtr$yr), max(mta_qtr$yr)))
+
+    for (i in seq_len(nrow(mta_qtr))) {
+      yr_key <- as.character(mta_qtr$yr[i])
+      qt_key <- mta_qtr$quarter[i]
+      if (is.null(subway_ridership[[yr_key]])) subway_ridership[[yr_key]] <- list()
+      subway_ridership[[yr_key]][[qt_key]] <- round(mta_qtr$ridership[i])
+    }
+
+    r2008 <- subway_ridership[["2008"]]
+    if (!is.null(r2008)) {
+      for (yr_back in c("2006", "2007")) {
+        subway_ridership[[yr_back]] <- r2008
+      }
+      cat(sprintf("  Backfilled 2006-2007 with 2008 baseline (%s rides/year)
+",
+                  format(sum(unlist(r2008)), big.mark=",")))
+    }
+    cat(sprintf("  Ridership loaded for years: %s
+",
+                paste(sort(names(subway_ridership)), collapse=", ")))
+  } # end nrow > 0
 } else {
-  cat("  WARNING: Using empty ridership table — rate mode unavailable for subway
+  cat("  WARNING: MTA ridership fetch failed — rate mode unavailable for subway
 ")
 }
 
