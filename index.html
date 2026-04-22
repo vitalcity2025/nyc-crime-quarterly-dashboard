@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_18.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_19.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -527,6 +527,9 @@ function buildApp() {
           <canvas id="chart-trend" style="width:100%;height:200px;display:block;"></canvas>
           <div id="tt-trend" class="tooltip"></div>
         </div>
+        <div id="subway-rate-note" style="display:none;margin-top:10px;font-size:11px;color:var(--text3);line-height:1.55;border-top:1px solid var(--border);padding-top:8px;">
+          <strong style="color:var(--text2);font-weight:700;">Methodology:</strong> Subway crime rate = complaints per million rides. 2018–present uses actual quarterly MTA ridership data. Pre-2018 uses official MTA annual totals distributed across quarters using a seasonal approximation — treat pre-2018 quarterly rates as estimates.
+        </div>
       </div>
     </div>
 
@@ -638,6 +641,8 @@ function render() {
 
   // Metrics — YTD + all 4 quarters
   const isRate = state.subwayRate; // true only for subway-rate location
+  const rateNote = document.getElementById("subway-rate-note");
+  if (rateNote) rateNote.style.display = isRate ? "block" : "none";
 
   const pYTD=getYTD(crime,loc,boro,primaryYear,primaryQ);
   const cYTD=getYTD(crime,loc,boro,cmpYear,primaryQ);
