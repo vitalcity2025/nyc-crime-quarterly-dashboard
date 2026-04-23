@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_31.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_32.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1145,8 +1145,22 @@ function drawBars(id, labels, datasets, ttId) {
     const i = Math.floor((mx - PL) / groupW);
     if (i >= 0 && i < n) {
       paint(i);
+      // Compute % change between first and last dataset (cmp → primary)
+      let pctLine = "";
+      if (datasets.length >= 2) {
+        const cmpVal = datasets[0].data[i];
+        const curVal = datasets[datasets.length-1].data[i];
+        if (cmpVal > 0) {
+          const pct = ((curVal - cmpVal) / cmpVal) * 100;
+          const sign = pct > 0 ? "+" : "";
+          const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "▬";
+          const col = pct > 0 ? "#c0392b" : pct < 0 ? "#2d8a3e" : "#707175";
+          pctLine = `<span style="color:${col};font-weight:700;">${arrow} ${sign}${pct.toFixed(1)}% vs prior year</span>`;
+        }
+      }
       const lines = [`<strong>${labels[i]}</strong>`,
-        ...datasets.map(d => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:5px;"></span>${d.label}: ${d.data[i].toLocaleString()}`)
+        ...datasets.map(d => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:5px;"></span>${d.label}: ${d.data[i].toLocaleString()}`),
+        ...(pctLine ? [pctLine] : [])
       ];
       showTooltip(ttId, canvas, mx, my, lines);
     } else {
