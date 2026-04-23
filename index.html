@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_30.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_31.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -158,7 +158,7 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
   white-space: nowrap;
 }
 .toggle-group button:last-child { border-right: none; }
-.toggle-group button.active { background: var(--black); color: var(--white); border-bottom: 2px solid var(--yellow); }
+.toggle-group button.active { background: var(--black); color: var(--white); }
 .toggle-group button:hover:not(.active) { background: var(--yellow); color: var(--black); }
 
 /* ── Metrics ── */
@@ -176,7 +176,7 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
 .metric:last-child { border-right: none; }
 .metric.ytd-metric {
   background: #fafafa;
-  border-left: 4px solid var(--magenta);
+  border-left: 4px solid var(--yellow);
   padding-left: calc(1.25rem - 4px);
 }
 .m-label {
@@ -188,7 +188,7 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
   color: var(--text2);
   margin-bottom: 10px;
 }
-.ytd-metric .m-label { color: var(--magenta); letter-spacing: 0.16em; }
+.ytd-metric .m-label { color: var(--text2); letter-spacing: 0.16em; }
 .m-val {
   font-family: var(--font-display);
   font-weight: 500;
@@ -466,9 +466,9 @@ function pctLabel(n) {
 }
 
 // ── Colors ────────────────────────────────────────────────────────────────────
-const C_CUR     = "#e7466d";   // magenta — primary/current year
+const C_CUR     = "#dde44c";   // chartreuse — primary/current year
 const C_CMP     = "#c8c8c8";   // cloud gray — comparison year
-const C_PRIMARY = "#e7466d";   // alias
+const C_PRIMARY = "#dde44c";   // alias
 const C_COMPARE = "#394882";   // indigo — highlighted comparison
 const C_TREND   = "#050507";   // black line for trend
 const C_GRID    = "rgba(5,5,7,0.06)";
@@ -479,7 +479,7 @@ const BORO_COLORS = {
   "Bronx":         "#ff7c53",
   "Brooklyn":      "#217ebe",
   "Manhattan":     "#e7466d",
-  "Queens":        "#394882",
+  "Queens":        "#dde44c",
   "Staten Island": "#9b9fbc",
 };
 
