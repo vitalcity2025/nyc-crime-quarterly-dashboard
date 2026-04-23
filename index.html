@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_36.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_37.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -543,11 +543,12 @@ function getPctYTD(crime, pct, year, upToQ) {
 }
 function fmt(n) { if (n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
 function fmtK(v) { return v>=1000?(v/1000).toFixed(0)+"k":String(v); }
-function deltaDisplay(curr, prev) {
+function deltaDisplay(curr, prev, cmpYr) {
   if (!prev||prev===0) return { text:"No prior data", cls:"delta-flat" };
   const pct = ((curr-prev)/prev)*100;
   const sign = pct>0?"+":""; const arrow = pct>0?"▲":pct<0?"▼":"▬";
-  return { text:`${arrow} ${sign}${pct.toFixed(1)}% vs prior year`, cls: pct>0?"delta-up":pct<0?"delta-down":"delta-flat" };
+  const vsLabel = cmpYr ? `vs ${cmpYr}` : "vs prior year";
+  return { text:`${arrow} ${sign}${pct.toFixed(1)}% ${vsLabel}`, cls: pct>0?"delta-up":pct<0?"delta-down":"delta-flat" };
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -898,11 +899,11 @@ function render() {
     return r == null ? "n/a" : fmtRate(r, loc);
   }
   function displayDelta(pCount, cCount, year, q, upToQ) {
-    if (!isRate) return deltaDisplay(pCount, cCount);
+    if (!isRate) return deltaDisplay(pCount, cCount, cmpYear);
     const pR = toRate(pCount, loc, boro, year, q, upToQ);
     const cR = toRate(cCount, loc, boro, year, q, upToQ);
     if (pR == null || cR == null) return {text:"Rate unavailable", cls:"delta-flat"};
-    return deltaDisplay(pR, cR);
+    return deltaDisplay(pR, cR, cmpYear);
   }
 
   const ytdLabel = isRate ? `YTD ${primaryYear} · ${rateLabel(loc)}` : `YTD total (${primaryYear})`;
@@ -1155,7 +1156,8 @@ function drawBars(id, labels, datasets, ttId) {
           const sign = pct > 0 ? "+" : "";
           const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "▬";
           const col = pct > 0 ? "#c0392b" : pct < 0 ? "#2d8a3e" : "#707175";
-          pctLine = `<span style="color:${col};font-weight:700;">${arrow} ${sign}${pct.toFixed(1)}% vs prior year</span>`;
+          const cmpLbl = datasets[0].label || "prior year";
+          pctLine = `<span style="color:${col};font-weight:700;">${arrow} ${sign}${pct.toFixed(1)}% vs ${cmpLbl}</span>`;
         }
       }
       const lines = [`<strong>${labels[i]}</strong>`,
