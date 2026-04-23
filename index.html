@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_35.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_36.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1471,20 +1471,67 @@ function renderMap() {
       featurePaths.push({ pct, change, geometry: f.geometry });
     });
 
-    // Draw precinct labels for selected precinct
+    // Draw selected precinct outline + centered pill label
     if (state.precinct) {
       geo.features.forEach(f => {
         const pct = parseInt(f.properties.precinct || 0);
         if (pct !== state.precinct) return;
-        // Find centroid of first polygon's outer ring
-        const cPolys = f.geometry.type === "MultiPolygon"
+        const polys = f.geometry.type === "MultiPolygon"
           ? f.geometry.coordinates : [f.geometry.coordinates];
-        let sumX=0, sumY=0, count=0;
-        cPolys[0][0].forEach(([lng,lat]) => { const [x,y]=project([lng,lat]); sumX+=x; sumY+=y; count++; });
-        ctx.fillStyle = "#050507";
-        ctx.font = "bold 11px -apple-system,sans-serif";
+
+        // Thick black outline
+        ctx.beginPath();
+        polys.forEach(poly => poly.forEach(ring => {
+          ring.forEach(([lng,lat], i) => {
+            const [x,y] = project([lng,lat]);
+            i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+          });
+          ctx.closePath();
+        }));
+        ctx.strokeStyle = "#050507";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Centroid of largest polygon for label placement
+        let bestPoly = polys[0], bestArea = 0;
+        polys.forEach(poly => {
+          const ring = poly[0];
+          let area = 0;
+          for(let i=0;i<ring.length-1;i++) area += ring[i][0]*ring[i+1][1]-ring[i+1][0]*ring[i][1];
+          if(Math.abs(area) > bestArea) { bestArea=Math.abs(area); bestPoly=poly; }
+        });
+        let sumX=0, sumY=0, cnt=0;
+        bestPoly[0].forEach(([lng,lat]) => {
+          const [x,y] = project([lng,lat]); sumX+=x; sumY+=y; cnt++;
+        });
+        const cx = sumX/cnt, cy = sumY/cnt;
+
+        // Measure text for pill size
+        ctx.font = '700 7px sans-serif';
+        const kicW = ctx.measureText("PRECINCT").width;
+        ctx.font = '700 15px sans-serif';
+        const numW = ctx.measureText(String(pct)).width;
+        const pillW = Math.max(kicW, numW) + 18;
+        const pillH = 36;
+
+        // White pill background
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.strokeStyle = "#050507";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(cx - pillW/2, cy - pillH/2, pillW, pillH, 4);
+        ctx.fill(); ctx.stroke();
+
+        // "PRECINCT" kicker
+        ctx.fillStyle = "#707175";
+        ctx.font = '700 7px sans-serif';
         ctx.textAlign = "center";
-        ctx.fillText(`Pct. ${pct}`, sumX/count, sumY/count);
+        ctx.fillText("PRECINCT", cx, cy - 2);
+
+        // Precinct number
+        ctx.fillStyle = "#050507";
+        ctx.font = '700 15px sans-serif';
+        ctx.fillText(String(pct), cx, cy + 13);
       });
     }
 
