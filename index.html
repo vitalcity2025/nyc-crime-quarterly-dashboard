@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_27.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_29.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Crime Complaints — Vital City</title>
+<title>NYC Quarterly Complaints Dashboard — Vital City</title>
 <link rel="stylesheet" href="./index_files/nlh6iak.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -67,11 +67,12 @@ body {
   margin-bottom: 10px;
 }
 .mast-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 38px;
+  font-family: "gascogne", "Georgia", serif;
+  font-weight: 200;
+  font-style: normal;
+  font-size: 42px;
   color: var(--white);
-  line-height: 1;
+  line-height: 1.1;
   letter-spacing: -0.01em;
 }
 .mast-sub {
@@ -321,6 +322,47 @@ select.year-select {
 }
 select.year-select:focus { outline: 2px solid var(--orange); }
 
+/* ── Methodology ── */
+.methodology {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--orange);
+}
+.meth-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1rem;
+}
+.meth-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 3rem;
+}
+.meth-body p {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text2);
+  margin: 0;
+}
+.meth-body strong { font-weight: 700; color: var(--text); }
+.meth-body em { font-style: italic; }
+.meth-body code {
+  font-family: monospace;
+  font-size: 11px;
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+@media (max-width: 760px) {
+  .meth-body { grid-template-columns: 1fr; }
+}
+
 /* ── Source ── */
 .source {
   font-family: var(--font-primary);
@@ -375,8 +417,8 @@ select.year-select:focus { outline: 2px solid var(--orange); }
 <div class="masthead">
   <div>
     <div class="mast-vc">Vital City &nbsp;·&nbsp; Public safety data</div>
-    <div class="mast-title">NYC crime complaints</div>
-    <div class="mast-sub">Year-to-date counts of NYPD complaint reports, citywide and for the subway and public housing systems, back to 2006.</div>
+    <div class="mast-title">NYC quarterly complaints dashboard</div>
+    <div class="mast-sub">NYPD complaint reports by quarter, citywide, subway, and public housing — updated each quarter back to 2006.</div>
   </div>
   <div class="mast-badge" id="meta-badge">Loading…</div>
 </div>
@@ -729,7 +771,20 @@ function buildApp() {
       </div>
     </div>
 
-    <div class="source"><strong>Source:</strong> NYPD Complaint Data (Historic and Year-to-Date), via NYC Open Data. Combined categories defined by Vital City. Subway counts reflect complaints by NYPD transit bureau; public housing counts reflect NYCHA developments. Data updated quarterly.</div>
+    <div class="methodology">
+      <div class="meth-title">Methodology</div>
+      <div class="meth-body">
+        <p><strong>Data source:</strong> NYPD Complaint Data (Historic and Year-to-Date), NYC Open Data. Each record represents a criminal complaint report filed with the NYPD. Counts reflect the date the complaint was <em>reported</em> (<code>rpt_dt</code>), not the date the crime occurred, ensuring complete quarterly coverage.</p>
+        <p><strong>Crime categories:</strong> Individual offense types are included in the dropdown only if they recorded more than 100 complaints in the current year citywide. This threshold removes extremely rare offenses that produce noisy, unreliable trend lines. The Major 7 crimes (murder, rape, robbery, felony assault, burglary, grand larceny, and grand larceny of motor vehicle) are always shown regardless of count. Combined categories — All crime, Major crimes, Major violent crimes, and Major property crimes — aggregate all qualifying complaints and are not subject to the 100-incident threshold.</p>
+        <p><strong>Location:</strong> Citywide counts include all NYPD complaint records for a given geography. Subway counts use NYPD jurisdiction code 1 (Transit Bureau); public housing counts use jurisdiction code 2 (Housing Bureau). These reflect how NYPD classifies each incident, not the physical location of the crime.</p>
+        <p><strong>Subway rate:</strong> Expressed as complaints per million rides. Ridership figures for 2018–present are quarterly totals from the MTA Monthly Ridership dataset (data.ny.gov). Pre-2018 figures use official annual totals from MTA annual reports and the NYU Wagner "State of Subway Ridership" study (2017), distributed across quarters using a seasonal approximation (Q1: 24%, Q2: 26%, Q3: 27%, Q4: 23%). Pre-2018 quarterly rates should be treated as estimates.</p>
+        <p><strong>Borough rates:</strong> Expressed as complaints per 100,000 residents. Population denominators use U.S. Census Bureau American Community Survey annual estimates for each borough, updated through 2023; 2024 and 2025 use 2023 estimates.</p>
+        <p><strong>Precincts:</strong> Precinct-level counts reflect citywide complaints only (jurisdiction code 0), using the reporting precinct field (<code>addr_pct_cd</code>). Subway and housing complaints are excluded from precinct breakdowns as they are assigned to specialized bureaus, not geographic precincts.</p>
+        <p><strong>Update schedule:</strong> Data is refreshed quarterly, typically within 4–6 weeks of a quarter's end as NYPD finalizes complaint records. Historical data may be revised in subsequent updates.</p>
+      </div>
+    </div>
+
+    <div class="source"><strong>Source:</strong> NYPD Complaint Data (Historic and Year-to-Date), NYC Open Data. Combined categories defined by Vital City. Subway counts reflect complaints by NYPD Transit Bureau; public housing counts reflect NYCHA developments. Data updated quarterly. <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i" target="_blank" style="color:var(--orange);">Historic dataset</a> · <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Current-Year-To-Date-/5uac-w243" target="_blank" style="color:var(--orange);">YTD dataset</a></div>
   `;
 
   document.getElementById("sel-crime").addEventListener("change", e=>{state.crime=e.target.value;render();});
