@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_22.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_23.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -647,14 +647,15 @@ function buildApp() {
         </div>
         <div class="legend" id="map-legend" style="align-self:center;"></div>
       </div>
-      <div id="map-container" style="width:100%;height:520px;border:1px solid var(--border);background:#f9f8f4;position:relative;">
+      <div id="map-container" style="width:100%;height:520px;position:relative;">
         <div id="map-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);">Loading map…</div>
         <canvas id="map-canvas" style="width:100%;height:100%;display:block;"></canvas>
         <div id="map-tooltip" class="tooltip"></div>
       </div>
-      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.08em;text-transform:uppercase;">% change vs prior year</div>
-        <div id="map-scale" style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2);"></div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 12px;background:#ffffff;border:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">% change vs prior year</div>
+        <div id="map-scale" style="display:flex;align-items:center;gap:0;font-size:10px;color:var(--text2);"></div>
+        <div style="font-size:10px;color:var(--text3);margin-left:auto;">Hover a precinct for details · Click to filter charts</div>
       </div>
     </div>
 
@@ -1259,12 +1260,15 @@ function renderMap() {
       })));
     });
 
-    const PAD = 20;
+    const PAD = 32;
     const scaleX = (W - PAD*2) / (maxLng - minLng);
     const scaleY = (H - PAD*2) / (maxLat - minLat);
     const scale = Math.min(scaleX, scaleY);
-    const offX = PAD + ((W - PAD*2) - (maxLng-minLng)*scale)/2;
-    const offY = PAD + ((H - PAD*2) - (maxLat-minLat)*scale)/2;
+    // Center the map within the canvas
+    const mapW = (maxLng - minLng) * scale;
+    const mapH = (maxLat - minLat) * scale;
+    const offX = (W - mapW) / 2;
+    const offY = (H - mapH) / 2;
 
     function project([lng, lat]) {
       return [offX + (lng-minLng)*scale, offY + (maxLat-lat)*scale];
@@ -1280,18 +1284,19 @@ function renderMap() {
       pctChanges[pct] = { cur, prv, pct: prv > 0 ? ((cur-prv)/prv)*100 : null };
     });
 
-    // Color scale: green (-40%+) → white (0%) → red (+40%+)
+    // Color scale: saturated green → neutral → saturated red
+    // Use tighter clamp (30%) so mid-range changes show clearly
     function pctToColor(pctVal) {
-      if (pctVal === null) return "#e8e6df";
-      const clamped = Math.max(-50, Math.min(50, pctVal));
+      if (pctVal === null) return "#e2e2e2";
+      const clamped = Math.max(-30, Math.min(30, pctVal));
       if (clamped < 0) {
-        const t = Math.abs(clamped) / 50;
-        return interpolateColor("#f0ede6", "#57aa4a", t);
+        const t = Math.abs(clamped) / 30;
+        return interpolateColor("#efefef", "#2d8a3e", t);
       } else if (clamped > 0) {
-        const t = clamped / 50;
-        return interpolateColor("#f0ede6", "#d2232a", t);
+        const t = clamped / 30;
+        return interpolateColor("#efefef", "#c0392b", t);
       }
-      return "#f0ede6";
+      return "#efefef";
     }
     function interpolateColor(hex1, hex2, t) {
       const r1=parseInt(hex1.slice(1,3),16), g1=parseInt(hex1.slice(3,5),16), b1=parseInt(hex1.slice(5,7),16);
@@ -1319,8 +1324,8 @@ function renderMap() {
       }));
       ctx.fillStyle = fillColor;
       ctx.fill();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 0.8;
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 1.2;
       ctx.stroke();
 
       // Store for hit testing
@@ -1347,15 +1352,19 @@ function renderMap() {
     // Legend
     const legendEl = document.getElementById("map-scale");
     if (legendEl) {
-      const steps = [-50,-25,0,25,50];
-      legendEl.innerHTML = steps.map(v => {
-        const col = pctToColor(v);
-        const lbl = v > 0 ? `+${v}%` : `${v}%`;
-        return `<span style="display:flex;align-items:center;gap:3px;">
-          <span style="width:14px;height:14px;background:${col};border:1px solid rgba(0,0,0,0.1);display:inline-block;"></span>
-          <span style="font-size:10px;">${lbl}</span>
-        </span>`;
-      }).join("");
+      // Render a continuous gradient bar with labels
+      const steps = 60;
+      const swatches = Array.from({length:steps},(_,i)=>{
+        const pct = -30 + (i/steps)*60;
+        return pctToColor(pct);
+      });
+      const gradientCss = `linear-gradient(to right, ${swatches.join(",")})`;
+      legendEl.innerHTML = `
+        <span style="font-size:10px;font-weight:700;color:#2d8a3e;margin-right:4px;">−30%</span>
+        <span style="display:inline-block;width:160px;height:14px;background:${gradientCss};border:1px solid rgba(0,0,0,0.12);vertical-align:middle;"></span>
+        <span style="font-size:10px;font-weight:700;color:#c0392b;margin-left:4px;">+30%</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:8px;">neutral = no change</span>
+      `;
     }
 
     // Tooltip on hover
