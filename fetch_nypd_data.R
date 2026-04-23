@@ -118,12 +118,12 @@ build_soql <- function(year, ytd_month_end) {
   )
   sprintf(
     "SELECT date_extract_y(rpt_dt) AS yr, %s AS quarter,
-            ofns_desc, patrol_boro, %s AS loc_type, COUNT(*) AS n
+            ofns_desc, patrol_boro, addr_pct_cd, %s AS loc_type, COUNT(*) AS n
      WHERE  rpt_dt >= '%d-01-01T00:00:00'
        AND  rpt_dt <  '%d-01-01T00:00:00'
        AND  date_extract_m(rpt_dt) <= %d
        AND  ofns_desc IS NOT NULL
-     GROUP BY yr, quarter, ofns_desc, patrol_boro, loc_type",
+     GROUP BY yr, quarter, ofns_desc, patrol_boro, addr_pct_cd, loc_type",
     q_expr, loc_expr,
     year, year + 1, ytd_month_end
   )
@@ -185,6 +185,7 @@ all_rows$loc_type    <- as.character(all_rows$loc_type)
 all_rows$quarter     <- as.character(all_rows$quarter)
 all_rows$yr          <- as.character(as.integer(as.numeric(all_rows$yr)))
 all_rows$n           <- as.integer(as.numeric(all_rows$n))
+all_rows$precinct    <- as.integer(as.numeric(as.character(all_rows$addr_pct_cd)))
 
 all_rows <- all_rows[
   !is.na(all_rows$ofns_desc) & all_rows$ofns_desc != "" &
@@ -260,6 +261,55 @@ for (gname in names(CRIME_GROUPS)) {
 if (length(group_rows) > 0) agg <- rbind(agg, do.call(rbind, group_rows))
 
 all_crime_types <- all_crime_types_ordered
+
+# ── Precinct-level aggregation (citywide only for map) ───────────────────────
+cat("Building precinct aggregation...\n")
+
+# Only citywide (jurisdiction_code = 0, i.e. not subway or housing)
+rows_pct <- all_rows[all_rows$loc_type == "other" & !is.na(all_rows$precinct) & all_rows$precinct > 0, ]
+rows_pct$bucket <- "citywide"
+
+# Aggregate individual crimes by precinct
+agg_pct <- aggregate(n ~ ofns_desc + bucket + precinct + yr + quarter,
+                     data = rows_pct, FUN = sum)
+# Use precinct as a string key "pct_NN"
+agg_pct$pct_key <- paste0("pct_", agg_pct$precinct)
+
+# Add crime groups for precincts
+group_pct_rows <- list()
+for (gname in names(CRIME_GROUPS)) {
+  members <- CRIME_GROUPS[[gname]]
+  sub_p   <- agg_pct[agg_pct$ofns_desc %in% members, ]
+  if (nrow(sub_p) == 0) next
+  g_p <- aggregate(n ~ bucket + pct_key + yr + quarter, data = sub_p, FUN = sum)
+  g_p$ofns_desc <- gname
+  group_pct_rows[[gname]] <- g_p[, c("ofns_desc","bucket","pct_key","yr","quarter","n")]
+}
+# All crime for precincts
+all_crime_pct <- aggregate(n ~ bucket + pct_key + yr + quarter, data = agg_pct, FUN = sum)
+all_crime_pct$ofns_desc <- "All crime"
+agg_pct_final <- rbind(
+  agg_pct[, c("ofns_desc","bucket","pct_key","yr","quarter","n")],
+  if (length(group_pct_rows) > 0) do.call(rbind, group_pct_rows) else NULL,
+  all_crime_pct[, c("ofns_desc","bucket","pct_key","yr","quarter","n")]
+)
+
+# Build nested: pct_data[[crime]][[pct_key]][[year]][[quarter]] = n
+cat("  Building precinct JSON structure...\n")
+pct_data_out <- list()
+for (i in seq_len(nrow(agg_pct_final))) {
+  cr  <- agg_pct_final$ofns_desc[i]
+  pk  <- agg_pct_final$pct_key[i]
+  yr  <- agg_pct_final$yr[i]
+  qt  <- agg_pct_final$quarter[i]
+  n   <- agg_pct_final$n[i]
+  if (is.null(pct_data_out[[cr]]))             pct_data_out[[cr]]             <- list()
+  if (is.null(pct_data_out[[cr]][[pk]]))       pct_data_out[[cr]][[pk]]       <- list()
+  if (is.null(pct_data_out[[cr]][[pk]][[yr]])) pct_data_out[[cr]][[pk]][[yr]] <- list()
+  pct_data_out[[cr]][[pk]][[yr]][[qt]] <- n
+}
+cat(sprintf("  Precinct data built: %d precincts\n",
+            length(unique(agg_pct_final$pct_key))))
 
 # ── Subway ridership ─────────────────────────────────────────────────────────
 # Pre-2018: hardcoded annual totals from MTA official reports + NYU Wagner research
@@ -386,7 +436,8 @@ output <- list(
   crime_groups       = c("All crime", names(CRIME_GROUPS)),
   subway_ridership   = subway_ridership,
   population         = NYC_POP,
-  data               = data_out
+  data               = data_out,
+  pct_data           = pct_data_out
 )
 
 out_path <- "crime_data.json"

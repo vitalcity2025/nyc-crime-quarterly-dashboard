@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_19.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_20.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -339,6 +339,40 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
       </div></div>
 
 <script>
+// ── Precinct → neighborhood names ────────────────────────────────────────────
+const PRECINCT_NAMES = {
+  1:"Financial District", 5:"Chinatown/Lower East Side", 6:"West Village",
+  7:"Lower East Side", 9:"East Village", 10:"Chelsea/Hell's Kitchen",
+  13:"Gramercy/Flatiron", 14:"Midtown South", 17:"Midtown East",
+  18:"Midtown North", 19:"Upper East Side", 20:"Upper West Side",
+  22:"Central Park", 23:"East Harlem", 24:"Upper West Side/Manhattan Valley",
+  25:"East Harlem", 26:"Morningside Heights/Manhattanville", 28:"Harlem",
+  30:"West Harlem", 32:"Harlem", 33:"Washington Heights", 34:"Washington Heights",
+  40:"Mott Haven", 41:"Longwood", 42:"Morrisania", 43:"Hunts Point",
+  44:"Melrose", 45:"Tremont", 46:"East Tremont", 47:"Fordham",
+  48:"Belmont/Fordham", 49:"Pelham Parkway", 50:"Riverdale",
+  52:"Kingsbridge", 53:"Wakefield", 61:"Seagate/Coney Island",
+  62:"Brighton Beach/Sheepshead Bay", 63:"Bay Ridge", 66:"Bensonhurst",
+  67:"Crown Heights", 68:"Bay Ridge/Dyker Heights", 69:"Canarsie",
+  70:"Flatbush", 71:"Crown Heights", 72:"Sunset Park", 73:"Brownsville",
+  75:"East New York", 76:"Carroll Gardens/Red Hook", 77:"Crown Heights",
+  78:"Park Slope", 79:"Bushwick", 81:"Bedford-Stuyvesant",
+  83:"Bushwick", 84:"Brooklyn Heights/DUMBO", 88:"Boerum Hill",
+  90:"Greenpoint/Williamsburg", 94:"Sea Gate/Coney Island",
+  100:"Howard Beach/Ozone Park", 101:"Far Rockaway", 102:"Richmond Hill",
+  103:"Jackson Heights/Corona", 104:"Middle Village/Ridgewood",
+  105:"Queens Village", 106:"Ozone Park/Howard Beach", 107:"Fresh Meadows",
+  108:"Sunnyside/Woodside", 109:"Flushing", 110:"Corona/Elmhurst",
+  111:"Bayside", 112:"Forest Hills/Kew Gardens", 113:"St. Albans/Jamaica",
+  114:"Astoria/Long Island City", 115:"Jackson Heights/Elmhurst",
+  120:"St. George/New Brighton", 121:"New Springville/Grasmere",
+  122:"South Beach/Tottenville", 123:"Tottenville/Great Kills"
+};
+function pctLabel(n) {
+  const name = PRECINCT_NAMES[n];
+  return name ? `Pct. ${n} (${name})` : `Precinct ${n}`;
+}
+
 // ── Colors ────────────────────────────────────────────────────────────────────
 const C_CUR     = "#e7466d";   // magenta — primary/current year
 const C_CMP     = "#c8c8c8";   // cloud gray — comparison year
@@ -407,6 +441,14 @@ function rateLabel(loc) {
   return loc === "subway" ? "per million rides" : "per 100k residents";
 }
 
+function getPctCount(crime, pct, year, quarter) {
+  try { const v=PCT_DATA[crime]?.[`pct_${pct}`]?.[String(year)]?.[quarter]; return v?parseInt(v):0; } catch{return 0;}
+}
+function getPctYTD(crime, pct, year, upToQ) {
+  const qi=QUARTERS.indexOf(upToQ); let t=0;
+  for(let i=0;i<=qi;i++) t+=getPctCount(crime,pct,year,QUARTERS[i]);
+  return t;
+}
 function fmt(n) { if (n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
 function fmtK(v) { return v>=1000?(v/1000).toFixed(0)+"k":String(v); }
 function deltaDisplay(curr, prev) {
@@ -417,8 +459,8 @@ function deltaDisplay(curr, prev) {
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
-let DATA=null, META=null;
-let state = { crime:null, loc:"citywide", borough:"All boroughs", cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count" };
+let DATA=null, META=null, PCT_DATA={};
+let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count" };
 
 function getCount(crime,loc,boro,year,q) {
   try { const v=DATA[crime]?.[loc]?.[boro]?.[String(year)]?.[q]; return v?parseInt(v):0; } catch{return 0;}
@@ -432,6 +474,36 @@ function getAllYears() {
   const s=new Set(), d=DATA[state.crime]?.[state.loc]?.[state.borough];
   if(d) Object.keys(d).forEach(y=>s.add(y));
   return Array.from(s).map(Number).sort((a,b)=>a-b);
+}
+
+// ── Precinct dropdown helper ─────────────────────────────────────────────────
+// NYC precinct → borough mapping
+const PCT_BOROUGH = {};
+[1,5,6,7,9,10,13,14,17,18,19,20,22,23,24,25,26,28,30,32,33,34].forEach(p=>PCT_BOROUGH[p]="Manhattan");
+[40,41,42,43,44,45,46,47,48,49,50,52,53].forEach(p=>PCT_BOROUGH[p]="Bronx");
+[61,62,63,66,67,68,69,70,71,72,73,75,76,77,78,79,81,83,84,88,90,94].forEach(p=>PCT_BOROUGH[p]="Brooklyn");
+[100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115].forEach(p=>PCT_BOROUGH[p]="Queens");
+[120,121,122,123].forEach(p=>PCT_BOROUGH[p]="Staten Island");
+
+function updatePrecinctDropdown() {
+  const sel = document.getElementById("sel-precinct");
+  const ctrl = document.getElementById("pct-ctrl");
+  if (!sel || !ctrl) return;
+  const boro = state.borough;
+  if (boro === "All boroughs") {
+    ctrl.style.display = "none";
+    sel.innerHTML = '<option value="">All precincts</option>';
+    return;
+  }
+  // Get precincts for this borough
+  const pcts = Object.entries(PCT_BOROUGH)
+    .filter(([p,b]) => b === boro)
+    .map(([p]) => parseInt(p))
+    .sort((a,b) => a-b);
+  if (pcts.length === 0) { ctrl.style.display = "none"; return; }
+  ctrl.style.display = "";
+  sel.innerHTML = '<option value="">All precincts</option>' +
+    pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("");
 }
 
 // ── Build UI ─────────────────────────────────────────────────────────────────
@@ -486,6 +558,12 @@ function buildApp() {
         <label>Borough</label>
         <select id="sel-borough" style="min-width:160px;">
           ${BOROUGHS.map(b=>`<option value="${b}">${b}</option>`).join("")}
+        </select>
+      </div>
+      <div class="ctrl" id="pct-ctrl" style="display:none;">
+        <label>Precinct</label>
+        <select id="sel-precinct" style="min-width:200px;">
+          <option value="">All precincts</option>
         </select>
       </div>
       <div class="ctrl">
@@ -559,11 +637,41 @@ function buildApp() {
       </div>
     </div>
 
+    <!-- Map section -->
+    <div class="chart-section" style="margin-bottom:3rem;">
+      <div class="chart-rule"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <div class="chart-title">YTD change by precinct</div>
+          <div class="chart-sub" id="map-sub"></div>
+        </div>
+        <div class="legend" id="map-legend" style="align-self:center;"></div>
+      </div>
+      <div id="map-container" style="width:100%;height:520px;border:1px solid var(--border);background:#f9f8f4;position:relative;">
+        <div id="map-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);">Loading map…</div>
+        <canvas id="map-canvas" style="width:100%;height:100%;display:block;"></canvas>
+        <div id="map-tooltip" class="tooltip"></div>
+      </div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div style="font-size:11px;font-weight:700;color:var(--text2);letter-spacing:0.08em;text-transform:uppercase;">% change vs prior year</div>
+        <div id="map-scale" style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text2);"></div>
+      </div>
+    </div>
+
     <div class="source"><strong>Source:</strong> NYPD Complaint Data (Historic and Year-to-Date), via NYC Open Data. Combined categories defined by Vital City. Subway counts reflect complaints by NYPD transit bureau; public housing counts reflect NYCHA developments. Data updated quarterly.</div>
   `;
 
   document.getElementById("sel-crime").addEventListener("change", e=>{state.crime=e.target.value;render();});
-  document.getElementById("sel-borough").addEventListener("change", e=>{state.borough=e.target.value;render();});
+  document.getElementById("sel-borough").addEventListener("change", e=>{
+    state.borough=e.target.value;
+    state.precinct=null;
+    updatePrecinctDropdown();
+    render();
+  });
+  document.getElementById("sel-precinct").addEventListener("change", e=>{
+    state.precinct = e.target.value ? parseInt(e.target.value) : null;
+    render();
+  });
   document.getElementById("sel-primary").addEventListener("change", e=>{
     state.primaryYear=String(e.target.value);
     // Update cmp options to exclude primary year
@@ -639,13 +747,23 @@ function render() {
   const primaryQ = isPrimaryLatest ? curQ : "Q4";
   const primaryQIdx = QUARTERS.indexOf(primaryQ);
 
+  // Precinct mode — override data access functions when a precinct is selected
+  const pct = state.precinct;
+  const inPctMode = !!(pct && loc === "citywide");
+  function getC(cr, lc, bo, yr, q) {
+    return inPctMode ? getPctCount(cr, pct, yr, q) : getCount(cr, lc, bo, yr, q);
+  }
+  function getY(cr, lc, bo, yr, upToQ) {
+    return inPctMode ? getPctYTD(cr, pct, yr, upToQ) : getYTD(cr, lc, bo, yr, upToQ);
+  }
+
   // Metrics — YTD + all 4 quarters
   const isRate = state.subwayRate; // true only for subway-rate location
   const rateNote = document.getElementById("subway-rate-note");
   if (rateNote) rateNote.style.display = isRate ? "block" : "none";
 
-  const pYTD=getYTD(crime,loc,boro,primaryYear,primaryQ);
-  const cYTD=getYTD(crime,loc,boro,cmpYear,primaryQ);
+  const pYTD=getY(crime,loc,boro,primaryYear,primaryQ);
+  const cYTD=getY(crime,loc,boro,cmpYear,primaryQ);
 
   // Convert to rates if needed
   function displayVal(count, year, q, upToQ) {
@@ -669,8 +787,8 @@ function render() {
     isYTD:true
   };
   const qtrMetrics = QUARTERS.map(q=>{
-    const pVal=getCount(crime,loc,boro,primaryYear,q);
-    const cVal=getCount(crime,loc,boro,cmpYear,q);
+    const pVal=getC(crime,loc,boro,primaryYear,q);
+    const cVal=getC(crime,loc,boro,cmpYear,q);
     const available = QUARTERS.indexOf(q)<=primaryQIdx;
     return {
       label:`${q} ${primaryYear}`,
@@ -696,7 +814,7 @@ function render() {
     return Array.from({length:12},(_,i)=>{
       const m=i+1, q=qForM(m);
       if(QUARTERS.indexOf(q)>uIdx) return 0;
-      return Math.round(getCount(crime,loc,boro,year,q)/3);
+      return Math.round(getC(crime,loc,boro,year,q)/3);
     });
   }
   document.getElementById("monthly-sub").textContent=`${primaryYear} vs ${cmpYear} · Q1–${primaryQ}`;
@@ -708,6 +826,8 @@ function render() {
     {label:String(primaryYear), data:monthly(primaryYear, primaryQ), color:C_CUR},
   ], "tt-monthly");
 
+  // Borough bars — hide in precinct mode
+  const boroSection = document.querySelector(".two-col");
   // Borough bars — use rate if boro rate toggle is on AND we're in citywide
   const boroRateAvail = state.boroRateMode === "rate" && loc === "citywide";
   const boroData=["Bronx","Brooklyn","Manhattan","Queens","Staten Island"]
@@ -743,13 +863,14 @@ function render() {
   }).join("");
 
   // Quarter comparison — always show all 4, gray out unavailable
-  document.getElementById("qtr-sub").textContent=`${primaryYear} vs ${cmpYear}`;
+  const geoLabel = inPctMode ? ` · ${pctLabel(pct)}` : boro !== "All boroughs" ? ` · ${boro}` : "";
+  document.getElementById("qtr-sub").textContent=`${primaryYear} vs ${cmpYear}${geoLabel}`;
   document.getElementById("qtr-legend").innerHTML=`
     <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
     <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
   drawBars("chart-qtr", QUARTERS, [
-    {label:String(cmpYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,cmpYear,q)), color:C_CMP},
-    {label:String(primaryYear), data:QUARTERS.map(q=>getCount(crime,loc,boro,primaryYear,q)), color:C_CUR},
+    {label:String(cmpYear), data:QUARTERS.map(q=>getC(crime,loc,boro,cmpYear,q)), color:C_CMP},
+    {label:String(primaryYear), data:QUARTERS.map(q=>getC(crime,loc,boro,primaryYear,q)), color:C_CUR},
   ], "tt-qtr");
 
   // Trend line
@@ -759,7 +880,7 @@ function render() {
   const allYrs=Array.from({length:maxYr-minYr+1},(_,i)=>minYr+i);
 
   if(trendMode==="ytd"){
-    const rawData=allYrs.map(y=>getYTD(crime,loc,boro,y,curQ));
+    const rawData=allYrs.map(y=>getY(crime,loc,boro,y,curQ));
     const tData = isRate
       ? rawData.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,curQ); return r==null?0:r; })
       : rawData;
@@ -773,7 +894,7 @@ function render() {
       QUARTERS.forEach(q=>{
         if(y===latestYear && QUARTERS.indexOf(q)>primaryQIdx) return;
         qLabels.push(`${y} ${q}`);
-        const raw = getCount(crime,loc,boro,y,q);
+        const raw = getC(crime,loc,boro,y,q);
         if (isRate) {
           const r = toRate(raw, loc, boro, y, q, null);
           qData.push(r==null ? 0 : r);
@@ -793,7 +914,7 @@ function render() {
 
   } else { // annual
     const isFullYear = y => !(y===latestYear && curQ!=="Q4");
-    const rawAnnual = allYrs.map(y=>getYTD(crime,loc,boro,y,"Q4"));
+    const rawAnnual = allYrs.map(y=>getY(crime,loc,boro,y,"Q4"));
     const aData = isRate
       ? rawAnnual.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,"Q4"); return r==null?0:r; })
       : rawAnnual;
@@ -802,6 +923,8 @@ function render() {
     document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}`;
     drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
   }
+  // Map
+  renderMap();
 }
 
 // ── Canvas renderers ──────────────────────────────────────────────────────────
@@ -1072,6 +1195,239 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
   canvas.onmouseleave=()=>{ paint(-1); hideTooltip(ttId); };
 }
 
+// ── Map rendering ────────────────────────────────────────────────────────────
+let GEO_DATA = null;
+
+async function loadGeoData() {
+  if (GEO_DATA) return GEO_DATA;
+  try {
+    const resp = await fetch("https://data.cityofnewyork.us/resource/kmep-waad.geojson?$limit=200");
+    if (!resp.ok) throw new Error("GeoJSON fetch failed");
+    GEO_DATA = await resp.json();
+    return GEO_DATA;
+  } catch(e) {
+    console.warn("Could not load precinct boundaries:", e);
+    return null;
+  }
+}
+
+function renderMap() {
+  const crime = state.crime, loc = state.loc;
+  const primaryYear = state.primaryYear || String(META.current_year);
+  const cmpYear = state.cmpYear;
+  const isPrimaryLatest = String(primaryYear) === String(META.current_year);
+  const primaryQ = isPrimaryLatest ? META.current_quarter : "Q4";
+
+  document.getElementById("map-sub").textContent =
+    `${crime} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}`;
+
+  loadGeoData().then(geo => {
+    const loading = document.getElementById("map-loading");
+    if (!geo) {
+      if (loading) loading.textContent = "Map data unavailable";
+      return;
+    }
+    if (loading) loading.style.display = "none";
+
+    const canvas = document.getElementById("map-canvas");
+    const container = document.getElementById("map-container");
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+    canvas.width = W * devicePixelRatio;
+    canvas.height = H * devicePixelRatio;
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.clearRect(0, 0, W, H);
+
+    // Compute bounds of all precincts
+    let minLng=Infinity, maxLng=-Infinity, minLat=Infinity, maxLat=-Infinity;
+    geo.features.forEach(f => {
+      const coords = f.geometry.type === "Polygon"
+        ? f.geometry.coordinates
+        : f.geometry.coordinates.flat();
+      coords.forEach(ring => ring.forEach(([lng,lat]) => {
+        if(lng<minLng) minLng=lng; if(lng>maxLng) maxLng=lng;
+        if(lat<minLat) minLat=lat; if(lat>maxLat) maxLat=lat;
+      }));
+    });
+
+    const PAD = 20;
+    const scaleX = (W - PAD*2) / (maxLng - minLng);
+    const scaleY = (H - PAD*2) / (maxLat - minLat);
+    const scale = Math.min(scaleX, scaleY);
+    const offX = PAD + ((W - PAD*2) - (maxLng-minLng)*scale)/2;
+    const offY = PAD + ((H - PAD*2) - (maxLat-minLat)*scale)/2;
+
+    function project([lng, lat]) {
+      return [offX + (lng-minLng)*scale, offY + (maxLat-lat)*scale];
+    }
+
+    // Compute pct changes
+    const pctChanges = {};
+    geo.features.forEach(f => {
+      const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+      if (!pct) return;
+      const cur = getPctYTD(crime, pct, primaryYear, primaryQ);
+      const prv = getPctYTD(crime, pct, cmpYear, primaryQ);
+      pctChanges[pct] = { cur, prv, pct: prv > 0 ? ((cur-prv)/prv)*100 : null };
+    });
+
+    // Color scale: green (-40%+) → white (0%) → red (+40%+)
+    function pctToColor(pctVal) {
+      if (pctVal === null) return "#e8e6df";
+      const clamped = Math.max(-50, Math.min(50, pctVal));
+      if (clamped < 0) {
+        const t = Math.abs(clamped) / 50;
+        return interpolateColor("#f0ede6", "#57aa4a", t);
+      } else if (clamped > 0) {
+        const t = clamped / 50;
+        return interpolateColor("#f0ede6", "#d2232a", t);
+      }
+      return "#f0ede6";
+    }
+    function interpolateColor(hex1, hex2, t) {
+      const r1=parseInt(hex1.slice(1,3),16), g1=parseInt(hex1.slice(3,5),16), b1=parseInt(hex1.slice(5,7),16);
+      const r2=parseInt(hex2.slice(1,3),16), g2=parseInt(hex2.slice(3,5),16), b2=parseInt(hex2.slice(5,7),16);
+      const r=Math.round(r1+(r2-r1)*t), g=Math.round(g1+(g2-g1)*t), b=Math.round(b1+(b2-b1)*t);
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Draw precincts
+    const featurePaths = [];
+    geo.features.forEach(f => {
+      const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+      const change = pctChanges[pct];
+      const fillColor = change ? pctToColor(change.pct) : "#e8e6df";
+
+      ctx.beginPath();
+      const rings = f.geometry.type === "Polygon"
+        ? f.geometry.coordinates
+        : f.geometry.coordinates.flat();
+      rings.forEach(ring => {
+        ring.forEach(([lng,lat], i) => {
+          const [x,y] = project([lng,lat]);
+          i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        });
+        ctx.closePath();
+      });
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // Store for hit testing
+      featurePaths.push({ pct, change, rings });
+    });
+
+    // Draw precinct labels for selected precinct
+    if (state.precinct) {
+      geo.features.forEach(f => {
+        const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+        if (pct !== state.precinct) return;
+        const rings = f.geometry.type === "Polygon"
+          ? f.geometry.coordinates
+          : f.geometry.coordinates.flat();
+        // Find centroid
+        let sumX=0, sumY=0, count=0;
+        rings[0].forEach(([lng,lat]) => { const [x,y]=project([lng,lat]); sumX+=x; sumY+=y; count++; });
+        ctx.fillStyle = "#050507";
+        ctx.font = "bold 11px -apple-system,sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(`Pct. ${pct}`, sumX/count, sumY/count);
+      });
+    }
+
+    // Legend
+    const legendEl = document.getElementById("map-scale");
+    if (legendEl) {
+      const steps = [-50,-25,0,25,50];
+      legendEl.innerHTML = steps.map(v => {
+        const col = pctToColor(v);
+        const lbl = v > 0 ? `+${v}%` : `${v}%`;
+        return `<span style="display:flex;align-items:center;gap:3px;">
+          <span style="width:14px;height:14px;background:${col};border:1px solid rgba(0,0,0,0.1);display:inline-block;"></span>
+          <span style="font-size:10px;">${lbl}</span>
+        </span>`;
+      }).join("");
+    }
+
+    // Tooltip on hover
+    function hitTest(mx, my) {
+      for (const {pct, change, rings} of featurePaths) {
+        // Simple point-in-polygon using canvas isPointInPath
+        ctx.beginPath();
+        rings.forEach(ring => {
+          ring.forEach(([lng,lat], i) => {
+            const [x,y] = project([lng,lat]);
+            i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+          });
+          ctx.closePath();
+        });
+        if (ctx.isPointInPath(mx * devicePixelRatio, my * devicePixelRatio)) {
+          return { pct, change };
+        }
+      }
+      return null;
+    }
+
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = hitTest(mx, my);
+      const tt = document.getElementById("map-tooltip");
+      if (hit && hit.change) {
+        const { pct, change } = hit;
+        const pctStr = change.pct == null ? "—"
+          : (change.pct > 0 ? "▲ +" : "▼ ") + change.pct.toFixed(1) + "%";
+        const col = change.pct == null ? "#707175"
+          : change.pct > 0 ? "#d2232a" : "#3a7a1e";
+        tt.innerHTML = `<strong>${pctLabel(pct)}</strong><br>
+          <span style="color:${col};font-weight:700;">${pctStr} vs ${cmpYear}</span><br>
+          ${primaryYear}: ${fmt(change.cur)} &nbsp;·&nbsp; ${cmpYear}: ${fmt(change.prv)}`;
+        tt.classList.add("visible");
+        // Position tooltip
+        const ttW = tt.offsetWidth || 200;
+        const ttH = tt.offsetHeight || 80;
+        let left = mx + 14, top = my - ttH/2;
+        if (left + ttW > W - 8) left = mx - ttW - 14;
+        if (top < 4) top = 4;
+        if (top + ttH > H - 4) top = H - ttH - 4;
+        tt.style.left = left + "px";
+        tt.style.top = top + "px";
+        canvas.style.cursor = "pointer";
+      } else {
+        tt.classList.remove("visible");
+        canvas.style.cursor = "default";
+      }
+    };
+    canvas.onmouseleave = () => {
+      document.getElementById("map-tooltip").classList.remove("visible");
+    };
+    canvas.onclick = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const hit = hitTest(e.clientX - rect.left, e.clientY - rect.top);
+      if (hit) {
+        // Select this precinct's borough and precinct
+        const boroughForPct = PCT_BOROUGH[hit.pct];
+        if (boroughForPct) {
+          state.borough = boroughForPct;
+          state.precinct = hit.pct;
+          const boroSel = document.getElementById("sel-borough");
+          if (boroSel) boroSel.value = boroughForPct;
+          updatePrecinctDropdown();
+          const pctSel = document.getElementById("sel-precinct");
+          if (pctSel) pctSel.value = String(hit.pct);
+          render();
+        }
+      }
+    };
+  });
+}
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 async function boot() {
   let raw;
@@ -1094,6 +1450,7 @@ async function boot() {
   META.subway_ridership=raw.subway_ridership||{};
   META.population=raw.population||{};
   DATA=raw.data;
+  PCT_DATA=raw.pct_data||{};
   buildApp();
   render();
 }
