@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_24.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_25.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -538,20 +538,32 @@ function updatePrecinctDropdown() {
   const ctrl = document.getElementById("pct-ctrl");
   if (!sel || !ctrl) return;
   const boro = state.borough;
-  if (boro === "All boroughs") {
-    sel.innerHTML = '<option value="">All precincts</option>';
-    sel.disabled = true;
-    sel.style.opacity = "0.45";
-    return;
-  }
   sel.disabled = false;
   sel.style.opacity = "";
-  const pcts = Object.entries(PCT_BOROUGH)
-    .filter(([p,b]) => b === boro)
-    .map(([p]) => parseInt(p))
-    .sort((a,b) => a-b);
-  sel.innerHTML = `<option value="">All precincts in ${boro}</option>` +
-    pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("");
+  if (boro === "All boroughs") {
+    // Show all precincts grouped by borough
+    const boroOrder = ["Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+    let opts = '<option value="">All precincts</option>';
+    boroOrder.forEach(b => {
+      const pcts = Object.entries(PCT_BOROUGH)
+        .filter(([p,bo]) => bo === b)
+        .map(([p]) => parseInt(p))
+        .sort((a,z) => a-z);
+      if (pcts.length === 0) return;
+      opts += `<optgroup label="${b}">` +
+        pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("") +
+        `</optgroup>`;
+    });
+    sel.innerHTML = opts;
+  } else {
+    // Show only this borough's precincts
+    const pcts = Object.entries(PCT_BOROUGH)
+      .filter(([p,b]) => b === boro)
+      .map(([p]) => parseInt(p))
+      .sort((a,b) => a-b);
+    sel.innerHTML = `<option value="">All precincts in ${boro}</option>` +
+      pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("");
+  }
 }
 
 // ── Build UI ─────────────────────────────────────────────────────────────────
