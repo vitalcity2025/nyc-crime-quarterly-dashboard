@@ -265,8 +265,8 @@ all_crime_types <- all_crime_types_ordered
 # ── Precinct-level aggregation (citywide only for map) ───────────────────────
 cat("Building precinct aggregation...\n")
 
-# Only citywide (jurisdiction_code = 0, i.e. not subway or housing)
-rows_pct <- all_rows[all_rows$loc_type == "other" & !is.na(all_rows$precinct) & all_rows$precinct > 0, ]
+# All complaints with a precinct number — subway and housing included
+rows_pct <- all_rows[!is.na(all_rows$precinct) & all_rows$precinct > 0, ]
 rows_pct$bucket <- "citywide"
 
 # Aggregate individual crimes by precinct
