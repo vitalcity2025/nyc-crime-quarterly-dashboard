@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_23.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_24.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -270,6 +270,54 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
 .boro-bar-bg { height: 10px; background: #f0f0f0; }
 .boro-bar-fill { height: 100%; transition: width 0.4s; }
 
+/* ── Year controls row ── */
+.year-controls {
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--black);
+  padding: 1rem 0;
+  margin-bottom: 0;
+}
+.year-ctrl-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.year-ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.year-ctrl-label {
+  font-family: var(--font-primary);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.year-divider {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text3);
+  padding: 0 4px;
+}
+select.year-select {
+  font-size: 22px;
+  font-weight: 900;
+  height: 44px;
+  padding: 0 36px 0 12px;
+  border: 1px solid var(--border2);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  min-width: 110px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23050507'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+select.year-select:focus { outline: 2px solid var(--orange); }
+
 /* ── Source ── */
 .source {
   font-family: var(--font-primary);
@@ -491,18 +539,18 @@ function updatePrecinctDropdown() {
   if (!sel || !ctrl) return;
   const boro = state.borough;
   if (boro === "All boroughs") {
-    ctrl.style.display = "none";
     sel.innerHTML = '<option value="">All precincts</option>';
+    sel.disabled = true;
+    sel.style.opacity = "0.45";
     return;
   }
-  // Get precincts for this borough
+  sel.disabled = false;
+  sel.style.opacity = "";
   const pcts = Object.entries(PCT_BOROUGH)
     .filter(([p,b]) => b === boro)
     .map(([p]) => parseInt(p))
     .sort((a,b) => a-b);
-  if (pcts.length === 0) { ctrl.style.display = "none"; return; }
-  ctrl.style.display = "";
-  sel.innerHTML = '<option value="">All precincts</option>' +
+  sel.innerHTML = `<option value="">All precincts in ${boro}</option>` +
     pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("");
 }
 
@@ -560,21 +608,28 @@ function buildApp() {
           ${BOROUGHS.map(b=>`<option value="${b}">${b}</option>`).join("")}
         </select>
       </div>
-      <div class="ctrl" id="pct-ctrl" style="display:none;">
+      <div class="ctrl" id="pct-ctrl">
         <label>Precinct</label>
-        <select id="sel-precinct" style="min-width:200px;">
+        <select id="sel-precinct" style="min-width:220px;">
           <option value="">All precincts</option>
         </select>
       </div>
-      <div class="ctrl">
-        <label>Primary year</label>
-        <select id="sel-primary" style="min-width:100px;">${primaryOpts}</select>
-      </div>
-      <div class="ctrl">
-        <label>Compare to</label>
-        <select id="sel-cmp" style="min-width:100px;">${cmpOpts}</select>
-      </div>
 
+
+    </div>
+
+    <div class="year-controls" id="year-controls">
+      <div class="year-ctrl-inner">
+        <div class="year-ctrl-group">
+          <div class="year-ctrl-label">Showing data for</div>
+          <select id="sel-primary" class="year-select">${primaryOpts}</select>
+        </div>
+        <div class="year-divider">vs.</div>
+        <div class="year-ctrl-group">
+          <div class="year-ctrl-label">Comparing to</div>
+          <select id="sel-cmp" class="year-select">${cmpOpts}</select>
+        </div>
+      </div>
     </div>
 
     <div class="metrics" id="metrics-row"></div>
@@ -733,6 +788,7 @@ function buildApp() {
   state.boroRateMode = "count";
   document.getElementById("sel-crime").value   = state.crime;
   document.getElementById("sel-primary").value = state.primaryYear;
+  updatePrecinctDropdown();
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
