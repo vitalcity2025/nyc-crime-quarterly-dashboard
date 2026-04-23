@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_20.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_21.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1200,10 +1200,22 @@ let GEO_DATA = null;
 
 async function loadGeoData() {
   if (GEO_DATA) return GEO_DATA;
+  // Try multiple known URLs for NYPD precinct boundaries
+  const GEO_URLS = [
+    "https://data.cityofnewyork.us/api/geospatial/y76i-bdw7?method=export&type=GeoJSON",
+    "https://data.cityofnewyork.us/resource/99qf-swyn.geojson?$limit=200",
+  ];
   try {
-    const resp = await fetch("https://data.cityofnewyork.us/resource/kmep-waad.geojson?$limit=200");
-    if (!resp.ok) throw new Error("GeoJSON fetch failed");
+    let resp, lastErr;
+    for (const url of GEO_URLS) {
+      try { resp = await fetch(url); if (resp.ok) break; } catch(e) { lastErr=e; }
+    }
+    if (!resp || !resp.ok) throw lastErr || new Error("GeoJSON fetch failed");
     GEO_DATA = await resp.json();
+    // Log first feature's property keys to help debug
+    if (GEO_DATA.features && GEO_DATA.features.length > 0) {
+      console.log("GeoJSON loaded. First feature properties:", Object.keys(GEO_DATA.features[0].properties));
+    }
     return GEO_DATA;
   } catch(e) {
     console.warn("Could not load precinct boundaries:", e);
@@ -1267,7 +1279,7 @@ function renderMap() {
     // Compute pct changes
     const pctChanges = {};
     geo.features.forEach(f => {
-      const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+      const pct = (() => { const props=f.properties; const r=props.precinct??props.Precinct??props.PRECINCT??props.pct??props.PCT??props.Precinct_Number??props.prec??null; return r?parseInt(r):0; })();
       if (!pct) return;
       const cur = getPctYTD(crime, pct, primaryYear, primaryQ);
       const prv = getPctYTD(crime, pct, cmpYear, primaryQ);
@@ -1297,7 +1309,7 @@ function renderMap() {
     // Draw precincts
     const featurePaths = [];
     geo.features.forEach(f => {
-      const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+      const pct = (() => { const props=f.properties; const r=props.precinct??props.Precinct??props.PRECINCT??props.pct??props.PCT??props.Precinct_Number??props.prec??null; return r?parseInt(r):0; })();
       const change = pctChanges[pct];
       const fillColor = change ? pctToColor(change.pct) : "#e8e6df";
 
@@ -1325,7 +1337,7 @@ function renderMap() {
     // Draw precinct labels for selected precinct
     if (state.precinct) {
       geo.features.forEach(f => {
-        const pct = parseInt(f.properties.precinct || f.properties.Precinct || f.properties.PRECINCT || 0);
+        const pct = (() => { const props=f.properties; const r=props.precinct??props.Precinct??props.PRECINCT??props.pct??props.PCT??props.Precinct_Number??props.prec??null; return r?parseInt(r):0; })();
         if (pct !== state.precinct) return;
         const rings = f.geometry.type === "Polygon"
           ? f.geometry.coordinates
