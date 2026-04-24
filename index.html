@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_38.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_39.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -338,9 +338,9 @@ select.year-select:focus { outline: 2px solid var(--orange); }
   margin-bottom: 1rem;
 }
 .meth-body {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 3rem;
+  columns: 2;
+  column-gap: 3rem;
+  column-fill: balance;
 }
 .meth-body p {
   font-family: var(--font-primary);
@@ -348,7 +348,8 @@ select.year-select:focus { outline: 2px solid var(--orange); }
   font-size: 12px;
   line-height: 1.65;
   color: var(--text2);
-  margin: 0;
+  margin: 0 0 0.75rem;
+  break-inside: avoid;
 }
 .meth-body strong { font-weight: 700; color: var(--text); }
 .meth-body em { font-style: italic; }
@@ -791,7 +792,7 @@ function buildApp() {
         <p><strong>Location:</strong> Citywide counts include all NYPD complaint records for a given geography. Subway counts use NYPD jurisdiction code 1 (Transit Bureau); public housing counts use jurisdiction code 2 (Housing Bureau). These reflect how NYPD classifies each incident, not the physical location of the crime.</p>
         <p><strong>Subway rate:</strong> Expressed as complaints per million rides. Ridership figures for 2018–present are quarterly totals from the MTA Monthly Ridership dataset (data.ny.gov). Pre-2018 figures use official annual totals from MTA annual reports and the NYU Wagner "State of Subway Ridership" study (2017), distributed across quarters using a seasonal approximation (Q1: 24%, Q2: 26%, Q3: 27%, Q4: 23%). Pre-2018 quarterly rates should be treated as estimates.</p>
         <p><strong>Borough rates:</strong> Expressed as complaints per 100,000 residents. Population denominators use U.S. Census Bureau American Community Survey annual estimates for each borough, updated through 2023; 2024 and 2025 use 2023 estimates.</p>
-        <p><strong>Precincts:</strong> Precinct-level counts reflect all complaints that have a precinct number assigned, including subway and public housing incidents. This shows where crimes occurred geographically regardless of which NYPD bureau handled them.</p>
+        <p><strong>Precincts:</strong> Precinct-level counts reflect all complaints with a precinct number assigned, including subway and public housing incidents — showing where crimes occurred geographically. The map can display counts or rates per 100,000 residents (citywide only). Precinct populations are from the 2020 U.S. Census, spatially joined to precinct boundaries by John Keefe/WNYC.</p>
         <p><strong>Update schedule:</strong> Data is refreshed quarterly, typically within 4–6 weeks of a quarter's end as NYPD finalizes complaint records. Historical data may be revised in subsequent updates.</p>
       </div>
     </div>
@@ -1124,9 +1125,16 @@ function drawBars(id, labels, datasets, ttId) {
   const {ctx, W, H} = getCanvas(id, 220);
   const PL=44, PR=8, PT=10, PB=28;
   const cW=W-PL-PR, cH=H-PT-PB;
-  const allV=datasets.flatMap(d=>d.data);
+  const allV=datasets.flatMap(d=>d.data).filter(v=>v>0);
   const mx=Math.max(...allV,1);
-  const niceMax=Math.ceil(mx*1.12/1000)*1000||1;
+  const mn=Math.min(...allV,0);
+  // Use dynamic min for small-range data (like rates)
+  const range = mx - mn;
+  const isSmallRange = range < mx * 0.3 && mn > 0;
+  const barMin = isSmallRange ? Math.max(0, Math.floor(mn * 0.85 * 10)/10) : 0;
+  const niceMax = isSmallRange
+    ? Math.ceil(mx * 1.15 * 10) / 10 || 1
+    : Math.ceil(mx * 1.12 / 1000) * 1000 || 1;
   const TICKS=4;
   const n=labels.length, ds=datasets.length;
   const groupW=cW/n;
@@ -1591,14 +1599,14 @@ function renderMap() {
       // Render a continuous gradient bar with labels
       const steps = 60;
       const swatches = Array.from({length:steps},(_,i)=>{
-        const pct = -30 + (i/steps)*60;
+        const pct = -SCALE_MAX + (i/steps)*SCALE_MAX*2;
         return pctToColor(pct);
       });
       const gradientCss = `linear-gradient(to right, ${swatches.join(",")})`;
       legendEl.innerHTML = `
-        <span style="font-size:10px;font-weight:700;color:#2d8a3e;margin-right:4px;">−30%</span>
+        <span style="font-size:10px;font-weight:700;color:#2d8a3e;margin-right:4px;">−${SCALE_MAX}%</span>
         <span style="display:inline-block;width:160px;height:14px;background:${gradientCss};border:1px solid rgba(0,0,0,0.12);vertical-align:middle;"></span>
-        <span style="font-size:10px;font-weight:700;color:#c0392b;margin-left:4px;">+30%</span>
+        <span style="font-size:10px;font-weight:700;color:#c0392b;margin-left:4px;">+${SCALE_MAX}%</span>
         <span style="font-size:10px;color:var(--text3);margin-left:8px;">neutral = no change</span>
       `;
     }
