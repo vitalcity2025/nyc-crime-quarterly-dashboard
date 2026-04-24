@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_40.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_41.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1488,7 +1488,15 @@ function renderMap() {
         cur = (curRaw / pop) * 100000;
         prv = (prvRaw / pop) * 100000;
       }
-      pctChanges[pct] = { cur, prv, curRaw, prvRaw, pct: prv > 0 ? ((cur-prv)/prv)*100 : null };
+      let changePct;
+      if (prv > 0) {
+        changePct = ((cur - prv) / prv) * 100;
+      } else if (cur > 0) {
+        changePct = 100; // new complaints where there were none — treat as max increase
+      } else {
+        changePct = null; // both zero — no data
+      }
+      pctChanges[pct] = { cur, prv, curRaw, prvRaw, pct: changePct };
     });
 
     // Dynamic color scale — based on actual data range
