@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_43.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_44.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -425,11 +425,11 @@ select.year-select:focus { outline: 2px solid var(--orange); }
 <div class="orange-rule"></div>
 
 <div class="page" id="app">
-  <div class="state-screen">
-    <h2>Loading data…</h2>
-    <p>Reading <code>crime_data.json</code></p>
-  </div>
-</div>
+      <div class="state-screen">
+        <h2>Data file not found</h2>
+        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+        Generate it in RStudio with: <code>source("fetch_nypd_data.R")</code></p>
+      </div></div>
 
 <script>
 // ── Precinct → neighborhood names ────────────────────────────────────────────
@@ -919,17 +919,6 @@ function render() {
   const rateNote = document.getElementById("subway-rate-note");
   if (rateNote) rateNote.style.display = isRate ? "block" : "none";
 
-  // Geography labels — used across all chart subtitles
-  const geoShort = inPctMode
-    ? `Pct. ${pct}`
-    : boro !== "All boroughs" ? boro : "Citywide";
-  const geoLabel = inPctMode
-    ? ` · ${pctLabel(pct)}`
-    : boro !== "All boroughs" ? ` · ${boro}` : " · Citywide";
-  const locLabel2 = loc === "subway"
-    ? (isRate ? "Subway — rate" : "Subway — count")
-    : loc === "housing" ? "Housing" : "";
-  const fullGeoLabel = locLabel2 ? `${geoLabel} · ${locLabel2}` : geoLabel;
 
   const pYTD=getY(crime,loc,boro,primaryYear,primaryQ);
   const cYTD=getY(crime,loc,boro,cmpYear,primaryQ);
