@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_39.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_40.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1130,11 +1130,21 @@ function drawBars(id, labels, datasets, ttId) {
   const mn=Math.min(...allV,0);
   // Use dynamic min for small-range data (like rates)
   const range = mx - mn;
-  const isSmallRange = range < mx * 0.3 && mn > 0;
-  const barMin = isSmallRange ? Math.max(0, Math.floor(mn * 0.85 * 10)/10) : 0;
-  const niceMax = isSmallRange
-    ? Math.ceil(mx * 1.15 * 10) / 10 || 1
-    : Math.ceil(mx * 1.12 / 1000) * 1000 || 1;
+  // Use dynamic axis for small or decimal values (like rates)
+  const isDecimal = mx < 100;
+  const isSmallRange = !isDecimal && range < mx * 0.3 && mn > 0;
+  let barMin, niceMax;
+  if (isDecimal) {
+    // Rates — start near min, end near max
+    barMin = Math.max(0, Math.floor(mn * 0.8 * 10)/10);
+    niceMax = Math.ceil(mx * 1.2 * 10) / 10 || 1;
+  } else if (isSmallRange) {
+    barMin = Math.max(0, Math.floor(mn * 0.85 * 10)/10);
+    niceMax = Math.ceil(mx * 1.15 * 10) / 10 || 1;
+  } else {
+    barMin = 0;
+    niceMax = Math.ceil(mx * 1.12 / 1000) * 1000 || 1;
+  }
   const TICKS=4;
   const n=labels.length, ds=datasets.length;
   const groupW=cW/n;
@@ -1481,16 +1491,21 @@ function renderMap() {
       pctChanges[pct] = { cur, prv, curRaw, prvRaw, pct: prv > 0 ? ((cur-prv)/prv)*100 : null };
     });
 
-    // Color scale: saturated green → neutral → saturated red
-    // Use tighter clamp (30%) so mid-range changes show clearly
+    // Dynamic color scale — based on actual data range
+    const validPcts = Object.values(pctChanges).map(c=>c.pct).filter(p=>p!=null);
+    const maxAbsPct = validPcts.length > 0
+      ? Math.max(5, Math.ceil(Math.max(...validPcts.map(Math.abs)) / 5) * 5)
+      : 30;
+    const SCALE_MAX = Math.min(maxAbsPct, 60);
+
     function pctToColor(pctVal) {
       if (pctVal === null) return "#e2e2e2";
-      const clamped = Math.max(-30, Math.min(30, pctVal));
+      const clamped = Math.max(-SCALE_MAX, Math.min(SCALE_MAX, pctVal));
       if (clamped < 0) {
-        const t = Math.abs(clamped) / 30;
+        const t = Math.abs(clamped) / SCALE_MAX;
         return interpolateColor("#efefef", "#2d8a3e", t);
       } else if (clamped > 0) {
-        const t = clamped / 30;
+        const t = clamped / SCALE_MAX;
         return interpolateColor("#efefef", "#c0392b", t);
       }
       return "#efefef";
@@ -1599,8 +1614,8 @@ function renderMap() {
       // Render a continuous gradient bar with labels
       const steps = 60;
       const swatches = Array.from({length:steps},(_,i)=>{
-        const pct = -SCALE_MAX + (i/steps)*SCALE_MAX*2;
-        return pctToColor(pct);
+        const pctVal = -SCALE_MAX + (i/steps)*SCALE_MAX*2;
+        return pctToColor(pctVal);
       });
       const gradientCss = `linear-gradient(to right, ${swatches.join(",")})`;
       legendEl.innerHTML = `
