@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_51.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_52.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1280,7 +1280,7 @@ function render() {
   renderMovers(crime, loc, boro, primaryYear, cmpYear, primaryQ, inPctMode, pct);
 
   // Map
-  renderMap();
+  renderMap(crimeLabel);
 }
 
 // ── Canvas renderers ──────────────────────────────────────────────────────────
@@ -1603,7 +1603,8 @@ async function loadGeoData() {
   }
 }
 
-function renderMap() {
+function renderMap(crimeLabel) {
+  crimeLabel = crimeLabel || state.crime;
   const crime = state.crime, loc = state.loc;
   const primaryYear = state.primaryYear || String(META.current_year);
   const cmpYear = state.cmpYear;
