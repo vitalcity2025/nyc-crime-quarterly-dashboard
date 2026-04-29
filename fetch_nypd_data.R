@@ -20,8 +20,8 @@ YTD_ENDPOINT      <- "https://data.cityofnewyork.us/resource/5uac-w243.json"
 # Update these two lines when new data becomes available.
 # current_year    = the most recent year with data (e.g. 2025)
 # current_quarter = the most recent quarter available (1, 2, 3, or 4)
-current_year    <- 2025
-current_quarter <- 4
+current_year    <- 2026
+current_quarter <- 1
 # ─────────────────────────────────────────────────────────────────────────────
 
 ytd_end_month <- current_quarter * 3
@@ -133,8 +133,8 @@ build_soql <- function(year, ytd_month_end) {
 
 all_rows <- list()
 
-# Historic dataset: 2006 through 2024 (confirmed range)
-hist_end <- 2024
+# Historic dataset: 2006 through 2025 (2025 moved to historic as of Q1 2026)
+hist_end <- 2025
 cat(sprintf("\nFetching historic data year by year (2006-%d)...\n", hist_end))
 
 for (yr in 2006:hist_end) {
@@ -155,7 +155,8 @@ for (yr in 2006:hist_end) {
 # YTD dataset: current year (and any years not yet in historic)
 # hist_end is hardcoded to 2024 — update to 2025 once that moves to historic
 ytd_years <- unique(c(current_year))
-if (current_year > 2025) ytd_years <- unique(c(2025, ytd_years))
+# Add prior year if not yet in historic (2025 moved to historic, so only 2026+ needed)
+if (current_year > 2026) ytd_years <- unique(c(current_year - 1, ytd_years))
 cat(sprintf("\nFetching YTD data (%s)...\n", paste(ytd_years, collapse=" and ")))
 for (yr in ytd_years) {
   cat(sprintf("  Fetching %d... ", yr))
@@ -423,7 +424,8 @@ NYC_POP <- list(
   "2022"=list(nyc=8335897, Bronx=1356476, Brooklyn=2561225, Manhattan=1597451, Queens=2278029, `Staten Island`=422716),
   "2023"=list(nyc=8258035, Bronx=1336705, Brooklyn=2530151, Manhattan=1596909, Queens=2245398, `Staten Island`=418872),
   "2024"=list(nyc=8258035, Bronx=1336705, Brooklyn=2530151, Manhattan=1596909, Queens=2245398, `Staten Island`=418872),
-  "2025"=list(nyc=8258035, Bronx=1336705, Brooklyn=2530151, Manhattan=1596909, Queens=2245398, `Staten Island`=418872)
+  "2025"=list(nyc=8258035, Bronx=1336705, Brooklyn=2530151, Manhattan=1596909, Queens=2245398, `Staten Island`=418872),
+  "2026"=list(nyc=8258035, Bronx=1336705, Brooklyn=2530151, Manhattan=1596909, Queens=2245398, `Staten Island`=418872)
 )
 
 # ── Download precinct population data (2020 Census, via John Keefe/WNYC) ─────

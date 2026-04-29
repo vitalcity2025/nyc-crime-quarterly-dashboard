@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_45.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_49.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,23 +9,29 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* ── Primary palette (design system exact) ── */
   --black:      #050507;
   --white:      #ffffff;
   --cloud:      #dddddd;
-  --orange:     #ff7c53;
-  --yellow:     #dde44c;
+  --chartreuse: #dde44c;   /* Pop */
+  --orange:     #ff7c53;   /* Accent — nav, CTAs, kickers, trend lines */
+  --peri:       #9b9fbc;   /* Neutral */
+  --rose:       #cea9be;
+  --magenta:    #e7466d;   /* Focal — subject of analysis */
+  --charcoal:   #707175;   /* Muted — axis labels, deks, metadata */
   --indigo:     #394882;
-  --cerulean:   #217ebe;
-  --magenta:    #e7466d;
-  --charcoal:   #707175;
-  --peri:       #9b9fbc;
+  --cerulean:   #217ebe;   /* Compare — comparison groups */
+  /* aliases */
+  --yellow:     #dde44c;   /* chartreuse alias */
 
+  /* ── Borough colors ── */
   --b-bronx:    #ff7c53;
   --b-brooklyn: #217ebe;
   --b-manhattan:#e7466d;
   --b-queens:   #dde44c;
   --b-si:       #9b9fbc;
 
+  /* ── Semantic ── */
   --text:    #050507;
   --text2:   #707175;
   --text3:   #9b9fbc;
@@ -33,14 +39,16 @@
   --border2: rgba(5,5,7,0.18);
   --grid:    rgba(5,5,7,0.06);
 
+  /* ── Fonts ── */
   --font-primary:   "halyard-text", "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-display:   "halyard-display", "halyard-text", "Inter", Arial, sans-serif;
+  --font-serif:     "gascogne", "Georgia", serif;
 }
 
 html, body { background: var(--white); }
 body {
   font-family: var(--font-primary);
-  font-weight: 300;
+  font-weight: 300; /* halyard-text book */
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
@@ -77,23 +85,22 @@ body {
 }
 .mast-sub {
   font-family: var(--font-primary);
-  font-weight: 200;
-  font-size: 13px;
+  font-weight: 200; /* halyard-text light */
+  font-size: 14px;
   color: #c8c8c8;
   margin-top: 10px;
 }
 .mast-badge {
   font-family: var(--font-primary);
-  font-weight: 700;
+  font-weight: 700; /* halyard-text bold kicker */
   font-size: 10px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #c8c8c8;
-  border: 1px solid rgba(255,255,255,0.18);
-  padding: 7px 12px;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 12px;
   white-space: nowrap;
-  align-self: flex-start;
-  margin-top: 4px;
+  display: inline-block;
 }
 
 /* ── Orange rule ── */
@@ -116,8 +123,8 @@ body {
 .ctrl label {
   font-family: var(--font-primary);
   font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--charcoal);
 }
@@ -181,11 +188,11 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
 }
 .m-label {
   font-family: var(--font-primary);
-  font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-weight: 700; /* halyard-text bold = kicker style */
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--charcoal);
   margin-bottom: 10px;
 }
 .ytd-metric .m-label { color: var(--text2); letter-spacing: 0.16em; }
@@ -205,24 +212,24 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
   letter-spacing: 0.04em;
   margin-top: 8px;
 }
-.delta-up   { color: var(--magenta); }
-.delta-down { color: #3a7a1e; }
+.delta-up   { color: #d2232a; } /* Baddest Red — crime going up is bad */
+.delta-down { color: #57aa4a; } /* Goodest Green — crime going down is good */
 .delta-flat { color: var(--text3); }
 
 /* ── Chart sections ── */
 .chart-section { margin-bottom: 3rem; }
 .chart-title {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 500;
   font-size: 15px;
   color: var(--text);
   margin-bottom: 4px;
 }
 .chart-sub {
   font-family: var(--font-primary);
-  font-weight: 200;
+  font-weight: 200; /* halyard-text light — dek/subtitle style */
   font-size: 12px;
-  color: var(--text2);
+  color: var(--charcoal);
   margin-bottom: 1rem;
 }
 .chart-rule { height: 1.5px; background: var(--orange); margin: 0 0 14px; }
@@ -292,11 +299,11 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
 }
 .year-ctrl-label {
   font-family: var(--font-primary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 700; /* halyard-text bold kicker */
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text2);
+  color: var(--charcoal);
   white-space: nowrap;
 }
 .year-divider {
@@ -321,6 +328,63 @@ select.year-select {
   background-position: right 12px center;
 }
 select.year-select:focus { outline: 2px solid var(--orange); }
+
+/* ── Top movers ── */
+.movers-section {
+  margin-bottom: 3rem;
+}
+.movers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.movers-col {}
+.movers-col-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.movers-col-title.up   { color: #c0392b; }
+.movers-col-title.down { color: #2d8a3e; }
+.mover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+}
+.mover-row:last-child { border-bottom: none; }
+.mover-name {
+  font-family: var(--font-primary);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  text-transform: capitalize;
+}
+.mover-counts {
+  font-family: var(--font-primary);
+  font-size: 11px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.mover-pct {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+.mover-pct.up   { color: #c0392b; }
+.mover-pct.down { color: #2d8a3e; }
+@media (max-width: 600px) {
+  .movers-grid { grid-template-columns: 1fr; }
+}
 
 /* ── Methodology ── */
 .methodology {
@@ -367,15 +431,17 @@ select.year-select:focus { outline: 2px solid var(--orange); }
 /* ── Source ── */
 .source {
   font-family: var(--font-primary);
-  font-weight: 300;
+  font-weight: 300; /* halyard-text book */
   font-size: 11px;
-  color: var(--text2);
+  color: var(--charcoal);
   padding-top: 1.25rem;
   border-top: 1px solid var(--border);
   margin-top: 2rem;
   line-height: 1.6;
 }
 .source strong { font-weight: 700; color: var(--text); }
+.source a { color: var(--orange); text-decoration: none; }
+.source a:hover { text-decoration: underline; }
 
 /* ── States ── */
 .state-screen {
@@ -470,7 +536,7 @@ function pctLabel(n) {
 const C_CUR     = "#ff7c53";   // orange — primary/current year
 const C_CMP     = "#c8c8c8";   // cloud gray — comparison year
 const C_PRIMARY = "#ff7c53";   // alias
-const C_COMPARE = "#394882";   // indigo — highlighted comparison
+const C_COMPARE = "#217ebe";   // cerulean — comparison role per design system
 const C_TREND   = "#050507";   // black line for trend
 const C_GRID    = "rgba(5,5,7,0.06)";
 const C_AXIS    = "rgba(5,5,7,0.15)";
@@ -558,7 +624,7 @@ function deltaDisplay(curr, prev, cmpYr) {
 
 // ── State ────────────────────────────────────────────────────────────────────
 let DATA=null, META=null, PCT_DATA={}, PCT_POP={};
-let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count", mapRateMode:"count" };
+let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count", mapRateMode:"count", moversMode:"pct" };
 
 function getCount(crime,loc,boro,year,q) {
   try { const v=DATA[crime]?.[loc]?.[boro]?.[String(year)]?.[q]; return v?parseInt(v):0; } catch{return 0;}
@@ -695,6 +761,27 @@ function buildApp() {
     </div>
 
     <div class="metrics" id="metrics-row"></div>
+
+    <div class="movers-section" id="movers-section">
+      <div class="chart-rule"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="chart-title">Top movers — YTD</div>
+        <div class="toggle-group" id="movers-mode-toggle" style="height:26px;">
+          <button data-moversmode="pct" class="active" style="font-size:10px;padding:0 10px;">% change</button>
+          <button data-moversmode="abs" style="font-size:10px;padding:0 10px;">Absolute change</button>
+        </div>
+      </div>
+      <div class="movers-grid">
+        <div class="movers-col">
+          <div class="movers-col-title up" id="movers-up-title">▲ Top 5 increases</div>
+          <div id="movers-up-list"></div>
+        </div>
+        <div class="movers-col">
+          <div class="movers-col-title down" id="movers-down-title">▼ Top 5 decreases</div>
+          <div id="movers-down-list"></div>
+        </div>
+      </div>
+    </div>
 
     <div class="two-col-equal">
       <div class="chart-section">
@@ -856,6 +943,11 @@ function buildApp() {
     document.querySelectorAll("#trend-toggle button").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active"); state.trendMode=btn.dataset.trend; render();
   });
+  document.getElementById("movers-mode-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#movers-mode-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.moversMode=btn.dataset.moversmode; render();
+  });
   document.getElementById("boro-rate-toggle").addEventListener("click", e=>{
     const btn=e.target.closest("button"); if(!btn) return;
     document.querySelectorAll("#boro-rate-toggle button").forEach(b=>b.classList.remove("active"));
@@ -877,6 +969,70 @@ function buildApp() {
   document.getElementById("sel-crime").value   = state.crime;
   document.getElementById("sel-primary").value = state.primaryYear;
   updatePrecinctDropdown();
+}
+
+// ── Top movers ───────────────────────────────────────────────────────────────
+function renderMovers(crime, loc, boro, primaryYear, cmpYear, primaryQ, inPctMode, pct) {
+  const crimeTypes = META.crime_types || [];
+  const mode = state.moversMode || "pct"; // "pct" or "abs"
+
+  const movers = crimeTypes.map(cr => {
+    const cur = inPctMode ? getPctYTD(cr, pct, primaryYear, primaryQ, loc)
+                          : getYTD(cr, loc, boro, primaryYear, primaryQ);
+    const prv = inPctMode ? getPctYTD(cr, pct, cmpYear, primaryQ, loc)
+                          : getYTD(cr, loc, boro, cmpYear, primaryQ);
+    if (cur === 0 && prv === 0) return null;
+    const absChange = cur - prv;
+    const pctChange = prv > 0 ? ((cur - prv) / prv) * 100
+                   : cur > 0  ? 100 : null;
+    return { cr, cur, prv, absChange, pctChange };
+  }).filter(m => m && m.pctChange !== null && (m.cur >= 10 || m.prv >= 10));
+
+  // Sort by selected mode
+  const sortKey = mode === "abs" ? "absChange" : "pctChange";
+  const increases = [...movers].sort((a,b) => b[sortKey] - a[sortKey]).slice(0,5);
+  const decreases = [...movers].sort((a,b) => a[sortKey] - b[sortKey]).slice(0,5);
+
+  const geoLabel = inPctMode ? `Pct. ${pct}`
+    : boro !== "All boroughs" ? boro : "Citywide";
+  const locStr = loc === "subway" ? " · Subway"
+    : loc === "housing" ? " · Housing" : "";
+  const modeStr = mode === "abs" ? "by absolute change" : "by % change";
+
+  document.getElementById("movers-up-title").textContent =
+    `▲ Top 5 increases · ${primaryYear} vs ${cmpYear} · ${geoLabel}${locStr}`;
+  document.getElementById("movers-down-title").textContent =
+    `▼ Top 5 decreases · ${primaryYear} vs ${cmpYear} · ${geoLabel}${locStr}`;
+
+  function formatName(s) {
+    // Title case
+    return s.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+  function renderList(items, listId) {
+    document.getElementById(listId).innerHTML = items.map(m => {
+      const isUp = m.absChange >= 0;
+      const cls = isUp ? "up" : "down";
+      // Primary display value based on mode
+      const primary = mode === "abs"
+        ? `${isUp?"+":""}${fmt(m.absChange)}`
+        : `${isUp?"+":""}${m.pctChange.toFixed(1)}%`;
+      // Secondary value
+      const secondary = mode === "abs"
+        ? `${isUp?"+":""}${m.pctChange.toFixed(1)}%`
+        : `${isUp?"+":""}${fmt(m.absChange)}`;
+      return `<div class="mover-row">
+        <div class="mover-name">${formatName(m.cr)}</div>
+        <div class="mover-counts">${fmt(m.cur)} vs ${fmt(m.prv)}</div>
+        <div style="text-align:right;">
+          <div class="mover-pct ${cls}">${primary}</div>
+          <div style="font-size:10px;color:var(--text3);">${secondary}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  renderList(increases, "movers-up-list");
+  renderList(decreases, "movers-down-list");
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -1101,6 +1257,9 @@ function render() {
     document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}${fullGeoLabel}`;
     drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
   }
+  // Top movers
+  renderMovers(crime, loc, boro, primaryYear, cmpYear, primaryQ, inPctMode, pct);
+
   // Map
   renderMap();
 }
@@ -1393,7 +1552,7 @@ function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplet
       paint(i);
       const lbl=labels[i];
       const isPartial=incomplete&&incomplete[i];
-      const col=lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#394882":"#050507";
+      const col=lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#217ebe":"#050507";
       const note=isPartial?" (incomplete)":"";
       // Quarterly labels are already "2024 Q1" — show as header, annual/YTD show year
       showTooltip(ttId,canvas,mx,e.clientY-canvas.getBoundingClientRect().top,[
