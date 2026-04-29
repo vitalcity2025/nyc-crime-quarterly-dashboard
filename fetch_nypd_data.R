@@ -118,12 +118,13 @@ build_soql <- function(year, ytd_month_end) {
   )
   sprintf(
     "SELECT date_extract_y(rpt_dt) AS yr, %s AS quarter,
+            date_extract_m(rpt_dt) AS month,
             ofns_desc, patrol_boro, addr_pct_cd, %s AS loc_type, COUNT(*) AS n
      WHERE  rpt_dt >= '%d-01-01T00:00:00'
        AND  rpt_dt <  '%d-01-01T00:00:00'
        AND  date_extract_m(rpt_dt) <= %d
        AND  ofns_desc IS NOT NULL
-     GROUP BY yr, quarter, ofns_desc, patrol_boro, addr_pct_cd, loc_type",
+     GROUP BY yr, quarter, month, ofns_desc, patrol_boro, addr_pct_cd, loc_type",
     q_expr, loc_expr,
     year, year + 1, ytd_month_end
   )
@@ -187,6 +188,7 @@ all_rows$quarter     <- as.character(all_rows$quarter)
 all_rows$yr          <- as.character(as.integer(as.numeric(all_rows$yr)))
 all_rows$n           <- as.integer(as.numeric(all_rows$n))
 all_rows$precinct    <- as.integer(as.numeric(as.character(all_rows$addr_pct_cd)))
+all_rows$month       <- as.integer(as.numeric(as.character(all_rows$month)))
 
 all_rows <- all_rows[
   !is.na(all_rows$ofns_desc) & all_rows$ofns_desc != "" &
@@ -461,6 +463,57 @@ for (i in seq_len(nrow(agg))) {
   data_out[[cr]][[lo]][[bo]][[yr]][[qt]] <- n
 }
 
+# ── Monthly aggregation ───────────────────────────────────────────────────────
+cat("Building monthly data...\n")
+agg_monthly_raw <- aggregate(
+  n ~ ofns_desc + bucket + borough + yr + month,
+  data = expanded[expanded$borough != "Other" & !is.na(expanded$month), ],
+  FUN = sum
+)
+agg_monthly_all <- aggregate(
+  n ~ ofns_desc + bucket + yr + month,
+  data = expanded[!is.na(expanded$month), ],
+  FUN = sum
+)
+agg_monthly_all$borough <- "All boroughs"
+agg_monthly <- rbind(agg_monthly_raw, agg_monthly_all[, names(agg_monthly_raw)])
+
+# Add crime groups
+monthly_group_rows <- list()
+for (gname in names(CRIME_GROUPS)) {
+  members <- CRIME_GROUPS[[gname]]
+  sub_m <- agg_monthly[agg_monthly$ofns_desc %in% members, ]
+  if (nrow(sub_m) == 0) next
+  g_m <- aggregate(n ~ bucket + borough + yr + month, data = sub_m, FUN = sum)
+  g_m$ofns_desc <- gname
+  monthly_group_rows[[gname]] <- g_m[, names(agg_monthly)]
+}
+# All crime monthly
+all_crime_monthly_all <- aggregate(n ~ bucket + yr + month, data = expanded[!is.na(expanded$month), ], FUN = sum)
+all_crime_monthly_all$borough <- "All boroughs"
+all_crime_monthly_boros <- aggregate(n ~ bucket + borough + yr + month,
+  data = expanded[expanded$borough != "Other" & !is.na(expanded$month), ], FUN = sum)
+all_crime_monthly_combined <- rbind(all_crime_monthly_boros, all_crime_monthly_all[, names(all_crime_monthly_boros)])
+all_crime_monthly_combined$ofns_desc <- "All crime"
+agg_monthly <- rbind(agg_monthly,
+  if (length(monthly_group_rows) > 0) do.call(rbind, monthly_group_rows) else NULL,
+  all_crime_monthly_combined[, names(agg_monthly)]
+)
+
+# Build nested: monthly_data_out[[crime]][[loc]][[boro]][[year]][[month]] = n
+monthly_data_out <- list()
+for (i in seq_len(nrow(agg_monthly))) {
+  cr <- agg_monthly$ofns_desc[i]; lo <- agg_monthly$bucket[i]
+  bo <- agg_monthly$borough[i];   yr <- agg_monthly$yr[i]
+  mo <- as.character(agg_monthly$month[i]); n <- agg_monthly$n[i]
+  if (is.null(monthly_data_out[[cr]]))             monthly_data_out[[cr]]             <- list()
+  if (is.null(monthly_data_out[[cr]][[lo]]))       monthly_data_out[[cr]][[lo]]       <- list()
+  if (is.null(monthly_data_out[[cr]][[lo]][[bo]])) monthly_data_out[[cr]][[lo]][[bo]] <- list()
+  if (is.null(monthly_data_out[[cr]][[lo]][[bo]][[yr]])) monthly_data_out[[cr]][[lo]][[bo]][[yr]] <- list()
+  monthly_data_out[[cr]][[lo]][[bo]][[yr]][[mo]] <- n
+}
+cat(sprintf("  Monthly data built\n"))
+
 output <- list(
   meta = list(
     generated       = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
@@ -474,6 +527,7 @@ output <- list(
   subway_ridership   = subway_ridership,
   population         = NYC_POP,
   data               = data_out,
+  monthly_data       = monthly_data_out,
   pct_data           = pct_data_out,
   precinct_population = precinct_population
 )

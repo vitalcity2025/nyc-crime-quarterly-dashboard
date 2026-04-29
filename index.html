@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_50.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_51.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -600,6 +600,13 @@ function rateLabel(loc) {
   return loc === "subway" ? "per million rides" : "per 100k residents";
 }
 
+function getMonthlyCount(crime, loc, boro, year, month) {
+  try {
+    const locKey = loc === "subway" ? "subway" : loc === "housing" ? "housing" : "citywide";
+    const v = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)]?.[String(month)];
+    return v ? parseInt(v) : 0;
+  } catch { return 0; }
+}
 function getPctCount(crime, pct, year, quarter, loc) {
   try {
     const slice = PCT_DATA[(loc==="subway"?"subway":loc==="housing"?"housing":"citywide")]||{};
@@ -613,7 +620,7 @@ function getPctYTD(crime, pct, year, upToQ, loc) {
   return t;
 }
 function fmt(n) { if (n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
-function fmtK(v) { return v>=1000?(v/1000).toFixed(0)+"k":String(v); }
+function fmtK(v) { if(v>=10000) return (v/1000).toFixed(0)+"k"; if(v>=1000) return (v/1000).toFixed(1)+"k"; return String(v); }
 function deltaDisplay(curr, prev, cmpYr) {
   if (!prev||prev===0) return { text:"No prior data", cls:"delta-flat" };
   const pct = ((curr-prev)/prev)*100;
@@ -623,7 +630,7 @@ function deltaDisplay(curr, prev, cmpYr) {
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
-let DATA=null, META=null, PCT_DATA={}, PCT_POP={};
+let DATA=null, META=null, PCT_DATA={}, PCT_POP={}, MONTHLY_DATA={};
 let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count", mapRateMode:"count", moversMode:"pct" };
 
 function getCount(crime,loc,boro,year,q) {
@@ -1140,9 +1147,14 @@ function render() {
     return Array.from({length:12},(_,i)=>{
       const m=i+1, q=qForM(m);
       if(QUARTERS.indexOf(q)>uIdx) return 0;
-      const raw = Math.round(getC(crime,loc,boro,year,q)/3);
+      // Use real monthly data if available, fall back to quarterly/3
+      const locKey = loc==="subway"?"subway":loc==="housing"?"housing":"citywide";
+      const hasMonthly = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)];
+      const raw = hasMonthly
+        ? getMonthlyCount(crime, loc, boro, year, m)
+        : Math.round(getC(crime,loc,boro,year,q)/3);
       if (!isRate) return raw;
-      // For rate: use quarterly rate divided by 3 months
+      // For rate mode: use real monthly count over monthly ridership estimate
       const qTotal = getC(crime,loc,boro,year,q);
       const r = toRate(qTotal,loc,boro,year,q,null);
       return r==null ? 0 : Math.round((r/3)*10)/10;
@@ -1930,6 +1942,7 @@ async function boot() {
     subway:   rawPct.subway||{},
     housing:  rawPct.housing||{}
   };
+  MONTHLY_DATA = raw.monthly_data || {};
   PCT_POP = raw.precinct_population || {};
   buildApp();
   render();
