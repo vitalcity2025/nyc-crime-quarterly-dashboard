@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_52.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_53.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,12 +32,12 @@
   --b-si:       #9b9fbc;
 
   /* ── Semantic ── */
-  --text:    #050507;
+  --text:    #262626;   /* body text never pure black on screen */
   --text2:   #707175;
   --text3:   #9b9fbc;
-  --border:  rgba(5,5,7,0.1);
+  --border:  #ebebeb;   /* default border per design system */
   --border2: rgba(5,5,7,0.18);
-  --grid:    rgba(5,5,7,0.06);
+  --grid:    #dddddd;   /* gridlines = Cloud per chart spec */
 
   /* ── Fonts ── */
   --font-primary:   "halyard-text", "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -58,10 +58,10 @@ body {
 /* ── Masthead ── */
 .masthead {
   background: var(--black);
-  padding: 1.75rem 2.5rem 1.75rem;
+  padding: 1.5rem 2.5rem 1.75rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 1.5rem;
 }
@@ -165,7 +165,7 @@ select:focus { outline: 2px solid var(--orange); outline-offset: 0; border-color
   white-space: nowrap;
 }
 .toggle-group button:last-child { border-right: none; }
-.toggle-group button.active { background: var(--black); color: var(--white); }
+.toggle-group button.active { background: var(--black); color: var(--white); box-shadow: 3px 3px 0 var(--chartreuse); }
 .toggle-group button:hover:not(.active) { background: var(--yellow); color: var(--black); }
 
 /* ── Metrics ── */
@@ -386,6 +386,48 @@ select.year-select:focus { outline: 2px solid var(--orange); }
   .movers-grid { grid-template-columns: 1fr; }
 }
 
+/* ── Footer ── */
+.vc-footer {
+  background: var(--orange);
+  padding: 1.5rem 2.5rem;
+  margin-top: 4rem;
+}
+.vc-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.vc-wordmark {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.vc-wordmark--white { color: var(--white); }
+.vc-footer__tagline {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--white);
+  opacity: 0.85;
+}
+.vc-footer__link {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white);
+  text-decoration: none;
+  margin-left: auto;
+}
+.vc-footer__link:hover { text-decoration: underline; }
+
 /* ── Methodology ── */
 .methodology {
   margin-top: 3rem;
@@ -482,10 +524,15 @@ select.year-select:focus { outline: 2px solid var(--orange); }
 <body>
 
 <div class="masthead">
-  <div>
+  <div style="display:flex;flex-direction:column;gap:0;">
+    <div style="margin-bottom:14px;">
+      <a href="https://www.vitalcitynyc.org/" style="text-decoration:none;">
+        <span class="vc-wordmark vc-wordmark--white" style="font-size:0.875rem;letter-spacing:0.12em;">VITAL CITY</span>
+      </a>
+    </div>
     <div class="mast-title">NYC quarterly complaints dashboard</div>
     <div class="mast-sub">NYPD complaint reports by quarter, citywide, subway, and public housing — updated each quarter back to 2006.</div>
-    <div class="mast-badge" id="meta-badge" style="margin-top:14px;align-self:flex-start;display:inline-block;">Loading…</div>
+    <div class="mast-badge" id="meta-badge" style="margin-top:14px;display:inline-block;">Loading…</div>
   </div>
 </div>
 <div class="orange-rule"></div>
@@ -533,14 +580,14 @@ function pctLabel(n) {
 }
 
 // ── Colors ────────────────────────────────────────────────────────────────────
-const C_CUR     = "#ff7c53";   // orange — primary/current year
-const C_CMP     = "#c8c8c8";   // cloud gray — comparison year
+const C_CUR     = "#ff7c53";   // Safety Orange — series 1 / primary
+const C_CMP     = "#dddddd";   // Cloud — comparison/background series
 const C_PRIMARY = "#ff7c53";   // alias
 const C_COMPARE = "#217ebe";   // cerulean — comparison role per design system
-const C_TREND   = "#050507";   // black line for trend
-const C_GRID    = "rgba(5,5,7,0.06)";
-const C_AXIS    = "rgba(5,5,7,0.15)";
-const C_LABEL   = "#707175";
+const C_TREND   = "#ff7c53";   // Safety Orange — trend line per chart spec
+const C_GRID    = "#dddddd";   // Cloud — per chart spec
+const C_AXIS    = "#ebebeb";   // border color
+const C_LABEL   = "#707175";   // Charcoal — axis labels per chart spec
 
 const BORO_COLORS = {
   "Bronx":         "#ff7c53",
