@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_49.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_50.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1069,6 +1069,13 @@ function render() {
     : loc === "housing" ? "Housing" : "";
   const fullGeoLabel = locLabel2 ? `${geoLabel} · ${locLabel2}` : geoLabel;
 
+  // Crime label for chart subtitles — title case, shortened if needed
+  function formatCrimeName(s) {
+    if (!s) return "";
+    return s.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+  const crimeLabel = formatCrimeName(crime);
+
   function getC(cr, lc, bo, yr, q) {
     return inPctMode ? getPctCount(cr, pct, yr, q, lc) : getCount(cr, lc, bo, yr, q);
   }
@@ -1098,7 +1105,7 @@ function render() {
 
   const ytdLabel = isRate
     ? `YTD ${primaryYear} · ${rateLabel(loc)}`
-    : `YTD total · ${geoShort}`;
+    : `YTD · ${crimeLabel} · ${geoShort}`;
   const ytdMetric = {
     label: ytdLabel,
     val: displayVal(pYTD, primaryYear, null, primaryQ),
@@ -1141,7 +1148,7 @@ function render() {
       return r==null ? 0 : Math.round((r/3)*10)/10;
     });
   }
-  document.getElementById("monthly-sub").textContent=`${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${fullGeoLabel}`;
+  document.getElementById("monthly-sub").textContent=`${crimeLabel} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${fullGeoLabel}`;
   document.getElementById("monthly-legend").innerHTML=`
     <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
     <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
@@ -1169,8 +1176,8 @@ function render() {
   const boroMax=Math.max(...boroData.map(b=>b.val),1);
   const boroTotal=boroData.reduce((s,b)=>s+b.rawVal,0);
   const boroSubLabel = boroRateAvail
-    ? `${primaryYear} · Q1–${primaryQ} · ${rateLabel(loc)}${locLabel2 ? " · "+locLabel2 : ""}`
-    : `${primaryYear} · Q1–${primaryQ}${locLabel2 ? " · "+locLabel2 : ""}`;
+    ? `${crimeLabel} · ${primaryYear} · Q1–${primaryQ} · ${rateLabel(loc)}${locLabel2 ? " · "+locLabel2 : ""}`
+    : `${crimeLabel} · ${primaryYear} · Q1–${primaryQ}${locLabel2 ? " · "+locLabel2 : ""}`;
   document.getElementById("boro-sub").textContent=boroSubLabel;
   document.getElementById("boro-legend").innerHTML=boroData.map(b=>`
     <span><span class="leg-dot" style="background:${b.color}"></span>${b.name}</span>`).join("");
@@ -1190,7 +1197,7 @@ function render() {
 
   // Quarter comparison — always show all 4, gray out unavailable
   // Geography label used across all chart subtitles
-  document.getElementById("qtr-sub").textContent=`${primaryYear} vs ${cmpYear}${fullGeoLabel}`;
+  document.getElementById("qtr-sub").textContent=`${crimeLabel} · ${primaryYear} vs ${cmpYear}${fullGeoLabel}`;
   document.getElementById("qtr-legend").innerHTML=`
     <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
     <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
@@ -1219,7 +1226,7 @@ function render() {
       ? rawData.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,curQ); return r==null?0:r; })
       : rawData;
     const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
-    document.getElementById("trend-sub").textContent=`YTD through ${curQ} each year · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · YTD through ${curQ} each year · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
     drawLine("chart-trend", allYrs.map(String), tData, primaryYear, cmpYear, "tt-trend", null);
 
   } else if(trendMode==="quarterly"){
@@ -1243,7 +1250,7 @@ function render() {
       return (yr-2006)%2===0 ? String(yr) : "";
     });
     const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
-    document.getElementById("trend-sub").textContent=`Each quarter · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · Each quarter · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
     drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
 
   } else { // annual
@@ -1254,7 +1261,7 @@ function render() {
       : rawAnnual;
     const incomplete=allYrs.map(y=>!isFullYear(y));
     const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
-    document.getElementById("trend-sub").textContent=`Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}${fullGeoLabel}`;
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}${fullGeoLabel}`;
     drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
   }
   // Top movers
@@ -1604,7 +1611,7 @@ function renderMap() {
   const locLabel = loc === "subway" ? "Subway" : loc === "housing" ? "Housing" : "Citywide";
   const mapRateLabel = mapIsRate ? " · per 100k residents" : "";
   document.getElementById("map-sub").textContent =
-    `${crime} · ${locLabel} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${mapRateLabel}`;
+    `${crimeLabel} · ${locLabel} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${mapRateLabel}`;
 
   loadGeoData().then(geo => {
     const loading = document.getElementById("map-loading");
