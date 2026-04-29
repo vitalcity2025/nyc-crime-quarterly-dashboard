@@ -140,7 +140,7 @@ cat(sprintf("\nFetching historic data year by year (2006-%d)...\n", hist_end))
 for (yr in 2006:hist_end) {
   cat(sprintf("  Fetching %d... ", yr))
   result <- tryCatch(
-    socrata_query_all(HISTORIC_ENDPOINT, build_soql(yr, ytd_end_month)),
+    socrata_query_all(HISTORIC_ENDPOINT, build_soql(yr, 12)),  # always full year for historic
     error = function(e) { cat(sprintf("ERROR: %s\n", e$message)); NULL }
   )
   if (!is.null(result) && is.data.frame(result) && nrow(result) > 0) {
