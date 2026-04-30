@@ -140,17 +140,22 @@ cat(sprintf("\nFetching historic data year by year (2006-%d)...\n", hist_end))
 
 for (yr in 2006:hist_end) {
   cat(sprintf("  Fetching %d... ", yr))
-  result <- tryCatch(
-    socrata_query_all(HISTORIC_ENDPOINT, build_soql(yr, 12)),  # always full year for historic
-    error = function(e) { cat(sprintf("ERROR: %s\n", e$message)); NULL }
-  )
+  result <- NULL
+  for (attempt in 1:3) {
+    result <- tryCatch(
+      socrata_query_all(HISTORIC_ENDPOINT, build_soql(yr, 12)),
+      error = function(e) { cat(sprintf("ERROR (attempt %d): %s\n", attempt, e$message)); NULL }
+    )
+    if (!is.null(result) && is.data.frame(result) && nrow(result) > 0) break
+    if (attempt < 3) { cat(sprintf("  Retrying %d... ", yr)); Sys.sleep(3) }
+  }
   if (!is.null(result) && is.data.frame(result) && nrow(result) > 0) {
     all_rows[[length(all_rows) + 1]] <- result
     cat(sprintf("%d rows\n", nrow(result)))
   } else {
-    cat("no data\n")
+    cat(sprintf("FAILED after 3 attempts — %d missing\n", yr))
   }
-  Sys.sleep(0.3)
+  Sys.sleep(0.5)
 }
 
 # YTD dataset: current year (and any years not yet in historic)
@@ -514,6 +519,45 @@ for (i in seq_len(nrow(agg_monthly))) {
 }
 cat(sprintf("  Monthly data built\n"))
 
+# ── Precinct monthly aggregation ─────────────────────────────────────────────
+cat("Building precinct monthly data...\n")
+rows_pct_monthly <- all_rows[!is.na(all_rows$precinct) & all_rows$precinct > 0 & !is.na(all_rows$month), ]
+rows_pct_monthly$pct_key <- paste0("pct_", rows_pct_monthly$precinct)
+
+agg_pct_monthly <- aggregate(n ~ ofns_desc + pct_key + yr + month, data = rows_pct_monthly, FUN = sum)
+
+# Add crime groups
+pct_monthly_group_rows <- list()
+for (gname in names(CRIME_GROUPS)) {
+  members <- CRIME_GROUPS[[gname]]
+  sub_pm <- agg_pct_monthly[agg_pct_monthly$ofns_desc %in% members, ]
+  if (nrow(sub_pm) == 0) next
+  g_pm <- aggregate(n ~ pct_key + yr + month, data = sub_pm, FUN = sum)
+  g_pm$ofns_desc <- gname
+  pct_monthly_group_rows[[gname]] <- g_pm[, names(agg_pct_monthly)]
+}
+# All crime
+all_crime_pct_monthly <- aggregate(n ~ pct_key + yr + month, data = rows_pct_monthly, FUN = sum)
+all_crime_pct_monthly$ofns_desc <- "All crime"
+agg_pct_monthly <- rbind(
+  agg_pct_monthly,
+  if (length(pct_monthly_group_rows) > 0) do.call(rbind, pct_monthly_group_rows) else NULL,
+  all_crime_pct_monthly[, names(agg_pct_monthly)]
+)
+
+# Build nested: pct_monthly_data_out[[crime]][[pct_key]][[year]][[month]] = n
+pct_monthly_data_out <- list()
+for (i in seq_len(nrow(agg_pct_monthly))) {
+  cr  <- agg_pct_monthly$ofns_desc[i]; pk <- agg_pct_monthly$pct_key[i]
+  yr  <- agg_pct_monthly$yr[i];        mo <- as.character(agg_pct_monthly$month[i])
+  n   <- agg_pct_monthly$n[i]
+  if (is.null(pct_monthly_data_out[[cr]]))             pct_monthly_data_out[[cr]]             <- list()
+  if (is.null(pct_monthly_data_out[[cr]][[pk]]))       pct_monthly_data_out[[cr]][[pk]]       <- list()
+  if (is.null(pct_monthly_data_out[[cr]][[pk]][[yr]])) pct_monthly_data_out[[cr]][[pk]][[yr]] <- list()
+  pct_monthly_data_out[[cr]][[pk]][[yr]][[mo]] <- n
+}
+cat(sprintf("  Precinct monthly data built\n"))
+
 output <- list(
   meta = list(
     generated       = format(Sys.time(), "%Y-%m-%dT%H:%M:%S"),
@@ -528,6 +572,7 @@ output <- list(
   population         = NYC_POP,
   data               = data_out,
   monthly_data       = monthly_data_out,
+  pct_monthly_data   = pct_monthly_data_out,
   pct_data           = pct_data_out,
   precinct_population = precinct_population
 )

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_56.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_57.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -661,6 +661,12 @@ function rateLabel(loc) {
   return loc === "subway" ? "per million rides" : "per 100k residents";
 }
 
+function getPctMonthlyCount(crime, pct, year, month) {
+  try {
+    const v = PCT_MONTHLY_DATA[crime]?.[`pct_${pct}`]?.[String(year)]?.[String(month)];
+    return v ? parseInt(v) : 0;
+  } catch { return 0; }
+}
 function getMonthlyCount(crime, loc, boro, year, month) {
   try {
     const locKey = loc === "subway" ? "subway" : loc === "housing" ? "housing" : "citywide";
@@ -691,7 +697,7 @@ function deltaDisplay(curr, prev, cmpYr) {
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
-let DATA=null, META=null, PCT_DATA={}, PCT_POP={}, MONTHLY_DATA={};
+let DATA=null, META=null, PCT_DATA={}, PCT_POP={}, MONTHLY_DATA={}, PCT_MONTHLY_DATA={};
 let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count", mapRateMode:"count", moversMode:"pct" };
 
 function getCount(crime,loc,boro,year,q) {
@@ -1210,8 +1216,11 @@ function render() {
       if(QUARTERS.indexOf(q)>uIdx) return 0;
       let raw;
       if (inPctMode) {
-        // Precinct mode — no monthly data available, distribute quarterly evenly
-        raw = Math.round(getC(crime,loc,boro,year,q)/3);
+        // Precinct mode — use real precinct monthly data
+        const hasPctMonthly = PCT_MONTHLY_DATA[crime]?.[`pct_${pct}`]?.[String(year)];
+        raw = hasPctMonthly
+          ? getPctMonthlyCount(crime, pct, year, m)
+          : Math.round(getC(crime,loc,boro,year,q)/3);
       } else {
         // Borough/citywide — use real monthly data if available
         const locKey = loc==="subway"?"subway":loc==="housing"?"housing":"citywide";
@@ -2010,6 +2019,7 @@ async function boot() {
     housing:  rawPct.housing||{}
   };
   MONTHLY_DATA = raw.monthly_data || {};
+  PCT_MONTHLY_DATA = raw.pct_monthly_data || {};
   PCT_POP = raw.precinct_population || {};
   buildApp();
   render();
