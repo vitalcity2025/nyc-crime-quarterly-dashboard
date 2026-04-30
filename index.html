@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_58.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_59.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1325,9 +1325,12 @@ function render() {
     allYrs.forEach(y=>{
       QUARTERS.forEach(q=>{
         const qI = QUARTERS.indexOf(q);
-        // Skip future quarters for the cutoff year, and skip years beyond primaryYear
+        // Skip years beyond primaryYear
         if(y > trendCutoffYear) return;
+        // For the cutoff year, only show quarters up to primaryQ
         if(y === trendCutoffYear && qI > trendCutoffQIdx) return;
+        // For the latest calendar year, skip quarters with no data yet
+        if(y === latestYear && qI > QUARTERS.indexOf(curQ)) return;
         qLabels.push(`${y} ${q}`);
         const raw = getC(crime,loc,boro,y,q);
         if (isRate) {
