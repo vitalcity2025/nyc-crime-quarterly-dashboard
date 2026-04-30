@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_57.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_58.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1304,7 +1304,8 @@ function render() {
   // Trend line
   const dataYears=getAllYears();
   const minYr=Math.min(...dataYears,2006);
-  const maxYr=Math.max(...dataYears,latestYear);
+  // Trend only shows up to primaryYear — don't plot future years
+  const maxYr=parseInt(primaryYear);
   const allYrs=Array.from({length:maxYr-minYr+1},(_,i)=>minYr+i);
 
   if(trendMode==="ytd"){
@@ -1318,9 +1319,15 @@ function render() {
 
   } else if(trendMode==="quarterly"){
     const qLabels=[], qData=[];
+    // Determine cutoff: stop at primaryYear's primaryQ, not latestYear's curQ
+    const trendCutoffYear = parseInt(primaryYear);
+    const trendCutoffQIdx = primaryQIdx;
     allYrs.forEach(y=>{
       QUARTERS.forEach(q=>{
-        if(y===latestYear && QUARTERS.indexOf(q)>primaryQIdx) return;
+        const qI = QUARTERS.indexOf(q);
+        // Skip future quarters for the cutoff year, and skip years beyond primaryYear
+        if(y > trendCutoffYear) return;
+        if(y === trendCutoffYear && qI > trendCutoffQIdx) return;
         qLabels.push(`${y} ${q}`);
         const raw = getC(crime,loc,boro,y,q);
         if (isRate) {
