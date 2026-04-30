@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_55.html -->
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_56.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1208,14 +1208,19 @@ function render() {
     return Array.from({length:12},(_,i)=>{
       const m=i+1, q=qForM(m);
       if(QUARTERS.indexOf(q)>uIdx) return 0;
-      // Use real monthly data if available, fall back to quarterly/3
-      const locKey = loc==="subway"?"subway":loc==="housing"?"housing":"citywide";
-      const hasMonthly = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)];
-      const raw = hasMonthly
-        ? getMonthlyCount(crime, loc, boro, year, m)
-        : Math.round(getC(crime,loc,boro,year,q)/3);
+      let raw;
+      if (inPctMode) {
+        // Precinct mode — no monthly data available, distribute quarterly evenly
+        raw = Math.round(getC(crime,loc,boro,year,q)/3);
+      } else {
+        // Borough/citywide — use real monthly data if available
+        const locKey = loc==="subway"?"subway":loc==="housing"?"housing":"citywide";
+        const hasMonthly = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)];
+        raw = hasMonthly
+          ? getMonthlyCount(crime, loc, boro, year, m)
+          : Math.round(getC(crime,loc,boro,year,q)/3);
+      }
       if (!isRate) return raw;
-      // For rate mode: use real monthly count over monthly ridership estimate
       const qTotal = getC(crime,loc,boro,year,q);
       const r = toRate(qTotal,loc,boro,year,q,null);
       return r==null ? 0 : Math.round((r/3)*10)/10;
