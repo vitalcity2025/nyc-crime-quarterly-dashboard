@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)file:///C:/Users/paulr/Downloads/index_61.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYC Quarterly Complaints Dashboard — Vital City</title>
+<link rel="stylesheet" href="./index_noheader_files/nlh6iak.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* ── Primary palette (design system exact) ── */
+  --black:      #050507;
+  --white:      #ffffff;
+  --cloud:      #dddddd;
+  --chartreuse: #dde44c;   /* Pop */
+  --orange:     #ff7c53;   /* Accent — nav, CTAs, kickers, trend lines */
+  --peri:       #9b9fbc;   /* Neutral */
+  --rose:       #cea9be;
+  --magenta:    #e7466d;   /* Focal — subject of analysis */
+  --charcoal:   #707175;   /* Muted — axis labels, deks, metadata */
+  --indigo:     #394882;
+  --cerulean:   #217ebe;   /* Compare — comparison groups */
+  /* aliases */
+  --yellow:     #dde44c;   /* chartreuse alias */
+
+  /* ── Borough colors ── */
+  --b-bronx:    #ff7c53;
+  --b-brooklyn: #217ebe;
+  --b-manhattan:#e7466d;
+  --b-queens:   #dde44c;
+  --b-si:       #9b9fbc;
+
+  /* ── Semantic ── */
+  --text:    #262626;   /* body text never pure black on screen */
+  --text2:   #707175;
+  --text3:   #9b9fbc;
+  --border:  #ebebeb;   /* default border per design system */
+  --border2: rgba(5,5,7,0.18);
+  --grid:    #dddddd;   /* gridlines = Cloud per chart spec */
+
+  /* ── Fonts ── */
+  --font-primary:   "halyard-text", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display:   "halyard-display", "halyard-text", "Inter", Arial, sans-serif;
+  --font-serif:     "gascogne", "Georgia", serif;
+}
+
+html, body { background: var(--white); }
+body {
+  font-family: var(--font-primary);
+  font-weight: 300; /* halyard-text book */
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Masthead ── */
+.data-bar {
+  background: var(--black);
+  padding: 0.75rem 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.masthead {
+  background: var(--black);
+  padding: 1.5rem 2.5rem 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.mast-vc {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 10px;
+}
+.mast-title {
+  font-family: "gascogne", "Georgia", serif;
+  font-weight: 200;
+  font-style: normal;
+  font-size: 44px;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.mast-sub {
+  font-family: var(--font-primary);
+  font-weight: 200; /* halyard-text light */
+  font-size: 14px;
+  color: #c8c8c8;
+  margin-top: 10px;
+}
+.mast-badge {
+  font-family: var(--font-primary);
+  font-weight: 700; /* halyard-text bold kicker */
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 12px;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* ── Orange rule ── */
+.orange-rule { height: 4px; background: var(--yellow); }
+
+/* ── Page ── */
+.page { max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 5rem; }
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-end;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.ctrl { display: flex; flex-direction: column; gap: 5px; }
+.ctrl label {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+}
+select {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 14px;
+  height: 36px;
+  border: 1.5px solid var(--black);   /* VC: square corners, black border */
+  background: var(--white);
+  color: var(--text);
+  padding: 0 32px 0 10px;
+  cursor: pointer;
+  border-radius: 0;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23050507'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color 0.1s, background 0.1s;
+}
+select:hover { background: #fafafa; }
+select:focus { outline: 2px solid var(--orange); outline-offset: 0; }
+
+.toggle-group {
+  display: flex;
+  height: 36px;
+  border: 1.5px solid var(--black);
+  gap: 0;
+}
+.toggle-group button {
+  flex: 1;
+  border: none;
+  border-right: 1.5px solid var(--black);
+  background: var(--white);
+  color: var(--charcoal);
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 18px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.1s, color 0.1s;
+  border-radius: 0;
+}
+.toggle-group button:last-child { border-right: none; }
+.toggle-group button.active {
+  background: var(--black);
+  color: var(--white);
+}
+.toggle-group button:hover:not(.active) {
+  background: var(--chartreuse);
+  color: var(--black);
+}
+
+/* ── Metrics ── */
+.metrics {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, minmax(0,1fr));
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+}
+.metric {
+  padding: 1.25rem 1.25rem 1rem;
+  border-right: 1px solid var(--border);
+}
+.metric:last-child { border-right: none; }
+.metric.ytd-metric {
+  background: #fafafa;
+  border-left: 4px solid var(--yellow);
+  padding-left: calc(1.25rem - 4px);
+}
+.m-label {
+  font-family: var(--font-primary);
+  font-weight: 700; /* halyard-text bold = kicker style */
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  margin-bottom: 10px;
+}
+.ytd-metric .m-label { color: var(--text2); letter-spacing: 0.16em; }
+.m-val {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.ytd-metric .m-val { font-size: 48px; font-weight: 700; }
+.m-delta {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  margin-top: 8px;
+}
+.delta-up   { color: #d2232a; } /* Baddest Red — crime going up is bad */
+.delta-down { color: #57aa4a; } /* Goodest Green — crime going down is good */
+.delta-flat { color: var(--text3); }
+
+/* ── Chart sections ── */
+.chart-section { margin-bottom: 3rem; }
+.chart-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.chart-sub {
+  font-family: var(--font-primary);
+  font-weight: 200; /* halyard-text light — dek/subtitle style */
+  font-size: 12px;
+  color: var(--charcoal);
+  margin-bottom: 1rem;
+}
+.chart-rule { height: 1.5px; background: var(--orange); margin: 0 0 14px; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+.two-col-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+.leg-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.leg-line {
+  width: 20px; height: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Borough bars ── */
+.boro-list { display: flex; flex-direction: column; gap: 14px; }
+.boro-bar-bg { height: 10px; background: #f0f0f0; }
+.boro-bar-fill { height: 100%; transition: width 0.4s; }
+
+/* ── Year controls row ── */
+.year-controls {
+  border-top: 1px solid var(--border);
+  border-bottom: 3px solid var(--black);
+  padding: 0.875rem 0;
+  margin-bottom: 0;
+}
+.year-ctrl-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.year-ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.year-ctrl-label {
+  font-family: var(--font-primary);
+  font-size: 10px;
+  font-weight: 700; /* halyard-text bold kicker */
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  white-space: nowrap;
+}
+.year-divider {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--charcoal);
+  padding: 0 4px;
+}
+select.year-select {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  height: 44px;
+  padding: 0 36px 0 12px;
+  border: 1.5px solid var(--black);
+  letter-spacing: -0.02em;
+  color: var(--text);
+  min-width: 110px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23050507'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+select.year-select:hover { background: #fafafa; }
+select.year-select:focus { outline: 2px solid var(--orange); }
+
+/* ── Top movers ── */
+.movers-section {
+  margin-bottom: 3rem;
+}
+.movers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.movers-col {}
+.movers-col-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.movers-col-title.up   { color: #c0392b; }
+.movers-col-title.down { color: #2d8a3e; }
+.mover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 1rem;
+}
+.mover-row:last-child { border-bottom: none; }
+.mover-name {
+  font-family: var(--font-primary);
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  text-transform: capitalize;
+}
+.mover-counts {
+  font-family: var(--font-primary);
+  font-size: 11px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.mover-pct {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: right;
+}
+.mover-pct.up   { color: #c0392b; }
+.mover-pct.down { color: #2d8a3e; }
+@media (max-width: 600px) {
+  .movers-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Footer ── */
+.vc-footer {
+  background: var(--orange);
+  padding: 1.5rem 2.5rem;
+  margin-top: 4rem;
+}
+.vc-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.vc-wordmark {
+  font-family: var(--font-primary);
+  font-weight: 900;
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--black);
+}
+.vc-wordmark--white { color: var(--white); }
+.vc-footer__tagline {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--white);
+  opacity: 0.85;
+}
+.vc-footer__link {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white);
+  text-decoration: none;
+  margin-left: auto;
+}
+.vc-footer__link:hover { text-decoration: underline; }
+
+/* ── Methodology ── */
+.methodology {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--orange);
+}
+.meth-title {
+  font-family: var(--font-primary);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 1rem;
+}
+.meth-body {
+  columns: 2;
+  column-gap: 3rem;
+  column-fill: balance;
+}
+.meth-body p {
+  font-family: var(--font-primary);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--text2);
+  margin: 0 0 0.75rem;
+  break-inside: avoid;
+}
+.meth-body strong { font-weight: 700; color: var(--text); }
+.meth-body em { font-style: italic; }
+.meth-body code {
+  font-family: monospace;
+  font-size: 11px;
+  background: #f0f0f0;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+@media (max-width: 760px) {
+  .meth-body { grid-template-columns: 1fr; }
+}
+
+/* ── Source ── */
+.source {
+  font-family: var(--font-primary);
+  font-weight: 300; /* halyard-text book */
+  font-size: 11px;
+  color: var(--charcoal);
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+  line-height: 1.6;
+}
+.source strong { font-weight: 700; color: var(--text); }
+.source a { color: var(--orange); text-decoration: none; }
+.source a:hover { text-decoration: underline; }
+
+/* ── States ── */
+.state-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 60vh; gap: 1rem;
+  color: var(--text2); text-align: center;
+}
+.state-screen h2 { font-size: 18px; font-weight: 700; color: var(--text); }
+.state-screen code { background: #f5f5f5; border: 1px solid var(--border); padding: 2px 7px; font-family: monospace; font-size: 12px; }
+
+@media (max-width: 800px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .two-col, .two-col-equal { grid-template-columns: 1fr; gap: 2rem; }
+  .data-bar {
+  background: var(--black);
+  padding: 0.75rem 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.masthead { padding: 1.25rem; }
+  .page { padding: 1.5rem 1.25rem 4rem; }
+}
+
+/* ── Tooltip ── */
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #050507;
+  color: #ffffff !important;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.6;
+  padding: 8px 12px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s;
+  z-index: 10;
+  border-left: 3px solid #ff7c53;
+}
+.tooltip.visible { opacity: 1; }
+.tooltip * { color: #ffffff !important; }
+</style>
+</head>
+<body>
+
+<div class="data-bar">
+  <div class="mast-badge" id="meta-badge">Loading…</div>
+</div>
+
+<div class="page" id="app" style="padding-top:1.5rem;">
+      <div class="state-screen">
+        <h2>Data file not found</h2>
+        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+        Generate it in RStudio with: <code>source("fetch_nypd_data.R")</code></p>
+      </div></div>
+
+<script>
+// ── Precinct → neighborhood names ────────────────────────────────────────────
+const PRECINCT_NAMES = {
+  1:"Financial District", 5:"Chinatown/Lower East Side", 6:"West Village",
+  7:"Lower East Side", 9:"East Village", 10:"Chelsea/Hell's Kitchen",
+  13:"Gramercy/Flatiron", 14:"Midtown South", 17:"Midtown East",
+  18:"Midtown North", 19:"Upper East Side", 20:"Upper West Side",
+  22:"Central Park", 23:"East Harlem", 24:"Upper West Side/Manhattan Valley",
+  25:"East Harlem", 26:"Morningside Heights/Manhattanville", 28:"Harlem",
+  30:"West Harlem", 32:"Harlem", 33:"Washington Heights", 34:"Washington Heights",
+  40:"Mott Haven", 41:"Longwood", 42:"Morrisania", 43:"Hunts Point",
+  44:"Melrose", 45:"Tremont", 46:"East Tremont", 47:"Fordham",
+  48:"Belmont/Fordham", 49:"Pelham Parkway", 50:"Riverdale",
+  52:"Kingsbridge", 53:"Wakefield", 61:"Seagate/Coney Island",
+  62:"Brighton Beach/Sheepshead Bay", 63:"Bay Ridge", 66:"Bensonhurst",
+  67:"Crown Heights", 68:"Bay Ridge/Dyker Heights", 69:"Canarsie",
+  70:"Flatbush", 71:"Crown Heights", 72:"Sunset Park", 73:"Brownsville",
+  75:"East New York", 76:"Carroll Gardens/Red Hook", 77:"Crown Heights",
+  78:"Park Slope", 79:"Bushwick", 81:"Bedford-Stuyvesant",
+  83:"Bushwick", 84:"Brooklyn Heights/DUMBO", 88:"Boerum Hill",
+  90:"Greenpoint/Williamsburg", 94:"Sea Gate/Coney Island",
+  100:"Howard Beach/Ozone Park", 101:"Far Rockaway", 102:"Richmond Hill",
+  103:"Jackson Heights/Corona", 104:"Middle Village/Ridgewood",
+  105:"Queens Village", 106:"Ozone Park/Howard Beach", 107:"Fresh Meadows",
+  108:"Sunnyside/Woodside", 109:"Flushing", 110:"Corona/Elmhurst",
+  111:"Bayside", 112:"Forest Hills/Kew Gardens", 113:"St. Albans/Jamaica",
+  114:"Astoria/Long Island City", 115:"Jackson Heights/Elmhurst",
+  120:"St. George/New Brighton", 121:"New Springville/Grasmere",
+  122:"South Beach/Tottenville", 123:"Tottenville/Great Kills"
+};
+function pctLabel(n) {
+  const name = PRECINCT_NAMES[n];
+  return name ? `Pct. ${n} (${name})` : `Precinct ${n}`;
+}
+
+// ── Colors ────────────────────────────────────────────────────────────────────
+const C_CUR     = "#ff7c53";   // Safety Orange — series 1 / primary
+const C_CMP     = "#dddddd";   // Cloud — comparison/background series
+const C_PRIMARY = "#ff7c53";   // alias
+const C_COMPARE = "#217ebe";   // cerulean — comparison role per design system
+const C_TREND   = "#ff7c53";   // Safety Orange — trend line per chart spec
+const C_GRID    = "#dddddd";   // Cloud — per chart spec
+const C_AXIS    = "#ebebeb";   // border color
+const C_LABEL   = "#707175";   // Charcoal — axis labels per chart spec
+
+const BORO_COLORS = {
+  "Bronx":         "#ff7c53",
+  "Brooklyn":      "#217ebe",
+  "Manhattan":     "#e7466d",
+  "Queens":        "#dde44c",
+  "Staten Island": "#9b9fbc",
+};
+
+const QUARTERS = ["Q1","Q2","Q3","Q4"];
+const BOROUGHS = ["All boroughs","Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+
+// ── Rate helpers ─────────────────────────────────────────────────────────────
+function getSubwayRidership(year, quarter) {
+  if (!META.subway_ridership) return null;
+  const yr = META.subway_ridership[String(year)];
+  if (!yr) return null;
+  return yr[quarter] || null;
+}
+function getSubwayRidershipYTD(year, upToQ) {
+  const qi = QUARTERS.indexOf(upToQ); let t = 0;
+  for (let i = 0; i <= qi; i++) {
+    const r = getSubwayRidership(year, QUARTERS[i]);
+    if (r == null) return null;
+    t += r;
+  }
+  return t;
+}
+function getPopulation(year, borough) {
+  if (!META.population) return null;
+  const yr = META.population[String(year)] || META.population["2025"];
+  if (!yr) return null;
+  if (borough === "All boroughs") return yr.nyc || null;
+  return yr[borough] || null;
+}
+// Convert raw count to rate based on loc + borough
+function toRate(count, loc, borough, year, quarter, upToQ) {
+  if (count == null || count === 0) return 0;
+  if (loc === "subway") {
+    const rides = upToQ
+      ? getSubwayRidershipYTD(year, upToQ)
+      : getSubwayRidership(year, quarter);
+    if (!rides) return null;
+    return (count / rides) * 1000000; // per million rides
+  } else {
+    const pop = getPopulation(year, borough);
+    if (!pop) return null;
+    return (count / pop) * 100000; // per 100k residents
+  }
+}
+function fmtRate(v, loc) {
+  if (v == null || isNaN(v)) return "—";
+  const r = Math.round(v * 10) / 10;
+  return r.toLocaleString(undefined, {minimumFractionDigits:1, maximumFractionDigits:1});
+}
+function rateLabel(loc) {
+  return loc === "subway" ? "per million rides" : "per 100k residents";
+}
+
+function getPctMonthlyCount(crime, pct, year, month) {
+  try {
+    const v = PCT_MONTHLY_DATA[crime]?.[`pct_${pct}`]?.[String(year)]?.[String(month)];
+    return v ? parseInt(v) : 0;
+  } catch { return 0; }
+}
+function getMonthlyCount(crime, loc, boro, year, month) {
+  try {
+    const locKey = loc === "subway" ? "subway" : loc === "housing" ? "housing" : "citywide";
+    const v = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)]?.[String(month)];
+    return v ? parseInt(v) : 0;
+  } catch { return 0; }
+}
+function getPctCount(crime, pct, year, quarter, loc) {
+  try {
+    const slice = PCT_DATA[(loc==="subway"?"subway":loc==="housing"?"housing":"citywide")]||{};
+    const v = slice[crime]?.[`pct_${pct}`]?.[String(year)]?.[quarter];
+    return v ? parseInt(v) : 0;
+  } catch { return 0; }
+}
+function getPctYTD(crime, pct, year, upToQ, loc) {
+  const qi=QUARTERS.indexOf(upToQ); let t=0;
+  for(let i=0;i<=qi;i++) t+=getPctCount(crime,pct,year,QUARTERS[i],loc);
+  return t;
+}
+function fmt(n) { if (n==null||isNaN(n)) return "—"; return Math.round(n).toLocaleString(); }
+function fmtK(v) { if(v>=10000) return (v/1000).toFixed(0)+"k"; if(v>=1000) return (v/1000).toFixed(1)+"k"; return String(v); }
+function deltaDisplay(curr, prev, cmpYr) {
+  if (!prev||prev===0) return { text:"No prior data", cls:"delta-flat" };
+  const pct = ((curr-prev)/prev)*100;
+  const sign = pct>0?"+":""; const arrow = pct>0?"▲":pct<0?"▼":"▬";
+  const vsLabel = cmpYr ? `vs ${cmpYr}` : "vs prior year";
+  return { text:`${arrow} ${sign}${pct.toFixed(1)}% ${vsLabel}`, cls: pct>0?"delta-up":pct<0?"delta-down":"delta-flat" };
+}
+
+// ── State ────────────────────────────────────────────────────────────────────
+let DATA=null, META=null, PCT_DATA={}, PCT_POP={}, MONTHLY_DATA={}, PCT_MONTHLY_DATA={};
+let state = { crime:null, loc:"citywide", borough:"All boroughs", precinct:null, cmpYear:null, primaryYear:null, trendMode:"ytd", subwayRate:false, boroRateMode:"count", mapRateMode:"count", moversMode:"pct" };
+
+function getCount(crime,loc,boro,year,q) {
+  try { const v=DATA[crime]?.[loc]?.[boro]?.[String(year)]?.[q]; return v?parseInt(v):0; } catch{return 0;}
+}
+function getYTD(crime,loc,boro,year,upToQ) {
+  const qi=QUARTERS.indexOf(upToQ); let t=0;
+  for(let i=0;i<=qi;i++) t+=getCount(crime,loc,boro,year,QUARTERS[i]);
+  return t;
+}
+function getAllYears() {
+  const s=new Set(), d=DATA[state.crime]?.[state.loc]?.[state.borough];
+  if(d) Object.keys(d).forEach(y=>s.add(y));
+  return Array.from(s).map(Number).sort((a,b)=>a-b);
+}
+
+// ── Precinct dropdown helper ─────────────────────────────────────────────────
+// NYC precinct → borough mapping
+const PCT_BOROUGH = {};
+[1,5,6,7,9,10,13,14,17,18,19,20,22,23,24,25,26,28,30,32,33,34].forEach(p=>PCT_BOROUGH[p]="Manhattan");
+[40,41,42,43,44,45,46,47,48,49,50,52,53].forEach(p=>PCT_BOROUGH[p]="Bronx");
+[61,62,63,66,67,68,69,70,71,72,73,75,76,77,78,79,81,83,84,88,90,94].forEach(p=>PCT_BOROUGH[p]="Brooklyn");
+[100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115].forEach(p=>PCT_BOROUGH[p]="Queens");
+[120,121,122,123].forEach(p=>PCT_BOROUGH[p]="Staten Island");
+
+function updatePrecinctDropdown() {
+  const sel = document.getElementById("sel-precinct");
+  const ctrl = document.getElementById("pct-ctrl");
+  if (!sel || !ctrl) return;
+  const boro = state.borough;
+  sel.disabled = false;
+  sel.style.opacity = "";
+  if (boro === "All boroughs") {
+    // Show all precincts grouped by borough
+    const boroOrder = ["Bronx","Brooklyn","Manhattan","Queens","Staten Island"];
+    let opts = '<option value="">All precincts</option>';
+    boroOrder.forEach(b => {
+      const pcts = Object.entries(PCT_BOROUGH)
+        .filter(([p,bo]) => bo === b)
+        .map(([p]) => parseInt(p))
+        .sort((a,z) => a-z);
+      if (pcts.length === 0) return;
+      opts += `<optgroup label="${b}">` +
+        pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("") +
+        `</optgroup>`;
+    });
+    sel.innerHTML = opts;
+  } else {
+    // Show only this borough's precincts
+    const pcts = Object.entries(PCT_BOROUGH)
+      .filter(([p,b]) => b === boro)
+      .map(([p]) => parseInt(p))
+      .sort((a,b) => a-b);
+    sel.innerHTML = `<option value="">All precincts in ${boro}</option>` +
+      pcts.map(p => `<option value="${p}" ${state.precinct===p?"selected":""}>${pctLabel(p)}</option>`).join("");
+  }
+}
+
+// ── Build UI ─────────────────────────────────────────────────────────────────
+function buildApp() {
+  const app = document.getElementById("app");
+  const curYear = META.current_year;
+
+  const groupOpts = META.crime_groups.map(g=>`<option value="${g}">— ${g} —</option>`).join("");
+  // Major seven always shown in their own group
+  const MAJOR_SEVEN = ["MURDER & NON-NEGL. MANSLAUGHTER","RAPE","ROBBERY","FELONY ASSAULT","BURGLARY","GRAND LARCENY","GRAND LARCENY OF MOTOR VEHICLE"];
+  const majorSet = new Set(MAJOR_SEVEN);
+  // Only show majors that actually exist in the data
+  const availableMajors = MAJOR_SEVEN.filter(c => META.crime_types.includes(c) || (META.crime_types_major||[]).includes(c));
+  const majorOpts = availableMajors.map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
+  const otherOpts = (META.crime_types||[]).filter(c=>!majorSet.has(c)).map(c=>`<option value="${c}">${c.charAt(0)+c.slice(1).toLowerCase()}</option>`).join("");
+  const allYearsList = Array.from({length: curYear-2005}, (_,i)=>curYear-i);
+  const primaryOpts = allYearsList
+    .map(y=>`<option value="${y}" ${y===curYear?"selected":""}>${y}</option>`).join("");
+  const cmpOpts = allYearsList.filter(y=>y!==curYear)
+    .map(y=>`<option value="${y}" ${y===curYear-1?"selected":""}>${y}</option>`).join("");
+
+  document.getElementById("meta-badge").textContent =
+    `Data through ${META.ytd_through} · updated ${new Date(META.generated).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;
+
+  app.innerHTML = `
+    <div class="controls">
+      <div class="ctrl" style="flex:2;min-width:220px;">
+        <label>Crime category</label>
+        <select id="sel-crime" style="min-width:280px;">
+          <optgroup label="Combined categories">${groupOpts}</optgroup>
+          <optgroup label="Major crimes">${majorOpts}</optgroup>
+          <optgroup label="All other offenses">${otherOpts}</optgroup>
+        </select>
+      </div>
+      <div class="ctrl">
+        <label>Location</label>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <div class="toggle-group" id="loc-toggle">
+            <button data-loc="citywide" data-rate="count" class="active">Citywide</button>
+            <button data-loc="subway" data-rate="count" id="btn-subway-count">Subway</button>
+            <button data-loc="housing" data-rate="count">Housing</button>
+          </div>
+          <div id="subway-rate-row" style="display:none;justify-content:flex-end;">
+            <div class="toggle-group" id="subway-rate-toggle" style="height:26px;">
+              <button data-subrate="count" class="active" style="font-size:10px;padding:0 10px;">Count</button>
+              <button data-subrate="rate" style="font-size:10px;padding:0 10px;">Rate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>Borough</label>
+        <select id="sel-borough" style="min-width:160px;">
+          ${BOROUGHS.map(b=>`<option value="${b}">${b}</option>`).join("")}
+        </select>
+      </div>
+      <div class="ctrl" id="pct-ctrl">
+        <label>Precinct</label>
+        <select id="sel-precinct" style="min-width:220px;">
+          <option value="">All precincts</option>
+        </select>
+      </div>
+
+
+    </div>
+
+    <div class="year-controls" id="year-controls">
+      <div class="year-ctrl-inner">
+        <div class="year-ctrl-group">
+          <div class="year-ctrl-label">Showing data for</div>
+          <select id="sel-primary" class="year-select">${primaryOpts}</select>
+        </div>
+        <div class="year-divider">vs.</div>
+        <div class="year-ctrl-group">
+          <div class="year-ctrl-label">Comparing to</div>
+          <select id="sel-cmp" class="year-select">${cmpOpts}</select>
+        </div>
+      </div>
+    </div>
+
+    <div class="metrics" id="metrics-row"></div>
+
+    <div class="movers-section" id="movers-section">
+      <div class="chart-rule"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="chart-title">Top movers — YTD</div>
+        <div class="toggle-group" id="movers-mode-toggle" style="height:26px;">
+          <button data-moversmode="pct" class="active" style="font-size:10px;padding:0 10px;">% change</button>
+          <button data-moversmode="abs" style="font-size:10px;padding:0 10px;">Absolute change</button>
+        </div>
+      </div>
+      <div class="movers-grid">
+        <div class="movers-col">
+          <div class="movers-col-title up" id="movers-up-title">▲ Top 5 increases</div>
+          <div id="movers-up-list"></div>
+        </div>
+        <div class="movers-col">
+          <div class="movers-col-title down" id="movers-down-title">▼ Top 5 decreases</div>
+          <div id="movers-down-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col-equal">
+      <div class="chart-section">
+        <div class="chart-rule"></div>
+        <div class="chart-title">Quarter by quarter</div>
+        <div class="chart-sub" id="qtr-sub"></div>
+        <div class="legend" id="qtr-legend"></div>
+        <div style="position:relative;">
+          <canvas id="chart-qtr" style="width:100%;height:200px;display:block;"></canvas>
+          <div id="tt-qtr" class="tooltip"></div>
+        </div>
+      </div>
+      <div class="chart-section">
+        <div class="chart-rule"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+          <div class="chart-title">Long-term trend — since 2006</div>
+          <div class="toggle-group" id="trend-toggle" style="height:26px;border-color:rgba(5,5,7,0.2);">
+            <button data-trend="ytd" class="active" style="font-size:10px;padding:0 10px;">YTD</button>
+            <button data-trend="quarterly" style="font-size:10px;padding:0 10px;">Quarterly</button>
+            <button data-trend="annual" style="font-size:10px;padding:0 10px;">Annual</button>
+          </div>
+        </div>
+        <div class="chart-sub" id="trend-sub"></div>
+        <div style="position:relative;">
+          <canvas id="chart-trend" style="width:100%;height:200px;display:block;"></canvas>
+          <div id="tt-trend" class="tooltip"></div>
+        </div>
+        <div id="subway-rate-note" style="display:none;margin-top:10px;font-size:11px;color:var(--text3);line-height:1.55;border-top:1px solid var(--border);padding-top:8px;">
+          <strong style="color:var(--text2);font-weight:700;">Methodology:</strong> Subway crime rate = complaints per million rides. 2018–present uses actual quarterly MTA ridership data. Pre-2018 uses official MTA annual totals distributed across quarters using a seasonal approximation — treat pre-2018 quarterly rates as estimates.
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="chart-section">
+        <div class="chart-rule"></div>
+        <div class="chart-title">Monthly complaints — YTD</div>
+        <div class="chart-sub" id="monthly-sub"></div>
+        <div class="legend" id="monthly-legend"></div>
+        <div style="position:relative;">
+          <canvas id="chart-monthly" style="width:100%;height:220px;display:block;"></canvas>
+          <div id="tt-monthly" class="tooltip"></div>
+        </div>
+      </div>
+      <div class="chart-section">
+        <div class="chart-rule"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <div class="chart-title">By borough — YTD</div>
+          <div class="toggle-group" id="boro-rate-toggle" style="height:24px;">
+            <button data-bororate="count" class="active" style="font-size:10px;padding:0 8px;">Count</button>
+            <button data-bororate="rate" style="font-size:10px;padding:0 8px;">Rate</button>
+          </div>
+        </div>
+        <div class="chart-sub" id="boro-sub"></div>
+        <div class="legend" id="boro-legend"></div>
+        <div class="boro-list" id="boro-list"></div>
+      </div>
+    </div>
+
+    <!-- Map section -->
+    <div class="chart-section" style="margin-bottom:3rem;">
+      <div class="chart-rule"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;">
+        <div>
+          <div class="chart-title">YTD change by precinct</div>
+          <div class="chart-sub" id="map-sub"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="map-rate-ctrl" style="display:none;">
+            <div class="toggle-group" id="map-rate-toggle" style="height:26px;">
+              <button data-maprate="count" class="active" style="font-size:10px;padding:0 10px;">Count</button>
+              <button data-maprate="rate" style="font-size:10px;padding:0 10px;">Rate</button>
+            </div>
+          </div>
+          <div class="legend" id="map-legend" style="align-self:center;"></div>
+        </div>
+      </div>
+      <div id="map-container" style="width:100%;height:clamp(480px,75vw,820px);position:relative;">
+        <div id="map-loading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text2);">Loading map…</div>
+        <canvas id="map-canvas" style="width:100%;height:100%;display:block;"></canvas>
+        <div id="map-tooltip" class="tooltip"></div>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 12px;background:#ffffff;border:1px solid var(--border);">
+        <div style="font-size:9px;font-weight:700;color:var(--text2);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;">% change vs prior year</div>
+        <div id="map-scale" style="display:flex;align-items:center;gap:0;font-size:10px;color:var(--text2);"></div>
+        <div style="font-size:10px;color:var(--text3);margin-left:auto;">Hover a precinct for details · Click to filter charts</div>
+      </div>
+    </div>
+
+    <div class="methodology">
+      <div class="meth-title">Methodology</div>
+      <div class="meth-body">
+        <p><strong>Data source:</strong> NYPD Complaint Data (Historic and Year-to-Date), NYC Open Data. Each record represents a criminal complaint report filed with the NYPD. Counts reflect the date the complaint was <em>reported</em> (<code>rpt_dt</code>), not the date the crime occurred, ensuring complete quarterly coverage.</p>
+        <p><strong>Crime categories:</strong> Individual offense types are included in the dropdown only if they recorded more than 100 complaints in the current year citywide. This threshold removes extremely rare offenses that produce noisy, unreliable trend lines. The Major 7 crimes (murder, rape, robbery, felony assault, burglary, grand larceny, and grand larceny of motor vehicle) are always shown regardless of count. Combined categories — All crime, Major crimes, Major violent crimes, and Major property crimes — aggregate all qualifying complaints and are not subject to the 100-incident threshold.</p>
+        <p><strong>Location:</strong> Citywide counts include all NYPD complaint records for a given geography. Subway counts use NYPD jurisdiction code 1 (Transit Bureau); public housing counts use jurisdiction code 2 (Housing Bureau). These reflect how NYPD classifies each incident, not the physical location of the crime.</p>
+        <p><strong>Subway rate:</strong> Expressed as complaints per million rides. Ridership figures for 2018–present are quarterly totals from the MTA Monthly Ridership dataset (data.ny.gov). Pre-2018 figures use official annual totals from MTA annual reports and the NYU Wagner "State of Subway Ridership" study (2017), distributed across quarters using a seasonal approximation (Q1: 24%, Q2: 26%, Q3: 27%, Q4: 23%). Pre-2018 quarterly rates should be treated as estimates.</p>
+        <p><strong>Borough rates:</strong> Expressed as complaints per 100,000 residents. Population denominators use U.S. Census Bureau American Community Survey annual estimates for each borough, updated through 2023; 2024 and 2025 use 2023 estimates.</p>
+        <p><strong>Precincts:</strong> Precinct-level counts reflect all complaints with a precinct number assigned, including subway and public housing incidents — showing where crimes occurred geographically. The map can display counts or rates per 100,000 residents (citywide only). Precinct populations are from the 2020 U.S. Census, spatially joined to precinct boundaries by John Keefe/WNYC.</p>
+        <p><strong>Update schedule:</strong> Data is refreshed quarterly, typically within 4–6 weeks of a quarter's end as NYPD finalizes complaint records. Historical data may be revised in subsequent updates.</p>
+      </div>
+    </div>
+
+    <div class="source"><strong>Source:</strong> NYPD Complaint Data (Historic and Year-to-Date), NYC Open Data. Combined categories defined by Vital City. Subway counts reflect complaints by NYPD Transit Bureau; public housing counts reflect NYCHA developments. Data updated quarterly. <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Historic/qgea-i56i" target="_blank" style="color:var(--orange);">Historic dataset</a> · <a href="https://data.cityofnewyork.us/Public-Safety/NYPD-Complaint-Data-Current-Year-To-Date-/5uac-w243" target="_blank" style="color:var(--orange);">YTD dataset</a></div>
+  `;
+
+  document.getElementById("sel-crime").addEventListener("change", e=>{state.crime=e.target.value;render();});
+  document.getElementById("sel-borough").addEventListener("change", e=>{
+    state.borough=e.target.value;
+    state.precinct=null;
+    updatePrecinctDropdown();
+    render();
+  });
+  document.getElementById("sel-precinct").addEventListener("change", e=>{
+    state.precinct = e.target.value ? parseInt(e.target.value) : null;
+    render();
+  });
+  document.getElementById("sel-primary").addEventListener("change", e=>{
+    state.primaryYear=String(e.target.value);
+    // Update cmp options to exclude primary year
+    const cmpSel=document.getElementById("sel-cmp");
+    const curCmp=state.cmpYear;
+    cmpSel.innerHTML = allYearsList.filter(y=>String(y)!==state.primaryYear)
+      .map(y=>`<option value="${y}" ${String(y)===curCmp?"selected":""}>${y}</option>`).join("");
+    if(state.cmpYear===state.primaryYear) {
+      state.cmpYear = String(allYearsList.find(y=>String(y)!==state.primaryYear));
+    }
+    render();
+  });
+  document.getElementById("sel-cmp").addEventListener("change", e=>{state.cmpYear=String(e.target.value);render();});
+  document.getElementById("loc-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#loc-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    state.loc = btn.dataset.loc;
+    // Show subway rate sub-toggle when subway is selected
+    const subwayRow = document.getElementById("subway-rate-row");
+    if (subwayRow) subwayRow.style.display = state.loc === "subway" ? "flex" : "none";
+    // If switching away from subway, clear subwayRate
+    if (state.loc !== "subway") state.subwayRate = false;
+    else {
+      // Keep current subway rate setting
+      const activeSubRate = document.querySelector("#subway-rate-toggle button.active");
+      state.subwayRate = activeSubRate ? activeSubRate.dataset.subrate === "rate" : false;
+    }
+    // Show/hide boro rate toggle — only for citywide
+    const boroRateCtrl = document.getElementById("boro-rate-toggle");
+    if (boroRateCtrl) boroRateCtrl.style.display = state.loc === "citywide" ? "" : "none";
+    render();
+  });
+  document.getElementById("subway-rate-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#subway-rate-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    state.subwayRate = btn.dataset.subrate === "rate";
+    render();
+  });
+  document.getElementById("trend-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#trend-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.trendMode=btn.dataset.trend; render();
+  });
+  document.getElementById("movers-mode-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#movers-mode-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.moversMode=btn.dataset.moversmode; render();
+  });
+  document.getElementById("boro-rate-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#boro-rate-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.boroRateMode=btn.dataset.bororate; render();
+  });
+  document.getElementById("map-rate-toggle").addEventListener("click", e=>{
+    const btn=e.target.closest("button"); if(!btn) return;
+    document.querySelectorAll("#map-rate-toggle button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active"); state.mapRateMode=btn.dataset.maprate; render();
+  });
+
+
+  state.crime       = META.crime_groups[0];
+  state.primaryYear = String(META.current_year);
+  state.cmpYear     = String(META.current_year-1);
+  state.trendMode   = "ytd";
+  state.subwayRate  = false;
+  state.boroRateMode = "count";
+  document.getElementById("sel-crime").value   = state.crime;
+  document.getElementById("sel-primary").value = state.primaryYear;
+  updatePrecinctDropdown();
+}
+
+// ── Top movers ───────────────────────────────────────────────────────────────
+function renderMovers(crime, loc, boro, primaryYear, cmpYear, primaryQ, inPctMode, pct) {
+  const crimeTypes = META.crime_types || [];
+  const mode = state.moversMode || "pct"; // "pct" or "abs"
+
+  const movers = crimeTypes.map(cr => {
+    const cur = inPctMode ? getPctYTD(cr, pct, primaryYear, primaryQ, loc)
+                          : getYTD(cr, loc, boro, primaryYear, primaryQ);
+    const prv = inPctMode ? getPctYTD(cr, pct, cmpYear, primaryQ, loc)
+                          : getYTD(cr, loc, boro, cmpYear, primaryQ);
+    if (cur === 0 && prv === 0) return null;
+    const absChange = cur - prv;
+    const pctChange = prv > 0 ? ((cur - prv) / prv) * 100
+                   : cur > 0  ? 100 : null;
+    return { cr, cur, prv, absChange, pctChange };
+  }).filter(m => m && m.pctChange !== null && (m.cur >= 10 || m.prv >= 10));
+
+  // Sort by selected mode
+  const sortKey = mode === "abs" ? "absChange" : "pctChange";
+  const increases = [...movers].sort((a,b) => b[sortKey] - a[sortKey]).slice(0,5);
+  const decreases = [...movers].sort((a,b) => a[sortKey] - b[sortKey]).slice(0,5);
+
+  const geoLabel = inPctMode ? `Pct. ${pct}`
+    : boro !== "All boroughs" ? boro : "Citywide";
+  const locStr = loc === "subway" ? " · Subway"
+    : loc === "housing" ? " · Housing" : "";
+  const modeStr = mode === "abs" ? "by absolute change" : "by % change";
+
+  document.getElementById("movers-up-title").textContent =
+    `▲ Top 5 increases · ${primaryYear} vs ${cmpYear} · ${geoLabel}${locStr}`;
+  document.getElementById("movers-down-title").textContent =
+    `▼ Top 5 decreases · ${primaryYear} vs ${cmpYear} · ${geoLabel}${locStr}`;
+
+  function formatName(s) {
+    // Title case
+    return s.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+  function renderList(items, listId) {
+    document.getElementById(listId).innerHTML = items.map(m => {
+      const isUp = m.absChange >= 0;
+      const cls = isUp ? "up" : "down";
+      // Primary display value based on mode
+      const primary = mode === "abs"
+        ? `${isUp?"+":""}${fmt(m.absChange)}`
+        : `${isUp?"+":""}${m.pctChange.toFixed(1)}%`;
+      // Secondary value
+      const secondary = mode === "abs"
+        ? `${isUp?"+":""}${m.pctChange.toFixed(1)}%`
+        : `${isUp?"+":""}${fmt(m.absChange)}`;
+      return `<div class="mover-row">
+        <div class="mover-name">${formatName(m.cr)}</div>
+        <div class="mover-counts">${fmt(m.cur)} vs ${fmt(m.prv)}</div>
+        <div style="text-align:right;">
+          <div class="mover-pct ${cls}">${primary}</div>
+          <div style="font-size:10px;color:var(--text3);">${secondary}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  renderList(increases, "movers-up-list");
+  renderList(decreases, "movers-down-list");
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function render() {
+  const latestYear=META.current_year, curQ=META.current_quarter;
+  const primaryYear=state.primaryYear||String(latestYear);
+  const cmpYear=state.cmpYear;
+  const crime=state.crime, loc=state.loc, boro=state.borough;
+  const trendMode=state.trendMode||"ytd";
+
+  // For metrics: use curQ if primary is latest year, else Q4 (full year)
+  const isPrimaryLatest = String(primaryYear)===String(latestYear);
+  const primaryQ = isPrimaryLatest ? curQ : "Q4";
+  const primaryQIdx = QUARTERS.indexOf(primaryQ);
+
+  // Precinct mode — override data access functions when a precinct is selected
+  const pct = state.precinct;
+  const inPctMode = !!(pct);
+
+  // isRate must be defined before geo labels (locLabel2 depends on it)
+  const isRate = state.subwayRate;
+  const rateNote = document.getElementById("subway-rate-note");
+  if (rateNote) rateNote.style.display = isRate ? "block" : "none";
+
+  // Geography labels — used across all chart subtitles
+  const geoShort = inPctMode
+    ? `Pct. ${pct}`
+    : boro !== "All boroughs" ? boro : "Citywide";
+  const geoLabel = inPctMode
+    ? ` · ${pctLabel(pct)}`
+    : boro !== "All boroughs" ? ` · ${boro}` : " · Citywide";
+  const locLabel2 = loc === "subway"
+    ? (isRate ? "Subway — rate" : "Subway — count")
+    : loc === "housing" ? "Housing" : "";
+  const fullGeoLabel = locLabel2 ? `${geoLabel} · ${locLabel2}` : geoLabel;
+
+  // Crime label for chart subtitles — title case, shortened if needed
+  function formatCrimeName(s) {
+    if (!s) return "";
+    return s.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  }
+  const crimeLabel = formatCrimeName(crime);
+
+  function getC(cr, lc, bo, yr, q) {
+    return inPctMode ? getPctCount(cr, pct, yr, q, lc) : getCount(cr, lc, bo, yr, q);
+  }
+  function getY(cr, lc, bo, yr, upToQ) {
+    return inPctMode ? getPctYTD(cr, pct, yr, upToQ, lc) : getYTD(cr, lc, bo, yr, upToQ);
+  }
+
+  // Metrics — YTD + all 4 quarters
+
+
+  const pYTD=getY(crime,loc,boro,primaryYear,primaryQ);
+  const cYTD=getY(crime,loc,boro,cmpYear,primaryQ);
+
+  // Convert to rates if needed
+  function displayVal(count, year, q, upToQ) {
+    if (!isRate) return fmt(count);
+    const r = toRate(count, loc, boro, year, q, upToQ);
+    return r == null ? "n/a" : fmtRate(r, loc);
+  }
+  function displayDelta(pCount, cCount, year, q, upToQ) {
+    if (!isRate) return deltaDisplay(pCount, cCount, cmpYear);
+    const pR = toRate(pCount, loc, boro, year, q, upToQ);
+    const cR = toRate(cCount, loc, boro, year, q, upToQ);
+    if (pR == null || cR == null) return {text:"Rate unavailable", cls:"delta-flat"};
+    return deltaDisplay(pR, cR, cmpYear);
+  }
+
+  const ytdLabel = isRate
+    ? `YTD ${primaryYear} · ${rateLabel(loc)}`
+    : `YTD · ${crimeLabel} · ${geoShort}`;
+  const ytdMetric = {
+    label: ytdLabel,
+    val: displayVal(pYTD, primaryYear, null, primaryQ),
+    delta: displayDelta(pYTD, cYTD, primaryYear, null, primaryQ),
+    isYTD:true
+  };
+  const qtrMetrics = QUARTERS.map(q=>{
+    const pVal=getC(crime,loc,boro,primaryYear,q);
+    const cVal=getC(crime,loc,boro,cmpYear,q);
+    const available = QUARTERS.indexOf(q)<=primaryQIdx;
+    return {
+      label:`${q} ${primaryYear}`,
+      val: available ? displayVal(pVal, primaryYear, q, null) : "—",
+      delta: available ? displayDelta(pVal, cVal, primaryYear, q, null) : {text:"Not yet available",cls:"delta-flat"},
+      isYTD:false
+    };
+  });
+  const allMetrics = [ytdMetric, ...qtrMetrics];
+  document.getElementById("metrics-row").innerHTML = allMetrics.map(m=>`
+    <div class="metric${m.isYTD?" ytd-metric":""}">
+      <div class="m-label">${m.label}</div>
+      <div class="m-val">${m.val}</div>
+      <div class="m-delta ${m.delta.cls}">${m.delta.text}</div>
+    </div>`).join("");
+
+  // Monthly bars
+  const maxMonth=(primaryQIdx+1)*3;
+  const mnths=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  function qForM(m){return m<=3?"Q1":m<=6?"Q2":m<=9?"Q3":"Q4";}
+  function monthly(year,upToQ){
+    const uIdx=QUARTERS.indexOf(upToQ);
+    return Array.from({length:12},(_,i)=>{
+      const m=i+1, q=qForM(m);
+      if(QUARTERS.indexOf(q)>uIdx) return 0;
+      let raw;
+      if (inPctMode) {
+        // Precinct mode — use real precinct monthly data
+        const hasPctMonthly = PCT_MONTHLY_DATA[crime]?.[`pct_${pct}`]?.[String(year)];
+        raw = hasPctMonthly
+          ? getPctMonthlyCount(crime, pct, year, m)
+          : Math.round(getC(crime,loc,boro,year,q)/3);
+      } else {
+        // Borough/citywide — use real monthly data if available
+        const locKey = loc==="subway"?"subway":loc==="housing"?"housing":"citywide";
+        const hasMonthly = MONTHLY_DATA[crime]?.[locKey]?.[boro]?.[String(year)];
+        raw = hasMonthly
+          ? getMonthlyCount(crime, loc, boro, year, m)
+          : Math.round(getC(crime,loc,boro,year,q)/3);
+      }
+      if (!isRate) return raw;
+      const qTotal = getC(crime,loc,boro,year,q);
+      const r = toRate(qTotal,loc,boro,year,q,null);
+      return r==null ? 0 : Math.round((r/3)*10)/10;
+    });
+  }
+  document.getElementById("monthly-sub").textContent=`${crimeLabel} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${fullGeoLabel}`;
+  document.getElementById("monthly-legend").innerHTML=`
+    <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
+    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
+  drawBars("chart-monthly", mnths, [
+    {label:String(cmpYear), data:monthly(cmpYear, isPrimaryLatest?curQ:"Q4"), color:C_CMP},
+    {label:String(primaryYear), data:monthly(primaryYear, primaryQ), color:C_CUR},
+  ], "tt-monthly");
+
+  // Borough bars — hide in precinct mode
+  const boroSection = document.querySelector(".two-col");
+  // Borough bars — use rate if boro rate toggle is on AND we're in citywide
+  const boroRateAvail = state.boroRateMode === "rate" && loc === "citywide";
+  const boroData=["Bronx","Brooklyn","Manhattan","Queens","Staten Island"]
+    .map(b=>{
+      const rawVal=getYTD(crime,loc,b,primaryYear,primaryQ);
+      let displayVal = rawVal;
+      if (boroRateAvail) {
+        const r = toRate(rawVal, loc, b, primaryYear, null, primaryQ);
+        displayVal = r == null ? null : r;
+      }
+      return {name:b, val:displayVal, rawVal, color:BORO_COLORS[b]};
+    })
+    .filter(b=>b.val!=null)
+    .sort((a,b)=>b.val-a.val);
+  const boroMax=Math.max(...boroData.map(b=>b.val),1);
+  const boroTotal=boroData.reduce((s,b)=>s+b.rawVal,0);
+  const boroSubLabel = boroRateAvail
+    ? `${crimeLabel} · ${primaryYear} · Q1–${primaryQ} · ${rateLabel(loc)}${locLabel2 ? " · "+locLabel2 : ""}`
+    : `${crimeLabel} · ${primaryYear} · Q1–${primaryQ}${locLabel2 ? " · "+locLabel2 : ""}`;
+  document.getElementById("boro-sub").textContent=boroSubLabel;
+  document.getElementById("boro-legend").innerHTML=boroData.map(b=>`
+    <span><span class="leg-dot" style="background:${b.color}"></span>${b.name}</span>`).join("");
+  document.getElementById("boro-list").innerHTML=boroData.map(b=>{
+    const pct=boroTotal>0?((b.rawVal/boroTotal)*100).toFixed(1):"0.0";
+    const w=boroMax>0?(b.val/boroMax*100).toFixed(1):"0";
+    const displayStr = boroRateAvail ? fmtRate(b.val, loc) : fmt(b.val);
+    const suffix = boroRateAvail ? "" : ` <span style="opacity:0.7;">(${pct}%)</span>`;
+    return `<div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+        <span style="font-weight:600;">${b.name}</span>
+        <span style="color:var(--text2);">${displayStr}${suffix}</span>
+      </div>
+      <div class="boro-bar-bg"><div class="boro-bar-fill" style="width:${w}%;background:${b.color};"></div></div>
+    </div>`;
+  }).join("");
+
+  // Quarter comparison — always show all 4, gray out unavailable
+  // Geography label used across all chart subtitles
+  document.getElementById("qtr-sub").textContent=`${crimeLabel} · ${primaryYear} vs ${cmpYear}${fullGeoLabel}`;
+  document.getElementById("qtr-legend").innerHTML=`
+    <span><span class="leg-dot" style="background:${C_CMP}"></span>${cmpYear}</span>
+    <span><span class="leg-dot" style="background:${C_CUR}"></span>${primaryYear}</span>`;
+  const qtrCmpData  = QUARTERS.map(q => {
+    const v = getC(crime,loc,boro,cmpYear,q);
+    return isRate ? (toRate(v,loc,boro,cmpYear,q,null)||0) : v;
+  });
+  const qtrCurData  = QUARTERS.map(q => {
+    const v = getC(crime,loc,boro,primaryYear,q);
+    return isRate ? (toRate(v,loc,boro,primaryYear,q,null)||0) : v;
+  });
+  drawBars("chart-qtr", QUARTERS, [
+    {label:String(cmpYear), data:qtrCmpData, color:C_CMP},
+    {label:String(primaryYear), data:qtrCurData, color:C_CUR},
+  ], "tt-qtr");
+
+  // Trend line
+  const dataYears=getAllYears();
+  const minYr=Math.min(...dataYears,2006);
+  // Trend only shows up to primaryYear — don't plot future years
+  const maxYr=parseInt(primaryYear);
+  const allYrs=Array.from({length:maxYr-minYr+1},(_,i)=>minYr+i);
+
+  if(trendMode==="ytd"){
+    const rawData=allYrs.map(y=>getY(crime,loc,boro,y,curQ));
+    const tData = isRate
+      ? rawData.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,curQ); return r==null?0:r; })
+      : rawData;
+    const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · YTD through ${curQ} each year · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
+    drawLine("chart-trend", allYrs.map(String), tData, primaryYear, cmpYear, "tt-trend", null);
+
+  } else if(trendMode==="quarterly"){
+    const qLabels=[], qData=[];
+    // Determine cutoff: stop at primaryYear's primaryQ, not latestYear's curQ
+    const trendCutoffYear = parseInt(primaryYear);
+    const trendCutoffQIdx = primaryQIdx;
+    allYrs.forEach(y=>{
+      QUARTERS.forEach(q=>{
+        const qI = QUARTERS.indexOf(q);
+        // Skip years beyond primaryYear
+        if(y > trendCutoffYear) return;
+        // For the cutoff year, only show quarters up to primaryQ
+        if(y === trendCutoffYear && qI > trendCutoffQIdx) return;
+        // For the latest calendar year, skip quarters with no data yet
+        if(y === latestYear && qI > QUARTERS.indexOf(curQ)) return;
+        qLabels.push(`${y} ${q}`);
+        const raw = getC(crime,loc,boro,y,q);
+        if (isRate) {
+          const r = toRate(raw, loc, boro, y, q, null);
+          qData.push(r==null ? 0 : r);
+        } else {
+          qData.push(raw);
+        }
+      });
+    });
+    const xLabels=qLabels.map((l)=>{
+      if(!l.endsWith("Q1")) return "";
+      const yr=parseInt(l.split(" ")[0]);
+      return (yr-2006)%2===0 ? String(yr) : "";
+    });
+    const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · Each quarter · ${minYr}–${maxYr}${subLabel}${fullGeoLabel}`;
+    drawLine("chart-trend", qLabels, qData, null, null, "tt-trend", xLabels);
+
+  } else { // annual
+    const isFullYear = y => !(y===latestYear && curQ!=="Q4");
+    const rawAnnual = allYrs.map(y=>getY(crime,loc,boro,y,"Q4"));
+    const aData = isRate
+      ? rawAnnual.map((v,i)=>{ const r=toRate(v,loc,boro,allYrs[i],null,"Q4"); return r==null?0:r; })
+      : rawAnnual;
+    const incomplete=allYrs.map(y=>!isFullYear(y));
+    const subLabel = isRate ? ` · ${rateLabel(loc)}` : "";
+    document.getElementById("trend-sub").textContent=`${crimeLabel} · Full year totals · ${minYr}–${maxYr}${curQ!=="Q4"?" ("+latestYear+" incomplete)":""}${subLabel}${fullGeoLabel}`;
+    drawLine("chart-trend", allYrs.map(String), aData, primaryYear, cmpYear, "tt-trend", null, incomplete);
+  }
+  // Top movers
+  renderMovers(crime, loc, boro, primaryYear, cmpYear, primaryQ, inPctMode, pct);
+
+  // Map
+  renderMap(crimeLabel);
+}
+
+// ── Canvas renderers ──────────────────────────────────────────────────────────
+function getCanvas(id, h) {
+  const c = document.getElementById(id);
+  const W = c.parentElement.clientWidth || 500;
+  const H = h || 220;
+  c.width = W * devicePixelRatio;
+  c.height = H * devicePixelRatio;
+  c.style.width = W + "px";
+  c.style.height = H + "px";
+  const ctx = c.getContext("2d");
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  return {ctx, W, H};
+}
+
+function showTooltip(ttId, canvas, mouseX, mouseY, lines) {
+  const tt = document.getElementById(ttId);
+  if (!tt || !lines) { if(tt) tt.classList.remove("visible"); return; }
+  tt.innerHTML = lines.join("<br>");
+  tt.classList.add("visible");
+  const cW = canvas.clientWidth, cH = canvas.clientHeight;
+  const ttW = tt.offsetWidth || 160;
+  const ttH = tt.offsetHeight || 60;
+  let left = mouseX + 14;
+  let top  = mouseY - ttH / 2;
+  if (left + ttW > cW - 8) left = mouseX - ttW - 14;
+  if (top < 4) top = 4;
+  if (top + ttH > cH - 4) top = cH - ttH - 4;
+  tt.style.left = left + "px";
+  tt.style.top  = top + "px";
+}
+
+function hideTooltip(ttId) {
+  const tt = document.getElementById(ttId);
+  if (tt) tt.classList.remove("visible");
+}
+
+function drawBars(id, labels, datasets, ttId) {
+  const {ctx, W, H} = getCanvas(id, 220);
+  const PL=44, PR=8, PT=10, PB=28;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const allV=datasets.flatMap(d=>d.data).filter(v=>v>0);
+  const mx=Math.max(...allV,1);
+  const mn=Math.min(...allV,0);
+  // Use dynamic min for small-range data (like rates)
+  const range = mx - mn;
+  // Use dynamic axis for small or decimal values (like rates)
+  const isDecimal = mx < 100;
+  const isSmallRange = !isDecimal && range < mx * 0.3 && mn > 0;
+  let barMin, niceMax;
+  if (isDecimal) {
+    // Rates — start near min, end near max
+    barMin = Math.max(0, Math.floor(mn * 0.8 * 10)/10);
+    niceMax = Math.ceil(mx * 1.2 * 10) / 10 || 1;
+  } else if (isSmallRange) {
+    barMin = Math.max(0, Math.floor(mn * 0.85 * 10)/10);
+    niceMax = Math.ceil(mx * 1.15 * 10) / 10 || 1;
+  } else {
+    barMin = 0;
+    niceMax = Math.ceil(mx * 1.12 / 1000) * 1000 || 1;
+  }
+  const TICKS=4;
+  const n=labels.length, ds=datasets.length;
+  const groupW=cW/n;
+  const barW=Math.min((groupW*0.75)/ds, 36);
+  const gapX=(groupW-barW*ds)/2;
+
+  function paint(hovIdx) {
+    ctx.clearRect(0,0,W,H);
+    // Grid + y labels
+    for(let i=0;i<=TICKS;i++){
+      const v=(niceMax/TICKS)*i, y=PT+cH-(v/niceMax)*cH;
+      ctx.strokeStyle=C_GRID; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(PL+cW,y); ctx.stroke();
+      ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
+      ctx.textAlign="right"; ctx.fillText(fmtK(Math.round(v)),PL-5,y+3.5);
+    }
+    // Hover column highlight
+    if (hovIdx >= 0) {
+      ctx.fillStyle="rgba(5,5,7,0.04)";
+      ctx.fillRect(PL+hovIdx*groupW, PT, groupW, cH);
+    }
+    // Bars
+    datasets.forEach((d,di)=>{
+      d.data.forEach((v,i)=>{
+        const bH=(v/niceMax)*cH;
+        const x=PL+i*groupW+gapX+di*barW;
+        ctx.fillStyle = (hovIdx===i) ? d.color : d.color + "cc";
+        ctx.fillRect(x, PT+cH-bH, barW-1, bH);
+      });
+    });
+    // X labels
+    ctx.fillStyle=C_LABEL; ctx.textAlign="center"; ctx.font="10px -apple-system,sans-serif";
+    labels.forEach((lbl,i)=>{ ctx.fillText(lbl, PL+i*groupW+groupW/2, H-6); });
+    // Axis
+    ctx.strokeStyle=C_AXIS; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PT+cH); ctx.stroke();
+  }
+
+  paint(-1);
+
+  const canvas = document.getElementById(id);
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const i = Math.floor((mx - PL) / groupW);
+    if (i >= 0 && i < n) {
+      paint(i);
+      // Compute % change between first and last dataset (cmp → primary)
+      let pctLine = "";
+      if (datasets.length >= 2) {
+        const cmpVal = datasets[0].data[i];
+        const curVal = datasets[datasets.length-1].data[i];
+        if (cmpVal > 0) {
+          const pct = ((curVal - cmpVal) / cmpVal) * 100;
+          const sign = pct > 0 ? "+" : "";
+          const arrow = pct > 0 ? "▲" : pct < 0 ? "▼" : "▬";
+          const col = pct > 0 ? "#c0392b" : pct < 0 ? "#2d8a3e" : "#707175";
+          const cmpLbl = datasets[0].label || "prior year";
+          pctLine = `<span style="color:${col};font-weight:700;">${arrow} ${sign}${pct.toFixed(1)}% vs ${cmpLbl}</span>`;
+        }
+      }
+      const lines = [`<strong>${labels[i]}</strong>`,
+        ...datasets.map(d => `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${d.color};margin-right:5px;"></span>${d.label}: ${d.data[i].toLocaleString()}`),
+        ...(pctLine ? [pctLine] : [])
+      ];
+      showTooltip(ttId, canvas, mx, my, lines);
+    } else {
+      paint(-1); hideTooltip(ttId);
+    }
+  };
+  canvas.onmouseleave = () => { paint(-1); hideTooltip(ttId); };
+}
+
+function drawLine(id, labels, data, curYear, cmpYear, ttId, xOverride, incomplete) {
+  // xOverride: array of display labels for x-axis (sparse, empty string = skip)
+  // incomplete: array of booleans — true = this point is partial data
+  const {ctx, W, H} = getCanvas(id, 200);
+  const PL=44, PR=24, PT=10, PB=28;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const validData=data.filter(v=>v>0);
+  const mx=Math.max(...(validData.length?validData:[1]));
+  const mn=Math.min(...(validData.length?validData:[0]));
+  // Dynamic y-axis: start below min so small variations are visible
+  const range = mx - mn;
+  const padTop = range > 0 ? range * 0.25 : mx * 0.15;
+  const padBot = range > 0 ? range * 0.15 : 0;
+  const rawMin = Math.max(0, mn - padBot);
+  const rawMax = mx + padTop;
+  // Round to nice numbers
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawMax - rawMin || 1)));
+  const niceMin = Math.floor(rawMin / magnitude) * magnitude;
+  const niceMax = Math.ceil(rawMax / magnitude) * magnitude || 1;
+  const TICKS=4;
+  const n=labels.length;
+  const step=cW/Math.max(n-1,1);
+
+  function px(i){return PL+i*step;}
+  function py(v){return PT+cH-((v-niceMin)/(niceMax-niceMin))*cH;}
+
+  function paint(hovIdx) {
+    ctx.clearRect(0,0,W,H);
+    // Grid + y labels
+    for(let i=0;i<=TICKS;i++){
+      const v=niceMin+(niceMax-niceMin)/TICKS*i;
+      const y=PT+cH-((v-niceMin)/(niceMax-niceMin))*cH;
+      ctx.strokeStyle=C_GRID; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(PL,y); ctx.lineTo(PL+cW,y); ctx.stroke();
+      ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
+      ctx.textAlign="right";
+      const lbl = v < 100 ? v.toFixed(1) : fmtK(Math.round(v));
+      ctx.fillText(lbl, PL-5, y+3.5);
+    }
+    // Hover vertical line
+    if(hovIdx>=0){
+      ctx.strokeStyle="rgba(5,5,7,0.12)"; ctx.lineWidth=1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(px(hovIdx),PT); ctx.lineTo(px(hovIdx),PT+cH); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    // Solid segment of line (complete data)
+    ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
+    let started=false;
+    data.forEach((v,i)=>{
+      if(incomplete&&incomplete[i]){ if(started){ctx.stroke(); started=false;} return; }
+      if(!started){ctx.moveTo(px(i),py(v));started=true;}
+      else ctx.lineTo(px(i),py(v));
+    });
+    if(started) ctx.stroke();
+    // Dashed segment for incomplete data
+    if(incomplete&&incomplete.some(Boolean)){
+      ctx.beginPath(); ctx.strokeStyle=C_TREND; ctx.lineWidth=2;
+      ctx.setLineDash([4,4]);
+      let inSeg=false;
+      // Connect last complete point to first incomplete
+      const lastComplete=data.reduce((last,_,i)=>(!incomplete||!incomplete[i])?i:last,-1);
+      if(lastComplete>=0){
+        ctx.moveTo(px(lastComplete),py(data[lastComplete]));
+        data.forEach((v,i)=>{
+          if(incomplete&&incomplete[i]) { ctx.lineTo(px(i),py(v)); }
+        });
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    // Points
+    data.forEach((v,i)=>{
+      if(v===0) return;
+      const lbl=labels[i];
+      const isCur=lbl===String(curYear), isCmp=lbl===String(cmpYear), isHov=i===hovIdx;
+      const isPartial=incomplete&&incomplete[i];
+      const r=isHov?6:(isCur||isCmp)?5:2.5;
+      const col=isHov?"#050507":isCur?C_CUR:isCmp?"#394882":"rgba(5,5,7,0.3)";
+      ctx.beginPath(); ctx.arc(px(i),py(v),r,0,Math.PI*2);
+      if(isPartial){
+        // Hollow circle for incomplete
+        ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+      } else {
+        ctx.fillStyle=col; ctx.fill();
+      }
+      if((isCur||isCmp)&&!isHov&&!xOverride){
+        ctx.fillStyle=col; ctx.font="bold 10px -apple-system,sans-serif";
+        ctx.textAlign="center"; ctx.fillText(lbl,px(i),py(v)-10);
+      }
+    });
+    // X labels
+    ctx.fillStyle=C_LABEL; ctx.font="10px -apple-system,sans-serif";
+    if(xOverride){
+      // Horizontal labels for quarterly mode — only show every 3 years to avoid crowding
+      ctx.textAlign="center";
+      ctx.fillStyle=C_LABEL;
+      ctx.font="10px -apple-system,sans-serif";
+      let lastDrawnX=-999;
+      xOverride.forEach((lbl,i)=>{
+        if(!lbl) return;
+        const x=px(i);
+        const lblW=ctx.measureText(lbl).width;
+        // Skip if too close to previous label or too close to right edge
+        if(x-lastDrawnX < 28) return;
+        if(x+lblW/2 > W-6) return;
+        ctx.fillText(lbl, x, H-6);
+        lastDrawnX=x;
+      });
+    } else {
+      // Pick evenly spaced round-year intervals that actually fit
+      const approxEvery=Math.ceil(n/8);
+      // Snap to nearest multiple of 3 or 5 for clean year intervals
+      const snapTo=[1,2,3,4,5,6,8,10];
+      const every=snapTo.find(s=>s>=approxEvery)||approxEvery;
+      labels.forEach((lbl,i)=>{
+        if(i%every!==0) return;
+        // Don't draw if too close to right edge (avoid clipping)
+        const x=px(i);
+        const lblW=ctx.measureText(lbl).width;
+        if(x+lblW/2>W-4) return;
+        ctx.textAlign="center";
+        ctx.fillText(lbl,x,H-6);
+      });
+      // Always draw last label if it fits and isn't too close to second-last drawn
+      const lastI=n-1;
+      const lastX=px(lastI);
+      const lastLbl=labels[lastI];
+      const lastLblW=ctx.measureText(lastLbl).width;
+      if(lastX+lastLblW/2<=W-4){
+        // Check it won't collide with previous label
+        const prevDrawnI=Math.floor(lastI/every)*every;
+        if(lastI-prevDrawnI > every*0.4){
+          ctx.textAlign="center";
+          ctx.fillText(lastLbl,lastX,H-6);
+        }
+      }
+    }
+    // Axis
+    ctx.strokeStyle=C_AXIS; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(PL,PT+cH); ctx.lineTo(PL+cW,PT+cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PL,PT); ctx.lineTo(PL,PT+cH); ctx.stroke();
+  }
+
+  paint(-1);
+
+  const canvas=document.getElementById(id);
+  canvas.onmousemove=(e)=>{
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left;
+    const i=Math.round((mx-PL)/step);
+    if(i>=0&&i<n&&data[i]>0){
+      paint(i);
+      const lbl=labels[i];
+      const isPartial=incomplete&&incomplete[i];
+      const col=lbl===String(curYear)?C_CUR:lbl===String(cmpYear)?"#217ebe":"#050507";
+      const note=isPartial?" (incomplete)":"";
+      // Quarterly labels are already "2024 Q1" — show as header, annual/YTD show year
+      showTooltip(ttId,canvas,mx,e.clientY-canvas.getBoundingClientRect().top,[
+        `<strong style="color:${col}">${lbl}${note}</strong>`,
+        `${data[i].toLocaleString()} complaints`
+      ]);
+    } else { paint(-1); hideTooltip(ttId); }
+  };
+  canvas.onmouseleave=()=>{ paint(-1); hideTooltip(ttId); };
+}
+
+// ── Map rendering ────────────────────────────────────────────────────────────
+let GEO_DATA = null;
+
+async function loadGeoData() {
+  if (GEO_DATA) return GEO_DATA;
+  try {
+    const resp = await fetch("precincts.geojson");
+    if (!resp.ok) throw new Error("precincts.geojson not found — make sure it is in the same folder as index.html");
+    GEO_DATA = await resp.json();
+    // Log first feature's property keys to help debug
+    if (GEO_DATA.features && GEO_DATA.features.length > 0) {
+      console.log("GeoJSON loaded. First feature properties:", Object.keys(GEO_DATA.features[0].properties));
+    }
+    return GEO_DATA;
+  } catch(e) {
+    console.warn("Could not load precinct boundaries:", e);
+    return null;
+  }
+}
+
+function renderMap(crimeLabel) {
+  crimeLabel = crimeLabel || state.crime;
+  const crime = state.crime, loc = state.loc;
+  const primaryYear = state.primaryYear || String(META.current_year);
+  const cmpYear = state.cmpYear;
+  const isPrimaryLatest = String(primaryYear) === String(META.current_year);
+  const primaryQ = isPrimaryLatest ? META.current_quarter : "Q4";
+
+  // Show/hide map rate toggle — only for citywide
+  const mapRateCtrl = document.getElementById("map-rate-ctrl");
+  const mapIsRate = state.mapRateMode === "rate" && loc === "citywide";
+  if (mapRateCtrl) mapRateCtrl.style.display = loc === "citywide" ? "" : "none";
+  if (loc !== "citywide" && state.mapRateMode === "rate") {
+    state.mapRateMode = "count";
+    document.querySelectorAll("#map-rate-toggle button").forEach(b=>{
+      b.classList.toggle("active", b.dataset.maprate==="count");
+    });
+  }
+  const locLabel = loc === "subway" ? "Subway" : loc === "housing" ? "Housing" : "Citywide";
+  const mapRateLabel = mapIsRate ? " · per 100k residents" : "";
+  document.getElementById("map-sub").textContent =
+    `${crimeLabel} · ${locLabel} · ${primaryYear} vs ${cmpYear} · Q1–${primaryQ}${mapRateLabel}`;
+
+  loadGeoData().then(geo => {
+    const loading = document.getElementById("map-loading");
+    if (!geo) {
+      if (loading) loading.textContent = "Map data unavailable";
+      return;
+    }
+    if (loading) loading.style.display = "none";
+
+    const canvas = document.getElementById("map-canvas");
+    const container = document.getElementById("map-container");
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+    canvas.width = W * devicePixelRatio;
+    canvas.height = H * devicePixelRatio;
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    const ctx = canvas.getContext("2d");
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.clearRect(0, 0, W, H);
+
+    // Compute bounds of all precincts
+    let minLng=Infinity, maxLng=-Infinity, minLat=Infinity, maxLat=-Infinity;
+    geo.features.forEach(f => {
+      // MultiPolygon: coordinates = [polygon][ring][point]
+      // Polygon: coordinates = [ring][point]
+      const polys = f.geometry.type === "MultiPolygon"
+        ? f.geometry.coordinates
+        : [f.geometry.coordinates];
+      polys.forEach(poly => poly.forEach(ring => ring.forEach(([lng,lat]) => {
+        if(lng<minLng) minLng=lng; if(lng>maxLng) maxLng=lng;
+        if(lat<minLat) minLat=lat; if(lat>maxLat) maxLat=lat;
+      })));
+    });
+
+    const PAD = 12;
+    const scaleX = (W - PAD*2) / (maxLng - minLng);
+    const scaleY = (H - PAD*2) / (maxLat - minLat);
+    const scale = Math.min(scaleX, scaleY);
+    // Center the map within the canvas
+    const mapW = (maxLng - minLng) * scale;
+    const mapH = (maxLat - minLat) * scale;
+    const offX = (W - mapW) / 2;
+    const offY = (H - mapH) / 2;
+
+    function project([lng, lat]) {
+      return [offX + (lng-minLng)*scale, offY + (maxLat-lat)*scale];
+    }
+
+    // Compute pct changes
+    const pctChanges = {};
+    geo.features.forEach(f => {
+      const pct = parseInt(f.properties.precinct || 0);
+      if (!pct) return;
+      const curRaw = getPctYTD(crime, pct, primaryYear, primaryQ, loc);
+      const prvRaw = getPctYTD(crime, pct, cmpYear, primaryQ, loc);
+      let cur = curRaw, prv = prvRaw;
+      if (mapIsRate && PCT_POP[String(pct)]) {
+        const pop = PCT_POP[String(pct)];
+        cur = (curRaw / pop) * 100000;
+        prv = (prvRaw / pop) * 100000;
+      }
+      let changePct;
+      if (prv > 0) {
+        changePct = ((cur - prv) / prv) * 100;
+      } else if (cur > 0) {
+        changePct = 100; // new complaints where there were none — treat as max increase
+      } else {
+        changePct = null; // both zero — no data
+      }
+      pctChanges[pct] = { cur, prv, curRaw, prvRaw, pct: changePct };
+    });
+
+    // Dynamic color scale — based on actual data range
+    const validPcts = Object.values(pctChanges).map(c=>c.pct).filter(p=>p!=null);
+    const maxAbsPct = validPcts.length > 0
+      ? Math.max(5, Math.ceil(Math.max(...validPcts.map(Math.abs)) / 5) * 5)
+      : 30;
+    const SCALE_MAX = Math.min(maxAbsPct, 60);
+
+    function pctToColor(pctVal) {
+      if (pctVal === null) return "#e2e2e2";
+      const clamped = Math.max(-SCALE_MAX, Math.min(SCALE_MAX, pctVal));
+      if (clamped < 0) {
+        const t = Math.abs(clamped) / SCALE_MAX;
+        return interpolateColor("#efefef", "#2d8a3e", t);
+      } else if (clamped > 0) {
+        const t = clamped / SCALE_MAX;
+        return interpolateColor("#efefef", "#c0392b", t);
+      }
+      return "#efefef";
+    }
+    function interpolateColor(hex1, hex2, t) {
+      const r1=parseInt(hex1.slice(1,3),16), g1=parseInt(hex1.slice(3,5),16), b1=parseInt(hex1.slice(5,7),16);
+      const r2=parseInt(hex2.slice(1,3),16), g2=parseInt(hex2.slice(3,5),16), b2=parseInt(hex2.slice(5,7),16);
+      const r=Math.round(r1+(r2-r1)*t), g=Math.round(g1+(g2-g1)*t), b=Math.round(b1+(b2-b1)*t);
+      return `rgb(${r},${g},${b})`;
+    }
+
+    // Draw precincts
+    const featurePaths = [];
+    geo.features.forEach(f => {
+      const pct = parseInt(f.properties.precinct || 0);
+      const change = pctChanges[pct];
+      const fillColor = change ? pctToColor(change.pct) : "#e8e6df";
+
+      ctx.beginPath();
+      const polys = f.geometry.type === "MultiPolygon"
+        ? f.geometry.coordinates : [f.geometry.coordinates];
+      polys.forEach(poly => poly.forEach(ring => {
+        ring.forEach(([lng,lat], i) => {
+          const [x,y] = project([lng,lat]);
+          i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+        });
+        ctx.closePath();
+      }));
+      ctx.fillStyle = fillColor;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      // Store for hit testing
+      featurePaths.push({ pct, change, geometry: f.geometry });
+    });
+
+    // Draw selected precinct outline + centered pill label
+    if (state.precinct) {
+      geo.features.forEach(f => {
+        const pct = parseInt(f.properties.precinct || 0);
+        if (pct !== state.precinct) return;
+        const polys = f.geometry.type === "MultiPolygon"
+          ? f.geometry.coordinates : [f.geometry.coordinates];
+
+        // Thick black outline
+        ctx.beginPath();
+        polys.forEach(poly => poly.forEach(ring => {
+          ring.forEach(([lng,lat], i) => {
+            const [x,y] = project([lng,lat]);
+            i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+          });
+          ctx.closePath();
+        }));
+        ctx.strokeStyle = "#050507";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Centroid of largest polygon for label placement
+        let bestPoly = polys[0], bestArea = 0;
+        polys.forEach(poly => {
+          const ring = poly[0];
+          let area = 0;
+          for(let i=0;i<ring.length-1;i++) area += ring[i][0]*ring[i+1][1]-ring[i+1][0]*ring[i][1];
+          if(Math.abs(area) > bestArea) { bestArea=Math.abs(area); bestPoly=poly; }
+        });
+        let sumX=0, sumY=0, cnt=0;
+        bestPoly[0].forEach(([lng,lat]) => {
+          const [x,y] = project([lng,lat]); sumX+=x; sumY+=y; cnt++;
+        });
+        const cx = sumX/cnt, cy = sumY/cnt;
+
+        // Measure text for pill size
+        ctx.font = '700 7px sans-serif';
+        const kicW = ctx.measureText("PRECINCT").width;
+        ctx.font = '700 15px sans-serif';
+        const numW = ctx.measureText(String(pct)).width;
+        const pillW = Math.max(kicW, numW) + 18;
+        const pillH = 36;
+
+        // White pill background
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.strokeStyle = "#050507";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(cx - pillW/2, cy - pillH/2, pillW, pillH, 4);
+        ctx.fill(); ctx.stroke();
+
+        // "PRECINCT" kicker
+        ctx.fillStyle = "#707175";
+        ctx.font = '700 7px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("PRECINCT", cx, cy - 2);
+
+        // Precinct number
+        ctx.fillStyle = "#050507";
+        ctx.font = '700 15px sans-serif';
+        ctx.fillText(String(pct), cx, cy + 13);
+      });
+    }
+
+    // Legend
+    const legendEl = document.getElementById("map-scale");
+    if (legendEl) {
+      // Render a continuous gradient bar with labels
+      const steps = 60;
+      const swatches = Array.from({length:steps},(_,i)=>{
+        const pctVal = -SCALE_MAX + (i/steps)*SCALE_MAX*2;
+        return pctToColor(pctVal);
+      });
+      const gradientCss = `linear-gradient(to right, ${swatches.join(",")})`;
+      legendEl.innerHTML = `
+        <span style="font-size:10px;font-weight:700;color:#2d8a3e;margin-right:4px;">−${SCALE_MAX}%</span>
+        <span style="display:inline-block;width:160px;height:14px;background:${gradientCss};border:1px solid rgba(0,0,0,0.12);vertical-align:middle;"></span>
+        <span style="font-size:10px;font-weight:700;color:#c0392b;margin-left:4px;">+${SCALE_MAX}%</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:8px;">neutral = no change</span>
+      `;
+    }
+
+    // Tooltip on hover
+    function hitTest(mx, my) {
+      for (const {pct, change, geometry} of featurePaths) {
+        ctx.beginPath();
+        const hPolys = geometry.type === "MultiPolygon"
+          ? geometry.coordinates : [geometry.coordinates];
+        hPolys.forEach(poly => poly.forEach(ring => {
+          ring.forEach(([lng,lat], i) => {
+            const [x,y] = project([lng,lat]);
+            i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+          });
+          ctx.closePath();
+        }));
+        if (ctx.isPointInPath(mx * devicePixelRatio, my * devicePixelRatio)) {
+          return { pct, change };
+        }
+      }
+      return null;
+    }
+
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = hitTest(mx, my);
+      const tt = document.getElementById("map-tooltip");
+      if (hit && hit.change) {
+        const { pct, change } = hit;
+        const pctStr = change.pct == null ? "—"
+          : (change.pct > 0 ? "▲ +" : "▼ ") + change.pct.toFixed(1) + "%";
+        const col = change.pct == null ? "#707175"
+          : change.pct > 0 ? "#d2232a" : "#3a7a1e";
+        const valFmt = mapIsRate
+          ? v => v.toFixed(1)
+          : v => fmt(v);
+        const valUnit = mapIsRate ? " per 100k" : " complaints";
+        const curDisp = valFmt(change.cur) + valUnit;
+        const prvDisp = valFmt(change.prv) + valUnit;
+        tt.innerHTML = `<strong>${pctLabel(pct)}</strong><br>
+          <span style="color:${col};font-weight:700;">${pctStr} vs ${cmpYear}</span><br>
+          ${primaryYear}: ${curDisp} &nbsp;·&nbsp; ${cmpYear}: ${prvDisp}`;
+        tt.classList.add("visible");
+        // Position tooltip
+        const ttW = tt.offsetWidth || 200;
+        const ttH = tt.offsetHeight || 80;
+        let left = mx + 14, top = my - ttH/2;
+        if (left + ttW > W - 8) left = mx - ttW - 14;
+        if (top < 4) top = 4;
+        if (top + ttH > H - 4) top = H - ttH - 4;
+        tt.style.left = left + "px";
+        tt.style.top = top + "px";
+        canvas.style.cursor = "pointer";
+      } else {
+        tt.classList.remove("visible");
+        canvas.style.cursor = "default";
+      }
+    };
+    canvas.onmouseleave = () => {
+      document.getElementById("map-tooltip").classList.remove("visible");
+    };
+    canvas.onclick = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const hit = hitTest(e.clientX - rect.left, e.clientY - rect.top);
+      if (hit) {
+        // Select this precinct's borough and precinct
+        const boroughForPct = PCT_BOROUGH[hit.pct];
+        if (boroughForPct) {
+          state.borough = boroughForPct;
+          state.precinct = hit.pct;
+          const boroSel = document.getElementById("sel-borough");
+          if (boroSel) boroSel.value = boroughForPct;
+          updatePrecinctDropdown();
+          const pctSel = document.getElementById("sel-precinct");
+          if (pctSel) pctSel.value = String(hit.pct);
+          render();
+        }
+      }
+    };
+  });
+}
+
+// ── Boot ─────────────────────────────────────────────────────────────────────
+async function boot() {
+  let raw;
+  try {
+    const resp=await fetch("crime_data.json");
+    if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    raw=await resp.json();
+  } catch(err) {
+    document.getElementById("app").innerHTML=`
+      <div class="state-screen">
+        <h2>Data file not found</h2>
+        <p>Place <code>crime_data.json</code> in the same folder as this HTML file, then reload.<br><br>
+        Generate it in RStudio with: <code>source("fetch_nypd_data.R")</code></p>
+      </div>`;
+    return;
+  }
+  META=raw.meta;
+  META.crime_groups=raw.crime_groups||[];
+  META.crime_types=raw.crime_types||[];
+  META.subway_ridership=raw.subway_ridership||{};
+  META.population=raw.population||{};
+  DATA=raw.data;
+  // pct_data is split by location type
+  const rawPct = raw.pct_data||{};
+  PCT_DATA = {
+    citywide: rawPct.citywide||{},
+    subway:   rawPct.subway||{},
+    housing:  rawPct.housing||{}
+  };
+  MONTHLY_DATA = raw.monthly_data || {};
+  PCT_MONTHLY_DATA = raw.pct_monthly_data || {};
+  PCT_POP = raw.precinct_population || {};
+  buildApp();
+  render();
+}
+boot();
+</script>
+
+
+</body></html>
